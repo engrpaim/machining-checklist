@@ -201,8 +201,7 @@ export default function Home({ message }) {
                         <label>Model:</label>
                         <select  value={data.model} onChange={(e)=>setData('model',e.target.value)}>
                             <option value=""></option>
-                            <option value="ROB">ROB</option>
-                            <option value="HAS">HAS</option>
+                            <option value="ROB">ROB0A70G</option>
                         </select>
                     </div>
                     <div className='selector-data'>
