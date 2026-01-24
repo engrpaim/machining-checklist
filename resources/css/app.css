@@ -1,0 +1,171 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    margin-top: 0;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin-top: 1rem;
+    gap: 2rem;
+}
+.machine-selector {
+    display: flex;
+    width: 95vw;
+    align-items: center;
+    justify-content: center;
+    background: #e0ffff;
+    flex-direction: column;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    gap: 1rem;
+}
+
+.selector-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 1rem;
+}
+.selector-data select {
+    padding: 0.2rem;
+}
+.selector-container {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+}
+.proceed-btn {
+    border: none;
+    padding: 0.5rem;
+    background: #afeeee;
+    border-radius: 0.5rem;
+    color: #e0ffff;
+    box-shadow:
+        rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
+        rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    cursor: pointer;
+}
+.proceed-btn:hover {
+    background: #4682b4;
+    color: white;
+}
+.data-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 18rem;
+}
+.data-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.data-container input {
+    padding: 0.2rem;
+    text-align: center;
+}
+.inprocess-container {
+    display: flex;
+    width: 95vw;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 5rem;
+    flex-direction: column;
+    background: #f8fafc;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+.barreling-table {
+    border-collapse: collapse;
+    width: 25rem;
+    table-layout: fixed;
+}
+.barreling-process {
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin: 2rem 0;
+}
+.barreling-process th,
+.barreling-process td {
+    font-size: 12px;
+    padding: 0.4rem;
+}
+.barreling-table p {
+    margin: 0rem;
+}
+.barreling-table th,
+.barreling-table tr {
+    text-align: center;
+    width: 18rem;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: Center;
+}
+.input-container input {
+    text-align: center;
+    padding: 0.2rem;
+    border: none;
+    margin: 0.1rem;
+    width: 92%;
+}
+.time-data {
+    background: #e0ffff;
+}
+.rotation-data {
+    background: #fff8dc;
+}
+.specs-input {
+    text-align: center;
+    width: 4rem;
+    padding: 0.2rem;
+}
+.specs-remarks {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.specs-table {
+    margin: 1rem 0;
+}
+.specs-dual {
+    display: flex;
+    gap: 1rem;
+}
+.specs-remarks {
+    display: flex;
+    justify-content: end;
+    padding: 0.2rem;
+}
+
+.specs-remarks button {
+    background: #b8d9ff;
+    border-radius: 0.2rem;
+    border: none;
+    padding: 0.5rem;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    cursor: pointer;
+    color: white;
+}
+.specs-remarks button:hover {
+    background: #004ca3;
+}
