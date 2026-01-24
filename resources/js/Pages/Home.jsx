@@ -193,7 +193,7 @@ export default function Home({ message }) {
 
 
     return (
-        <div className='main-container'>s
+        <div className='main-container'>
             <div className='machine-selector'>
                 <h1>Machining Checklist</h1>
                 <div className='selector-container'>
