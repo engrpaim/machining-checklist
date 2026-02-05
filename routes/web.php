@@ -10,3 +10,4 @@ Route::get('/machining-checklist', function () {
     ]);
 })->name('machining-checklist');
 Route::post('/machining-checklist', [MachiningChecklistController::class, 'inprocess']);
+Route::post('/machining-checklist/update',[MachiningChecklistController::class, 'update']);

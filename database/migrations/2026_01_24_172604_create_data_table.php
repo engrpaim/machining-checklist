@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('data', function (Blueprint $table) {
             $table->string('model')->required();
             $table->string('process')->required();
-            $table->string('lot')->required();
+            $table->string('lot')->required()->index('lot');
             $table->decimal('total_lot', 10, 2)->nullable();
             $table->decimal('qty_lot', 10, 2)->nullable();
             $table->decimal('wt_lot', 10, 2)->nullable();

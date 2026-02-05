@@ -363,16 +363,17 @@ h1 {
 }
 
 .enter-password p {
+    padding: 1rem;
     margin: 0rem;
 }
 .enter-password {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     border-radius: 0.5rem;
     width: 30rem;
-    height: 12rem;
+    padding: 0.5rem;
+    height: 15rem;
     background: white;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
@@ -388,4 +389,15 @@ h1 {
     background: none;
     border: none;
     cursor: pointer;
+}
+
+.password-container button {
+    background: rgb(41, 132, 209, 0.5);
+    height: 2rem;
+    color: white;
+    border-radius: 0.4rem;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.password-container button:hover {
+    background: #00b2ff;
 }
