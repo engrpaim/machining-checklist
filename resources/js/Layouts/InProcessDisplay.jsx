@@ -3,11 +3,12 @@ export default function InProcessDisplay({
             data,modelIsExist,setData,
             setLotContainer,currentDate,
             modelDetails,timerData,setTimerData,goToNextInput,
-            sampleCheck,StatusData,updateData,handleUpdate,handleSave,timeRotation,barrellingProcss,points_pt,desicionStatus  }){
+            sampleCheck,StatusData,updateData,handleUpdate,handleSave,timeRotation,barrellingProcss,points_pt,desicionStatus,modelListState,setBarrelingProcess}){
     return(
         <>
             {
                 data.model && data.process === 'inprocess' &&
+
                     <div className='inprocess-container'>
                         <div className='inprocess-details'>
                             <h1>{data.model} IN-PROCESS INSPECTION SHEET</h1>
@@ -65,8 +66,9 @@ export default function InProcessDisplay({
                                         <input  value={data.magnet_wt ?? null}   onChange={(e)=>setData('magnet_wt',e.target.value.toUpperCase())} ></input>
                                     </div>
                                     <div className='data-input'>
+
                                         <label>Chamfer&nbsp;Type:</label>
-                                        <input  value={data.chamfer_type ?? null}   onChange={(e)=>setData('chamfer_type',e.target.value.toUpperCase())} ></input>
+                                        <input  value={modelListState[data.model].chamfer_type ?? 'not found'}  disabled={true} ></input>
                                     </div>
                                 </div>
                                 <div className='data-container'>
@@ -76,11 +78,8 @@ export default function InProcessDisplay({
                                     </div>
                                     <div className='data-input'>
                                         <label>Shift:</label>
-                                        <select  value={data.shift ?? null}   onChange={(e)=>setData('shift',e.target.value.toUpperCase())} >
-                                            <option value=""></option>
-                                            <option value="E">E</option>
-                                            <option value="F">F</option>
-                                        </select>
+                                        <input  value={data.shift ?? null}  disabled={true} />
+
                                     </div>
                                     <div className='data-input'>
                                         <label>Operator:</label>
@@ -98,26 +97,29 @@ export default function InProcessDisplay({
                             </div>
                         </div>
                         <div className='data-table'>
+                            <div className='specs-table'>
+                                <div className='specs-details'>
+                                    <h2>CHAMFER SPECS</h2>
+                                    <div className='specs-max-data'>
+                                        <h2>Maximum:</h2>
+                                        <p>{modelListState[data.model].chamfer_barelling_max??'Not Found'}</p>
+                                    </div>
+                                    <div className='specs-target-data'>
+                                        <h2>Target:</h2>
+                                        <p>{modelListState[data.model].chamfer_barelling_target??'Not Found'}</p>
+                                    </div>
+                                    <div className='specs-min-data'>
+                                        <h2>Minimum:</h2>
+                                        <p>{modelListState[data.model].chamfer_barelling_min??'Not Found'}</p>
+                                    </div>
+                                </div>
+                            </div>
                             <div className='title-center'>
                                 <h1>BARRELING MAGNET DATA TABLE</h1>
                             </div>
                              <div className='specs-table'>
                                 <div>
-                                    <div className='specs-details'>
-                                        <h2>SPECS</h2>
-                                        <div className='specs-max-data'>
-                                            <h2>Maximum:</h2>
-                                            <p>{modelDetails.maximum}</p>
-                                        </div>
-                                        <div className='specs-target-data'>
-                                            <h2>Target:</h2>
-                                            <p>{modelDetails.target}</p>
-                                        </div>
-                                        <div className='specs-min-data'>
-                                            <h2>Minimum:</h2>
-                                            <p>{modelDetails.minimum}</p>
-                                        </div>
-                                    </div>
+
                                     <div>
                                         <table className='barreling-table' border={1}>
                                             <thead>
@@ -204,7 +206,7 @@ export default function InProcessDisplay({
                                         <tbody>
                                             <tr>
                                                 <th>Machine</th>
-                                                <td><input  value={barrellingProcss.machine_no ?? null} onChange={(e)=>goToNextInput('sample','machine_no',e.target.value.toUpperCase(),e)} className='specs-input'/></td>
+                                                <td><input  value={barrellingProcss.machine_no ?? null} onChange={(e)=>setBarrelingProcess('machine_no',e.target.value.toUpperCase())} className='specs-input'/></td>
                                                 <td><input  type='number' value={barrellingProcss.machinesample_1 ?? null} onChange={(e)=>goToNextInput('sample','machinesample_1',e.target.value.toUpperCase(),e)} className='specs-input'/></td>
                                                 <td><input  type='number' value={barrellingProcss.machinesample_2 ?? null}  onChange={(e)=>goToNextInput('sample','machinesample_2',e.target.value.toUpperCase(),e)}  className='specs-input'/></td>
                                                 <td><input  type='number' value={barrellingProcss.machinesample_3 ?? null}  onChange={(e)=>goToNextInput('sample','machinesample_3',e.target.value.toUpperCase(),e)} className='specs-input'/></td>
@@ -218,13 +220,16 @@ export default function InProcessDisplay({
                                                         if (!sample) {
                                                             return <td key={i} style={{ background:'#F09189' , color:'white'}}>No data</td>;
                                                         }
-                                                        const result = desicionStatus(sample);
+                                                        const target = modelListState[data.model].chamfer_barelling_target ?? 0;
+                                                        const min = modelListState[data.model].chamfer_barelling_min ?? 0;
+                                                        const max = modelListState[data.model].chamfer_barelling_max ?? 0;
+                                                        const result = desicionStatus(sample,target,min,max,2.415);
                                                         return (
                                                             <td
                                                             key={i}
                                                             style={{ color: "white", background: result.color }}
                                                             >
-                                                            {result.status}
+                                                            ({result.status})&nbsp;{result.computed}
                                                             </td>
                                                         );
                                                     })
@@ -234,6 +239,24 @@ export default function InProcessDisplay({
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+
+                            </div>
+                            <div className='specs-table'>
+                                <div className='specs-details'>
+                                    <h2>SPECS</h2>
+                                    <div className='specs-max-data'>
+                                        <h2>Maximum:</h2>
+                                        <p>{modelListState[data.model].barelling_max??'Not Found'}</p>
+                                    </div>
+                                    <div className='specs-target-data'>
+                                        <h2>Target:</h2>
+                                        <p>{modelListState[data.model].barelling_target??'Not Found'}</p>
+                                    </div>
+                                    <div className='specs-min-data'>
+                                        <h2>Minimum:</h2>
+                                        <p>{modelListState[data.model].barelling_min??'Not Found'}</p>
+                                    </div>
                                 </div>
                             </div>
                             <div className='specs-table'>
@@ -266,16 +289,19 @@ export default function InProcessDisplay({
                                                     sampleCheck.map((i)=>{
                                                         let maxShow = 0;
                                                         let minShow = 0;
-                                                         let currentMin = 0;
-
+                                                        let current = 0;
+                                                        let avarage = 0;
 
                                                         sampleCheck.map((j)=>{
-                                                            currentMin = Number(points_pt[`pt${i}_${j}`]);
-                                                            maxShow  = j > 0 &  Number(points_pt[`pt${i}_${j}`]) > maxShow ? Number(points_pt[`pt${i}_${j}`]) :  maxShow;
-                                                            minShow =  minShow <= 0 ? currentMin : currentMin < minShow ? currentMin:minShow;
+                                                            current= Number(points_pt[`pt${i}_${j}`]);
+                                                            avarage +=  Number(points_pt[`pt${i}_${j}`])/5;
+                                                            maxShow  = maxShow > current ? maxShow :  current;
+                                                            minShow =  minShow <= 0 ? current : current < minShow ? current:minShow;
                                                         });
 
-
+                                                        const currentTarget = modelListState[data.model].barelling_target;
+                                                        const currentMax = current ? Math.abs(maxShow - currentTarget).toFixed(2):0;
+                                                        const currentMin = current !== 0 ? Math.abs(minShow - currentTarget).toFixed(2):0;
                                                         return(
                                                                 <tr>
                                                                     <td>{i}</td>
@@ -286,13 +312,13 @@ export default function InProcessDisplay({
                                                                     <td><input  type="number" value={points_pt[`pt${i}_5`] ?? null}  id={`pt${i}_5`} onChange={(e)=>goToNextInput('point',`pt${i}_5`,e.target.value.toUpperCase(),e)} className='specs-input'/></td>
                                                                     <td>{maxShow > 0 && maxShow}</td>
                                                                     <td>{minShow}</td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td>5.600</td>
-                                                                    <td></td>
-                                                                    <td></td>
-                                                                    <td></td>
+                                                                    <td>{currentMax ? currentMax :currentMin}</td>
+                                                                    <td>{maxShow > 0 && maxShow}</td>
+                                                                    <td>{minShow}</td>
+                                                                    <td>{currentTarget}</td>
+                                                                    <td>{currentMax}</td>
+                                                                    <td>{currentMin}</td>
+                                                                    <td>{avarage.toFixed(2)}</td>
                                                                 </tr>
                                                         );
                                                     })
@@ -314,7 +340,12 @@ export default function InProcessDisplay({
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td colSpan={6}>LT</td>
+                                                <td>LT</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
                                             </tr>
                                             <tr>
                                                 <td>5.570 - 5.575</td>
@@ -397,7 +428,11 @@ export default function InProcessDisplay({
                                                 <td></td>
                                             </tr>
                                             <tr>
-                                                <td colSpan={6}>HT</td>
+                                                <td >HT</td><td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
                                             </tr>
                                         </tbody>
                                     </table>

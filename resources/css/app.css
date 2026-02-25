@@ -1,20 +1,15 @@
-html,
-body {
-    margin: 0;
-    padding: 0;
-}
-h1 {
-    margin-top: 0;
-}
+//animate
+
 
 .main-container {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    width: 100%;
+    width: 100vw;
     height: 100%;
     margin-top: 1rem;
-    gap: 2rem;
+    gap: 1rem;
 }
 .machine-selector {
     display: flex;
@@ -29,6 +24,7 @@ h1 {
         rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
         rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .selector-data {
@@ -80,10 +76,15 @@ h1 {
     width: 25rem;
 }
 
-.data-input input,
+.data-input input {
+    border: 1px solid #6f8faf;
+    background: #f0ffff;
+}
 .data-input select {
     border: 1px solid #6f8faf;
     background: #f0ffff;
+    width: 11rem;
+    padding: 0.5rem;
 }
 .data-container {
     display: flex;
@@ -507,4 +508,182 @@ h1 {
     background: #ffc88a;
     color: #1a0e00;
     border: 1px solid #1a0e00;
+}
+.subprocess-btn {
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    padding: 0.5rem;
+    background: #002f75;
+    color: white;
+    cursor: pointer;
+    margin: 0rem 1rem;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
+        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(12px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.subprocess-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+    opacity: 0;
+    animation: floatUp 3s ease-in-out forwards;
+}
+
+.subprocess-btn:hover {
+    background: #155dfc;
+    box-shadow:
+        rgba(0, 0, 0, 0.16) 0px 3px 6px,
+        rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
+
+.vertical-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-orientation: mixed;
+    text-align: center;
+}
+.sky-yellow-theme {
+    background: #fff2bc;
+    color: #1a1400;
+    border: 1px solid #1a1400;
+}
+
+.sky-blue-theme {
+    background: #ecfeff;
+    color: #00181a;
+    border: 1px solid #00181a;
+}
+
+.sky-orange-theme {
+    background: #ffd6a7;
+    color: #1a0e00;
+    border: 1px solid #1a0e00;
+}
+.machine-setting {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: fixed;
+    top: 2rem;
+    right: 0;
+    margin: 0rem 2rem;
+}
+.manage-container {
+    padding: 1rem;
+    margin: 1rem 0rem;
+    border-radius: 1rem;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    overflow: auto;
+}
+.manage-input input,
+.manage-input td,
+.manage-input th {
+    font-size: 13px;
+    width: 5.5rem;
+    maximum-width: fit-content;
+}
+
+button.add-btn {
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    background: #178236;
+    color: #ffed8a;
+    cursor: pointer;
+}
+
+button:hover.add-btn {
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+button.disabled-btn {
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    background: #012c22;
+    color: #90a1b9;
+    cursor: pointer;
+}
+.search-btn {
+    padding: 0.5rem;
+    text-align: center;
+}
+.adding-input {
+    background: #f0f9ff;
+    border: 1px solid #92d3ff;
+    text-align: center;
+    padding: 0.3rem;
+}
+.adding-disabled-input {
+    background: #d3dae4;
+    text-align: center;
+    padding: 0.3rem;
+}
+button.saving-input {
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    border: none;
+    cursor: pointer;
+    background: #175e23;
+    color: white;
+    margin: 0.4rem;
+}
+button:hover.saving-input {
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+button.updating-input {
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    border: none;
+    cursor: pointer;
+    background: #05df72;
+    color: white;
+    margin: 0.4rem;
+}
+
+button:hover.updating-input {
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+button.deleting-input {
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    border: none;
+    cursor: pointer;
+    background: #fb2c36;
+    color: white;
+    margin: 0.4rem;
+}
+
+button:hover.deleting-input {
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+.button-container {
+    display: flex;
+    flex-direction: row;
+}
+button.checking-input {
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    border: none;
+    cursor: pointer;
+    background: #003247;
+    color: white;
+    margin: 0.4rem;
+}
+button:hover.checking-input {
+    background: #00b2ff;
 }

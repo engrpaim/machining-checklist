@@ -1,12 +1,12 @@
 import { CrossIcon } from "../Icons/SVG";
-export default function CGHL({data , setData,setLotContainer}){
-    const positional = ["Start","Middle","End"];
-    const numberOfrows = [1,2,3];
+export default function Lapping({data , setData,setLotContainer}){
+
+    const numberOfrows = [1,2,3,4,5,6,7,8,9,10];
     return(
         <>
             <div className="inprocess-container">
                 <div className="inprocess-details">
-                     <h1>{data.model}-CGH&nbsp;(L)&nbsp;DIMENSION MONITORING</h1>
+                     <h1>{data.model}-LAPPING (T) DIMENSION MONITORING</h1>
                      <div className='mode-container'>
                         <h3>MODEL:</h3>
                         <p>{data.model}</p>
@@ -19,41 +19,29 @@ export default function CGHL({data , setData,setLotContainer}){
                             <input></input>
                         </div>
                         <div className='data-input' >
-                            <label>Operator&nbsp;Name&nbsp;:</label>
+                            <label>Operator Name :</label>
                             <input type="number"   ></input>
                         </div>
                         <div className='data-input' >
-                            <label>Checked&nbsp;by&nbsp;:</label>
+                            <label>Checked by :</label>
+                            <input type="number"   ></input>
+                        </div>
+                         <div className='data-input' >
+                            <label>Mahine No.:</label>
                             <input type="number"   ></input>
                         </div>
                         <div className='data-input' >
                             <label>Date :</label>
                             <input type="number"   ></input>
                         </div>
-                        <div className='data-input' >
-                            <label>Mahine No.:</label>
-                            <input type="number"   ></input>
-                        </div>
-                        <div className='data-input' >
-                            <label>Upper Conbeyor Speed</label>
-                            <input type="number"   ></input>
-                        </div>
-                        <div className='data-input' >
-                            <label>Lower Conveyor Speed</label>
-                            <input type="number"   ></input>
-                        </div>
+                    </div>
+                    <div className='data-container'>
                         <div className='data-input' >
                             <label>Carrier Speed</label>
                             <input type="number"   ></input>
                         </div>
-                    </div>
-                    <div className='data-container'>
-                        <div className='data-input'>
-                            <label>Auto Cylinder Forward Speed:</label>
-                            <input  ></input>
-                        </div>
                         <div className='data-input' >
-                            <label>Auto Cylinder Moving Distance:</label>
+                            <label>Micrometer Serial No.:</label>
                             <input type="number"   ></input>
                         </div>
                         <div className='data-input' >
@@ -61,14 +49,15 @@ export default function CGHL({data , setData,setLotContainer}){
                             <input type="number"   ></input>
                         </div>
                         <div className='data-input' >
-                            <label>Micrometer Serial No.:</label>
+                            <label>Date:</label>
                             <input type="number"   ></input>
                         </div>
+
                     </div>
                 </div>
                 <div className='data-table'>
                     <div className='title-center'>
-                        <h1>CGH (L) DIMENSION MONITORING</h1>
+                        <h1>LAPPING-(T) DIMENSION MONITORING</h1>
                     </div>
                     <div className='specs-table'>
                         <div>
@@ -110,7 +99,6 @@ export default function CGHL({data , setData,setLotContainer}){
                             <thead>
                                 <tr>
                                     <th rowSpan={2}></th>
-                                    <th rowSpan={2} className="green-theme">S/N</th>
                                     <th colSpan={5} className="green-theme">DATA</th>
                                     <th colSpan={5} className="orange-theme">JUDGEMENT</th>
                                     <th rowSpan={2} className="light-green-theme">JUDGEMENT PER PIECE</th>
@@ -135,26 +123,17 @@ export default function CGHL({data , setData,setLotContainer}){
                             </thead>
                             <tbody>
 
-                                {
-                                    positional.map((items)=>{
-                                        let current = '';
-                                        current = current !== items? items:current;
-                                        return(
 
-                                                <>
+
                                                     {
                                                         numberOfrows.map((row)=>{
                                                             const yellow = "light-yellow-theme";
                                                             const blue = "light-blue-theme";
                                                             const orange = "light-orange-theme";
-                                                            const themeToUse = items === 'Start' ? yellow:items === 'Middle'? blue :items === 'End'? orange:null;
+
 
                                                             return(
-                                                            <tr key={items+"_"+row}>
-
-                                                                {
-                                                                    row ===1 &&<td rowSpan={3} className={themeToUse}>{items}</td>
-                                                                }
+                                                            <tr key={row}>
                                                                 <td className="gray-theme">{row}</td>
                                                                 <td className="input-data-box"><input/></td>
                                                                 <td className="input-data-box"><input/></td>
@@ -176,11 +155,8 @@ export default function CGHL({data , setData,setLotContainer}){
                                                             )
                                                         })
                                                     }
-                                                </>
 
-                                        )
-                                    })
-                                }
+
 
                             </tbody>
                         </table>
@@ -298,80 +274,6 @@ export default function CGHL({data , setData,setLotContainer}){
                                     <p><strong>CL</strong></p>
                                 </div>
                                 <div  className="tally-data">
-                                    <p></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div  className="tally-container">
-                            <div className="tally-group">
-                                <h3>L & W max Dimension Sorting</h3>
-                            </div>
-                            <div className="tally-group">
-                                <div className="tally-data">
-                                    <p><strong>Form Gauge  Serial No.</strong></p>
-                                </div>
-                                <div className="tally-data">
-                                    <p></p>
-                                </div>
-                            </div>
-                            <div className="tally-group">
-                                <div className="tally-data">
-                                    <p><strong>n=9</strong></p>
-                                </div>
-                                <div className="tally-data">
-                                    <p></p>
-                                </div>
-                            </div>
-                            <div className="tally-group">
-                                <div className="tally-data">
-                                    <p><strong>Sorted By:</strong></p>
-                                </div>
-                                <div className="tally-data">
-                                    <p></p>
-                                </div>
-                            </div>
-                            <div className="tally-group">
-                                <div className="tally-data">
-                                    <p><strong>Remarks</strong></p>
-                                </div>
-                                <div className="tally-data">
-                                    <p></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div  className="tally-container">
-                            <div className="tally-group">
-                                <h3>L-Dimension Sorting</h3>
-                            </div>
-                            <div className="tally-group">
-                                <div className="tally-data">
-                                    <p><strong>Go/No Go Jig Serial No.</strong></p>
-                                </div>
-                                <div className="tally-data">
-                                    <p></p>
-                                </div>
-                            </div>
-                            <div className="tally-group">
-                                <div className="tally-data">
-                                    <p><strong>Go/No Go Jig Validation:</strong></p>
-                                </div>
-                                <div className="tally-data">
-                                    <p></p>
-                                </div>
-                            </div>
-                            <div className="tally-group">
-                                <div className="tally-data">
-                                    <p><strong>n=9</strong></p>
-                                </div>
-                                <div className="tally-data">
-                                    <p></p>
-                                </div>
-                            </div>
-                            <div className="tally-group">
-                                <div className="tally-data">
-                                    <p><strong>Sorted By:</strong></p>
-                                </div>
-                                <div className="tally-data">
                                     <p></p>
                                 </div>
                             </div>

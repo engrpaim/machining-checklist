@@ -7,9 +7,12 @@ import PasswordPrompts  from '../Layouts/PasswordPrompts';
 import ModelSelector from '../Layouts/ModelSelector';
 import InProcessDisplay from '../Layouts/InProcessDisplay';
 import CGHL from '../Layouts/Cghl';
+import Lapping from '../Layouts/Lapping';
+import SlicingMachine from '../Layouts/Slicing';
+import Admin from '../Layouts/Admin';
 export default function Home({ message }) {
 
-    const { flash ,LotData,detailsLot} = usePage().props;
+    const { flash ,LotData,detailsLot,dataExist,availabilty , modelsList} = usePage().props;
     const sampleCheck =  [1, 2, 3, 4, 5];
     const timeRotation = [1,2,3];
     const modelDetails = {
@@ -17,10 +20,16 @@ export default function Home({ message }) {
         'minimum':1.0,
         'target':1.5
     }
-
+    console.log('dataaaa',dataExist);
    const [notificationMessage, setNotificationMessage] = useState(null);
-   const [modelIsExist , setModelIsExist] = useState(LotData);
+   const [modelIsExist , setModelIsExist] = useState(null);
    const [updateData ,setUpdate] = useState(null);
+   const [availabilityCheck ,setAvailabilityCheck] = useState(availabilty);
+   const [modelListState , setModelListState] = useState(modelsList);
+
+
+
+
 
     useEffect(()=>{
 
@@ -61,15 +70,49 @@ export default function Home({ message }) {
         staff_eng:'',
     });
 
+    useEffect(()=>{
+        if(data.process === 'admin' ) return
+        const hourFormat  = new Date();
+        const formattedTime24 = new Intl.DateTimeFormat('en-GB',{
+                hour:'numeric',
+                hour12:false
+            }).format(hourFormat);
+        const shift = formattedTime24 > 18 && formattedTime24 < 6 ? 'F' :'E'
+        if(!modelsList){
+            setNotificationMessage({
+                title:'error-container',
+                message:'Models Not found!'
+            });
+            setData('shift' , shift );
+        }else{
+            const decodeModels = JSON.parse(modelsList);
+
+            if(data.model){
+                setData('chamfer_type' , decodeModels[data.model].chamfer_type );
+                setData('shift' , shift );
+            }
+
+            setModelListState(decodeModels);
+        }
+        console.log('updated ML: ',modelListState);
+
+   },[modelsList,flash,detailsLot,availabilty,data]);
+
     const { data: StatusData, setData: setStatusData} = useForm({
         staffDetails: 0,
         barrellingProcss:0,
         pointsDetails:0,
         timerDetails:0
     });
+
     const { data: LotContainer , setData: setLotContainer}  = useForm({
         lot:'',
     });
+
+    const {data:ManagementContainer , setData : setManagementContainer} = useForm({
+        manage:'',
+    });
+
     const {data: timerData , setData: setTimerData } = useForm({
         time_1:'',
         rotation_1:'',
@@ -84,6 +127,7 @@ export default function Home({ message }) {
         addtime_3:'',
         addrotation_3:'',
     });
+
     const {data:barrellingProcss ,setData:setBarrelingProcess} = useForm({
         machine_no:'',
         machinesample_1:'',
@@ -92,10 +136,12 @@ export default function Home({ message }) {
         machinesample_4:'',
         machinesample_5:''
     });
+
     const {data:passwordContainer ,setData:setPasswordContainer }=useForm({
         password:'',
         isCorrect:''
     });
+
     const {data: points_pt, setData: setPoints}=useForm(
     {
         pt1_1:'',
@@ -138,15 +184,21 @@ export default function Home({ message }) {
         Object.entries(formState[name])
             .filter(([key]) => !exclude.includes(key))
             .forEach(([key]) => {
-
-                if(name === 'data'){
-                    setData(key, '');
-                }else if(name === 'points_pt'){
-                    setPoints(key,'');
-                }else if(name === 'timerData'){
-                    setTimerData(key,'');
-                }else if(name === 'barrellingProcss'){
-                    setBarrelingProcess(key,'');
+                switch (name){
+                    case 'data':
+                        setData(key, '');
+                        break;
+                    case 'points_pt':
+                        setPoints(key,'');break;
+                        break;
+                    case 'timerData':
+                        setTimerData(key,'');break;
+                        break;
+                    case 'barrellingProcss':
+                        setBarrelingProcess(key,'');break;
+                        break;
+                    default:
+                        break;
                 }
             });
         });
@@ -194,6 +246,7 @@ export default function Home({ message }) {
         setStatusData('barrellingProcss' , countEmptyBarrelingProcess);
         setStatusData('pointsDetails' , countEmptyPoints);
         setStatusData('timerDetails' , countEmptyTimer);
+
     },[data , barrellingProcss,points_pt,timerData]);
 
     useEffect(()=>{
@@ -245,6 +298,8 @@ export default function Home({ message }) {
                     clearAllInput();
                     setUpdate(true);
                     setModelIsExist(false);
+                    setData('lot','');
+                    setLotContainer('lot','');
                     router.get('/machining-checklist', {}, { preserveScroll:true, preserveState:true });
                 }
         });
@@ -267,7 +322,7 @@ export default function Home({ message }) {
                         setData( key,detailsLot[key]);
                     }
                 });
-                });
+            });
 
                 const convertToJSON = ["timer","barrelling","pt_data"];
 
@@ -293,14 +348,18 @@ export default function Home({ message }) {
 
     }
 
-    const desicionStatus =(value)=>{
+    const desicionStatus =(value,target,min,max,multiplier)=>{
         //return status and color
         const numberConvert = Number(value);
 
-        if (numberConvert > modelDetails.minimum && numberConvert < modelDetails.maximum){
-            return { color:'green' , status:'GOOD'}
-        }
-         return { color:'red' , status:'NG'}
+        const computed = (target - numberConvert) * multiplier;
+        const adjustedMax = max - 0.01
+        const adjustedMin = min + 0.02
+        const adjustUpperlimit = max - 0.02
+
+        if (computed > adjustUpperlimit || computed <= adjustedMin && computed >= min )  return { color:'orange' , status:'ADJUST',computed:computed.toFixed(4)}
+        if (computed > adjustedMin && computed < adjustedMax)  return { color:'green' , status:'GOOD',computed:computed.toFixed(4)}
+        return { color:'red' , status:'NG' , computed:computed.toFixed(4) }
     }
 
     const goToNextInput = (pointData,name,data,e) => {
@@ -323,7 +382,17 @@ export default function Home({ message }) {
         }, 300);
 
     };
-    console.log('Status',StatusData);
+    useEffect(()=>{
+        setAvailabilityCheck(availabilty);
+   },[availabilty])
+
+
+
+   useEffect(()=>{
+    console.log('cahnging sss')
+         setAvailabilityCheck(false);
+   },[ManagementContainer])
+    console.log('Status',modelIsExist,'LotDetails',detailsLot);
     return (
         <div className='main-container'>
             {
@@ -342,7 +411,7 @@ export default function Home({ message }) {
                 notificationMessage &&
                     <Notification message={notificationMessage.message} theme={notificationMessage.title}/>
             }
-            <ModelSelector data={data} setData={setData}/>
+                <ModelSelector data={data} setData={setData} setManagementContainer={setManagementContainer} clearInput={clearAllInput} modelListState={modelListState} setModelListState={setModelListState}/>
             {
                     data && data.model  && data.process === 'inprocess' ?
                         <InProcessDisplay
@@ -364,11 +433,24 @@ export default function Home({ message }) {
                             barrellingProcss={barrellingProcss}
                             points_pt ={points_pt}
                             desicionStatus ={desicionStatus}
+                            modelListState={modelListState}
+                            setBarrelingProcess={setBarrelingProcess}
+
                         />
                     :data && data.model && data.process === 'cghl' ?
                         <CGHL
                             data={data}
-                        />:null
+                        />
+                    :data && data.model && data.process === 'lapping' ?
+                        <Lapping
+                            data={data}/>
+                    :data && data.model && data.process === 'slicing' ?
+                        <SlicingMachine
+                            data={data}/>
+                    :data && data.process === 'admin' ?
+                        <Admin
+                            modelListState={modelListState} setModelListState={setModelListState} dataExist={dataExist} setAvailabilityCheck={setAvailabilityCheck} availabilityCheck={availabilityCheck} ProcessMain={data.process} ManagementContainer={ManagementContainer} setManagementContainer={setManagementContainer} Notification={Notification} setNotificationMessage={setNotificationMessage}/>
+                        :null
             }
         </div>
     );
