@@ -43,4 +43,4 @@ Route::get('/machining-checklist/user/create', function () {
 
 Route::get('/machining-checklist/user/check', function () {
     return Inertia::render('Home');
-})->name('user.check');
+});
