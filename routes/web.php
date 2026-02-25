@@ -31,7 +31,7 @@ Route::put('/machining-checklist/user/update',
 Route::put('/machining-checklist/user/check',
     [MachiningChecklistController::class,'checkExist']
 )->name('user.check');
-
+//
 
 Route::delete('/machining-checklist/user/delete',
     [MachiningChecklistController::class,'destroy']
