@@ -1,9 +1,41 @@
 import { CrossIcon } from "../Icons/SVG";
+
 export default function InProcessDisplay({
             data,modelIsExist,setData,
             setLotContainer,currentDate,
             modelDetails,timerData,setTimerData,goToNextInput,
             sampleCheck,StatusData,updateData,handleUpdate,handleSave,timeRotation,barrellingProcss,points_pt,desicionStatus,modelListState,setBarrelingProcess}){
+
+        const subdivition = (min, max) => {
+            let currentMax;
+            let currentStart = min;
+            const range = [];
+
+            for (let x = 0; x < 9; x++) {
+                currentMax = currentStart + 0.005;
+                range.push({
+                            min: Number(currentStart.toFixed(3)),max: Number(currentMax.toFixed(3)),
+
+                });
+                currentStart = currentMax + 0.001;
+                if(x === 8 ) range.push({min:Number((currentMax+0.001).toFixed(3)),max:Number(max.toFixed(3))} , {lt:min,ht:max})
+            }
+
+            return range;
+        };
+
+        const themeColor =(max, min,value)=>{
+            if(value <= 0) return;
+            const maxLimit = max - 0.012
+            const minLimit = min + 0.012
+            console.log('theme',max,min, value)
+            if( value < minLimit || value > maxLimit) return {theme:'range-adjust-td',value:value}
+            if( value > minLimit  &&  value < maxLimit  ) return {theme:'range-success-td',value:value}
+            return {theme:'range-reject-td',value:value}
+        }
+        const averagePerMagnet = []
+        const rangeDisplay =subdivition(modelListState[data.model].barelling_min,modelListState[data.model].barelling_max);
+        console.log('Ranggeee: ',rangeDisplay);
     return(
         <>
             {
@@ -214,7 +246,7 @@ export default function InProcessDisplay({
                                                 <td><input  type='number' value={barrellingProcss.machinesample_5 ?? null}  onChange={(e)=>goToNextInput('sample','machinesample_5',e.target.value.toUpperCase(),e)}  className='specs-input'/></td>
 
                                                 {
-                                                    //return Judgement Barreling process
+                                                //return Judgement Barreling process
                                                    sampleCheck.map((i) => {
                                                         const sample = barrellingProcss[`machinesample_${i}`];
                                                         if (!sample) {
@@ -297,11 +329,18 @@ export default function InProcessDisplay({
                                                             avarage +=  Number(points_pt[`pt${i}_${j}`])/5;
                                                             maxShow  = maxShow > current ? maxShow :  current;
                                                             minShow =  minShow <= 0 ? current : current < minShow ? current:minShow;
+
+                                                            if(!averagePerMagnet[j-1]) averagePerMagnet[j-1] = {};
+
+                                                            averagePerMagnet[j-1][i-1] = Number(points_pt[`pt${i}_${j}`]);
                                                         });
+
 
                                                         const currentTarget = modelListState[data.model].barelling_target;
                                                         const currentMax = current ? Math.abs(maxShow - currentTarget).toFixed(2):0;
                                                         const currentMin = current !== 0 ? Math.abs(minShow - currentTarget).toFixed(2):0;
+
+
                                                         return(
                                                                 <tr>
                                                                     <td>{i}</td>
@@ -339,101 +378,84 @@ export default function InProcessDisplay({
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>LT</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.570 - 5.575</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.576 - 5.581</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.582 - 5.587</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.588 - 5.593</td>
-                                               <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.594 - 5.599</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.600 - 5.605</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.606 - 5.611</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.612 - 5.617</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.618 - 5.623</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td>5.624 - 5.630</td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
-                                            <tr>
-                                                <td >HT</td><td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
+
+                                            {
+
+                                                Object.entries(rangeDisplay).map(([key,values])=>{
+                                                        const maxRange = rangeDisplay[10].ht
+                                                        const minRange = rangeDisplay[10].lt
+                                                                    console.log('AVERRAHGGGEE: ',averagePerMagnet ,key);
+                                                        if(!values.max || !values.min) return
+
+                                                        let point1,point2,point3,point4,point5 = 0;
+                                                        let ht1,ht2,ht3,ht4,ht5 = 0;
+                                                        let lt1, lt2 , lt3 ,lt4 ,lt5 = 0
+                                                        // x is the magnet number vertically
+                                                        for(let x = 0 ; x < 6 ;x++ ){
+
+                                                            averagePerMagnet[x] && averagePerMagnet[x][0] &&  averagePerMagnet[x][0] >= values.min && averagePerMagnet[x][0] <= values.max ? point1=averagePerMagnet[x][0]:null
+                                                            averagePerMagnet[x] && averagePerMagnet[x][1] &&  averagePerMagnet[x][1] >= values.min && averagePerMagnet[x][1] <= values.max ? point2=averagePerMagnet[x][1]:null
+                                                            averagePerMagnet[x] && averagePerMagnet[x][2] &&  averagePerMagnet[x][2] >= values.min && averagePerMagnet[x][2] <= values.max ? point3=averagePerMagnet[x][2]:null
+                                                            averagePerMagnet[x] && averagePerMagnet[x][3] &&  averagePerMagnet[x][3] >= values.min && averagePerMagnet[x][3] <= values.max ? point4=averagePerMagnet[x][3]:null
+                                                            averagePerMagnet[x] && averagePerMagnet[x][4] &&  averagePerMagnet[x][4] >= values.min && averagePerMagnet[x][4] <= values.max ? point5=averagePerMagnet[x][4]:null
+
+
+
+                                                            averagePerMagnet[x] && averagePerMagnet[x][0] && averagePerMagnet[x][0] > maxRange ? ht1 =averagePerMagnet[x][0]:  averagePerMagnet[x] && averagePerMagnet[x][0] && averagePerMagnet[x][0]  < minRange ? lt1 = averagePerMagnet[x][0] :null
+                                                            averagePerMagnet[x] && averagePerMagnet[x][1] && averagePerMagnet[x][1] > maxRange ? ht2 =averagePerMagnet[x][1]:  averagePerMagnet[x] && averagePerMagnet[x][1] && averagePerMagnet[x][1]  < minRange ? lt2 = averagePerMagnet[x][1] :null
+                                                            averagePerMagnet[x] && averagePerMagnet[x][2] && averagePerMagnet[x][2] > maxRange ? ht3 =averagePerMagnet[x][2]:  averagePerMagnet[x] && averagePerMagnet[x][2] && averagePerMagnet[x][2]  < minRange ? lt3 = averagePerMagnet[x][2] :null
+                                                            averagePerMagnet[x] && averagePerMagnet[x][3] && averagePerMagnet[x][3] > maxRange ? ht4 =averagePerMagnet[x][3]:  averagePerMagnet[x] && averagePerMagnet[x][3] && averagePerMagnet[x][3]  < minRange ? lt4 = averagePerMagnet[x][3] :null
+                                                            averagePerMagnet[x] && averagePerMagnet[x][4] && averagePerMagnet[x][4] > maxRange ? ht5 =averagePerMagnet[x][4]:  averagePerMagnet[x] && averagePerMagnet[x][4] && averagePerMagnet[x][4]  < minRange ? lt5 = averagePerMagnet[x][4] :null
+
+
+                                                        }
+
+                                                        const theme1 =  themeColor(maxRange,minRange,point1);
+                                                        const theme2 =  themeColor(maxRange,minRange,point2);
+                                                        const theme3 =  themeColor(maxRange,minRange,point3);
+                                                        const theme4 =  themeColor(maxRange,minRange,point4);
+                                                        const theme5 =  themeColor(maxRange,minRange,point5);
+
+
+                                                        return(
+                                                        <>
+                                                            {
+                                                                //LT in first row
+                                                                Number(key) === 0 &&
+                                                                <tr>
+                                                                    <td>LT</td>
+                                                                    <td className={lt1 !== 0 && lt1 < values.min ? 'range-reject-td':null}></td>
+                                                                    <td className={lt2 !== 0 && lt2 < values.min ? 'range-reject-td':null}></td>
+                                                                    <td className={lt3 !== 0 && lt3 < values.min ? 'range-reject-td':null}></td>
+                                                                    <td className={lt4 !== 0 && lt4 < values.min ? 'range-reject-td':null}></td>
+                                                                    <td className={lt5 !== 0 && lt5 < values.min ? 'range-reject-td':null}></td>
+                                                                </tr>
+                                                            }
+                                                            <tr>
+                                                                <td>{values.min}-{values.max}</td>
+                                                                <td className={point1 ? theme1.theme:null}></td>
+                                                                <td className={point2 ? theme2.theme:null}></td>
+                                                                <td className={point3 ? theme3.theme:null}></td>
+                                                                <td className={point4 ? theme4.theme:null}></td>
+                                                                <td className={point5 ? theme5.theme:null}></td>
+                                                            </tr>
+                                                            {
+                                                                //HTT in first row
+                                                                Number(key) === 9 &&
+                                                                <tr>
+                                                                    <td>HT</td>
+                                                                    <td className={ht1 !== 0 && ht1 > values.max ? 'range-reject-td':null}></td>
+                                                                    <td className={ht2 !== 0 && ht2 > values.max ? 'range-reject-td':null}></td>
+                                                                    <td className={ht3 !== 0 && ht3 > values.max ? 'range-reject-td':null}></td>
+                                                                    <td className={ht4 !== 0 && ht4 > values.max ? 'range-reject-td':null}></td>
+                                                                    <td className={ht5 !== 0 && ht5 > values.max ? 'range-reject-td':null}></td>
+                                                                </tr>
+                                                            }
+                                                        </>
+                                                        )
+                                                })
+                                            }
+
                                         </tbody>
                                     </table>
                                 </div>

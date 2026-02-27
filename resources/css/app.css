@@ -687,3 +687,17 @@ button.checking-input {
 button:hover.checking-input {
     background: #00b2ff;
 }
+
+td.range-adjust-td {
+    background: orange;
+    color: white;
+}
+td.range-success-td {
+    background: green;
+    color: white;
+}
+
+td.range-reject-td {
+    background: red;
+    color: white;
+}
