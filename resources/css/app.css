@@ -1,4 +1,4 @@
-//animate
+/* //animate
 
 
 .main-container {
@@ -700,4 +700,82 @@ td.range-success-td {
 td.range-reject-td {
     background: red;
     color: white;
+} */
+
+// new design
+
+html, body, #app {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    font-weight: 100;
+    background: #1a1d1d;
+    color: #ffffff;
+}
+h1 {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    color: #ffffff;
+    font-size: 18px;
+}
+.main-layout {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    height: 98vh;
+}
+.main-layout > main {
+    padding: 15px;
+    overflow-y: auto;
+}
+.side-bar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #2b2e2e;
+    flex-direction: column;
+    align-items: center;
+    items-center: center;
+    border-radius: 1.5rem;
+    padding: 1rem 0.5rem;
+    color: #696969;
+}
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+.side-upper nav {
+    margin: 2rem 0;
+}
+.side-bar a {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #696969;
+}
+.side-upper a {
+    text-decoration: none;
+    color: #696969;
+    margin: 0;
+}
+.side-upper a:hover,
+.side-bar a:hover {
+    color: #d7fefa;
+}
+
+.page-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MachiningChecklistController;
 use Inertia\Inertia;
 use App\Models\models;
+
+//Current is getting the route then pass the data
+// bad pracctice it can cause data overload URL must be changing
 Route::get('/machining-checklist', function () {
         $models = models::all('*');
         $modified =[];
@@ -21,6 +24,8 @@ Route::get('/machining-checklist', function () {
         'modelsList' =>  $finalModel
         ]);
 })->name('machining-checklist');
+
+
 Route::post('/machining-checklist', [MachiningChecklistController::class, 'inprocess']);
 Route::post('/machining-checklist/update',[MachiningChecklistController::class, 'update']);
 Route::post('/machining-checklist/user/create',[MachiningChecklistController::class,'saveManage'])->name('create-user');
@@ -43,4 +48,17 @@ Route::get('/machining-checklist/user/create', function () {
 
 Route::get('/machining-checklist/user/check', function () {
     return Inertia::render('Home');
+});
+
+// New routing
+
+Route::get('/machining-checklist/home' , function (){
+    return Inertia::render('Dashboard');
+});
+Route::get('/machining-checklist/settings' , function (){
+    return Inertia::render('Settings');
+});
+
+Route::get('/machining-checklist/measure',function(){
+    return Inertia::render('Measure');
 });
