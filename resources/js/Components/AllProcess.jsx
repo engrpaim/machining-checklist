@@ -17,7 +17,7 @@ export default function AllProcess({data , clientIp , model}){
     const handleGoToData=async(lot,process, id,model)=>{
         setLoading(true);
         if(!lot || !process || !id || !model) return
-        console.log(lot,process);
+        console.log('goto: ' , lot,process);
         try{
             await router.post('/machining-checklist/home/goto',
                 {
@@ -114,7 +114,7 @@ export default function AllProcess({data , clientIp , model}){
                                         
 
                                         submit(e,'filter')
-                                        }}>
+                                        }} >
                     <p>Filter</p>
                     <SearchIcon/>
                     <p>Start</p><input type="date" onChange={(e)=>setFilterDetails('start_date',e.target.value)} value={filterDetails.start_date}/>

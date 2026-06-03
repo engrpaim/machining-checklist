@@ -16,6 +16,10 @@ import Cghl from "../Components/Cghl";
 import CghMeasuring from "../Components/CghMeasuring";
 import Histogram from "../Components/HistoGram";
 import NotificationDisplay from "../Layouts/Notification";
+import LappingDetails from "../Components/LappingDetails";
+import LappingData from "../Components/LappingData";
+import SlicingDetails from "../Components/SlicingDetails";
+import SlicingMeasuring from "../Components/SlicingMeasuring";
 export default function Measure() {
     /**
      *
@@ -51,7 +55,9 @@ export default function Measure() {
     console.log('type chamfer: ', currentModel.chamfer_type);
     const alloweAble = {
         barelling: { preparing: 7},
-        cghl:{preparing:11}
+        cghl:{preparing:11},
+        lapping:{preparing:0},
+        slicing:{preparing:8},
     }
     const sheetTitle = {
             barelling: 'IN-PROCESS INSPECTION SHEET',
@@ -170,8 +176,56 @@ export default function Measure() {
         10:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
     });
 
+
+    const {data:lappingForm , setData:setLappingForm,processing:LappingProcessing, reset:resetLappingForm } = useForm({
+        datalist_id: '',
+        datalist_lot_number: '',
+        batch_number: '',
+        comparator_serial:'',
+    });
+
+    const {data:massProForm , setData:setMassProForm ,processing:MassproProcessing, reset:resetMassProForm} = useForm({
+        1:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        2:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        3:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        4:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        5:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        6:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        7:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        8:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        9:{p1:'',p2:'',p3:'',p4:'',p5:''},
+        10:{p1:'',p2:'',p3:'',p4:'',p5:''},
+    })
+
+    const {data:hfpData , setData:setHfpData , processing:hfpDataProcessing, reset:hfpReset} = useForm({})
     //useform for details
     //form for common details
+
+    const {data: slicingDetails, setData: setSlicingDetails, processing: slicingProcessing, reset: slicingReset} = useForm({
+        datalist_id: '',
+        datalist_lot_number: '',
+        batch_number: '',
+        shift: '',
+        model: '',
+        operator_name: '',
+        checker: '',
+        staff_engineer: '',
+        machine_number: '',
+        pattern: '',
+        cutting_speed: '',
+        no_of_pass: '',
+        motor_load: '',
+        micrometer_serial_number: '',
+        checking_condition: '',
+        no_of_tb_cycle: '',
+        perpern_serial_number: '',
+        comparator_serial_number: '',
+        perpendicularity: '',
+        parallelism: '',
+    });
+
+    const {data:slicingMassPro , setData:setSlicingMassPro , processing: slicingMassproProcessing, reset:slicingMassProReset}=useForm({})
+
     const handleCloseModal = () => {
         setTriModal(false);
     }
@@ -213,10 +267,32 @@ export default function Measure() {
                 reset:resetCghlDetails,
                 subreset:resetCghTools,
                 resetPoints:resetCghlPoint
+
+            },
+            lapping: {
+                data:data,
+                details:lappingForm,
+                mass_pro:massProForm,
+                histogram_point:hfpData,
+                set_histogram_point:setHfpData,
+                set_mass_pro:setMassProForm,
+                set:setLappingForm,
+                set_data:setData,
+                reset:resetLappingForm,
+            },
+            slicing: {
+                data:data,
+                details:slicingDetails,
+                set:setSlicingDetails,
+                mass_pro:slicingMassPro,
+                set_data:setData,
+                reset:slicingReset,
             },
 
         }
     useEffect(()=>{
+        //update always when click go to
+        // switch case return all object measurment
         if(!GoToModel || !GoToProcess) return;
         console.log('GO to effect:',GoToProcess , GoToModel , current_lot);
         setModelState(GoToModel);
@@ -265,26 +341,29 @@ export default function Measure() {
                 const currentArray = current_lot[key];
 
                 console.log('checkk: ',`set_${key}`);
-                console.log(current_lot[key]);
+                console.log(key,value,current_lot[key]);
 
-                if(!currentArray) return
-
-                Object.entries(arrayBankNew[GoToProcess]?.[key]).map(([innerKey,innerValue])=>{
+                if(!currentArray && !current_lot[key]) return
+                console.log('tagos',key,arrayBankNew[GoToProcess]?.[key]);
+                
+                const dataObjectCurrent = arrayBankNew[GoToProcess]?.[key].length > 0 ? arrayBankNew[GoToProcess]?.[key]:current_lot[key] ?current_lot[key]:false
+                if(!dataObjectCurrent) return
+                 console.log('tagos2',key,dataObjectCurrent);
+                Object.entries(dataObjectCurrent).map(([innerKey,innerValue])=>{
                     console.log('ypwss: ',key,currentArray[innerKey],innerValue);
 
-                    if(!currentArray[innerKey]) return
+                    if(!currentArray[innerKey] && !current_lot[key]) return
                     //populate data from dashboard
                     switch(GoToProcess){
                         case "barelling":
                             arrayBankNew[GoToProcess]?.[setCurrentKey](innerKey,currentArray[innerKey]);
                             break;
                         case "cghl":
-
                             if(innerValue){
                                 if(key !== 'perpendicularity' && key !== 'mass_pro'){
                                     console.log('cghl:x',key , innerKey,innerValue)
                                     arrayBankNew[GoToProcess]?.[setCurrentKey](innerKey,currentArray[innerKey])
-                                }else if(key === 'perpendicularity'){
+                                }else if(key === 'perpendicularity' ){
                                     Object.entries(innerValue).map(([processKey ,processValue])=>{
                                         console.log('cghl:xxr:' ,processKey ,processValue,setCurrentKey);
                                         arrayBankNew[GoToProcess]?.set_perpen((prev)=>({
@@ -295,12 +374,41 @@ export default function Measure() {
                                             }
                                         }))
                                     })
+                                }else if(key === 'mass_pro' ){
+                                    arrayBankNew[GoToProcess]?.set_mass_pro(innerKey ,innerValue);
                                 };
-                            }else{
-                                //Measuring tools
-                               arrayBankNew[GoToProcess]?.[setCurrentKey](innerKey,currentArray[innerKey])
                             }
                             break;
+                        case "lapping":
+                            
+                            if(key === 'mass_pro'){
+                                console.log('Lapping go to: ',key,value,innerKey,innerValue);
+                                Object.entries(innerValue).map(([processKey ,processValue])=>{
+                                    console.log('Data lappping: ',massProForm[innerKey],Number(currentArray[innerKey]?.[processKey]), processKey , processValue);
+                                    const currentPoint = Number(currentArray[innerKey]?.[processKey]);
+                                    arrayBankNew[GoToProcess]?.set_mass_pro((prev)=>({
+                                        ...prev,
+                                        [innerKey]:{
+                                            ...prev[innerKey],
+                                            [processKey]:currentPoint > 0 ? currentPoint:''
+                                        }
+                                    }))
+                                })
+                            }else if(key === 'histogram_point'){
+                                console.log('histogram pointsssxxx');
+                                Object.entries(dataObjectCurrent).map(([key,values])=>{
+                                    console.log('histogram pointsss' , key ,values);
+                                    setHfpData((prev)=>({
+                                        ...prev,
+                                        [key]:{
+                                            ...prev[key],
+                                            ...values
+                                        }
+                                    }))
+                                })
+                            };
+                            
+
                         default:
                             break;
                     }
@@ -332,11 +440,9 @@ export default function Measure() {
     useEffect(() => {
         //manage dynamicdata @return all data
         console.log('Updating data!');
-
-
         setArrayBank(arrayBankNew)
         console.log('check if updating: ', cghlDetails);
-    }, [barellingDetails, timerDetails, magnetPoints,cghlDetails,cghTools,cghlPoint,processState,perpenCghlThickness])
+    }, [barellingDetails, timerDetails, magnetPoints,cghlDetails,cghTools,cghlPoint,processState,perpenCghlThickness,lappingForm,massProForm,hfpData,slicingDetails,slicingMassPro])
 
 
 
@@ -390,10 +496,11 @@ export default function Measure() {
 
 
     const handleBatch = async (batch_number) => {
+    
         setSubmittingForm(false);
         processForm?.reset()
-        processForm?.resetPoints()
-        processForm?.subreset()
+        typeof processForm?.resetPoints === 'function' ??  processForm?.resetPoints()
+        typeof processForm?.subreset === 'function' ?? processForm?.subreset()
         setEditBatch(false);
         setStatusCheck(false);
         setLoading(true);
@@ -478,6 +585,7 @@ export default function Measure() {
         console.log('Update post: ', processForm);
 
         setLoading(true);
+        
         try {
             await router.post('/machining-checklist/measure/update', { processForm, payload }, {
                 preserveScroll: true,
@@ -583,8 +691,10 @@ export default function Measure() {
 
         } else if(processState.process === 'cghl'){
              //time
+             console.log('CGGHHL: ',convertedData);
             convertedData.mass_pro &&
             Object.entries(convertedData.mass_pro).map(([key, values]) => {
+                console.log('cgh tools:', key , values);
                 setCghTools(key, values);
             })
 
@@ -598,9 +708,14 @@ export default function Measure() {
             Object.entries(convertedData.perpendicularity).map(([key, values]) => {
                 setPerpenCghlThickness(key, values);
             })
-        }
-
-
+        } else if(processState.process === 'lapping'){
+             //time
+            convertedData.mass_pro && Object.entries(convertedData.mass_pro).map(([key, values]) => {
+               setMassProForm(key,values);
+            })
+            
+           
+        } 
 
     }, [existing])
 
@@ -616,8 +731,6 @@ export default function Measure() {
         setData('process', process );
         setProcessForm(arrayBank[process]);
         console.log('Current Processform:' ,processForm);
-
-
     }, [processState, arrayBank ,GoToProcess])
 
     useEffect(() => {
@@ -647,8 +760,8 @@ export default function Measure() {
         if (current_lot) {
             console.log('HHELLOO LOOE', current_lot)
             processForm?.reset()
-            processForm?.subreset()
-            processForm?.resetPoints()
+            typeof processForm?.subreset === 'function' ?? processForm?.subreset()
+            typeof processForm?.resetPoints === 'function' ??  processForm?.resetPoints()
             processForm?.set('batch_number', current_lot.batch_number)
             processForm?.set('datalist_id', current_lot.datalist_id ?? null);//'data_lot_number': current_lot.data_lot_number
             processForm?.set('datalist_lot_number', current_lot.datalist_lot_number ?? null);
@@ -686,7 +799,7 @@ export default function Measure() {
         countCurrentEmpty > alloweAble[processState.process].preparing ? setProcessFromCount(false) : setProcessFromCount(true)
     }, [processForm, existing]);
 
-    console.log('DATA NOW:', processForm);
+    console.log('DATA NOW:', processFromCount);
 
     //Handle copy batch details @@handle
 
@@ -739,7 +852,7 @@ export default function Measure() {
             console.error("Error submitting form:", err);
         }
     }
-    console.log("Process: ", current_lot , processFromCount);
+    console.log("Processx:x ", slicingMassPro);
     return (
         <>
             {
@@ -829,7 +942,18 @@ export default function Measure() {
                                 cghlDetails={cghlDetails}
                                 setCghlDetails={setCghlDetails}
                                 edit={editBatch}
-                            />:null
+                            />
+                        :statusCheck &&  modelState && processState && processState.process === 'lapping' && (processForm?.details["status"] === 'preparing' || processForm?.details["status"] === 'prepared' || !processForm?.details["status"]) ?
+                            <LappingDetails
+                                        lappingForm={lappingForm}
+                                        setLappingForm={setLappingForm}
+                                        handleKeyDown={handleKeyDown}
+                                        LappingProcessing={LappingProcessing}
+                                        edit={editBatch}
+                            />
+                        :statusCheck &&  modelState && processState && processState.process === 'slicing' && (processForm?.details["status"] === 'preparing' || processForm?.details["status"] === 'prepared' || !processForm?.details["status"]) ?
+                            <SlicingDetails setSlicingDetails={setSlicingDetails} slicingDetails={slicingDetails} handleKeyDown={handleKeyDown}/>
+                        :null
                     }
 
                     {
@@ -891,7 +1015,29 @@ export default function Measure() {
                                         handlePartUpdate={handlePartUpdate}
                                         perpenCghlThickness={perpenCghlThickness}
                                     />
-                            :null
+                            : statusCheck && modelState && processState && processState.process === 'lapping' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
+                                    <LappingData  
+                                        currentModel={currentModel}
+                                        massProForm={massProForm}
+                                        setMassProForm={setMassProForm}
+                                        MassproProcessing={MassproProcessing}
+                                        edit={editBatch}
+                                        statusNow={processForm?.details["status"]}
+                                        hfpData={hfpData}
+                                        setHfpData={setHfpData}
+                                        process={processState.process??processState.process}
+                                    />
+                        :statusCheck &&  modelState && processState && processState.process === 'slicing' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
+                            <SlicingMeasuring 
+                                data={slicingMassPro} 
+                                setdata={setSlicingMassPro}
+                                handleKeyDown={handleKeyDown}
+                                target={model.slicing_target??null} 
+                                max={model.slicing_max??null} 
+                                min={model.slicing_min??null}
+                                points={model.slicing_points??null}
+                            />
+                        :null
                     }
 
                     {
@@ -970,6 +1116,27 @@ export default function Measure() {
                                         perpenCghlThickness={perpenCghlThickness}
                                     />
                                 </>
+                            : statusCheck && modelState && processState && processState.process === 'lapping' && processForm?.details["status"] === 'approved' ?
+                                <div>
+                                    <LappingDetails
+                                        lappingForm={lappingForm}
+                                        setLappingForm={setLappingForm}
+                                        handleKeyDown={handleKeyDown}
+                                        LappingProcessing={LappingProcessing}
+                                        edit={editBatch}
+                                    />
+                                    <LappingData  
+                                        currentModel={currentModel}
+                                        massProForm={massProForm}
+                                        setMassProForm={setMassProForm}
+                                        MassproProcessing={MassproProcessing}
+                                        edit={editBatch}
+                                        statusNow={processForm?.details["status"]}
+                                        hfpData={hfpData}
+                                        setHfpData={setHfpData}
+                                        process={processState.process??processState.process}
+                                    />
+                                </div>
                             : null
                     }
 

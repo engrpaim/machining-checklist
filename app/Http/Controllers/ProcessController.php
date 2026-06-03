@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\Barelling;
 use App\Models\cghModel;
+use App\Models\lappingModel;
 use App\Models\ModelDetails;
+use App\Models\slicingModel;
 use Mockery\Expectation;
 
 class ProcessController extends Controller
@@ -16,26 +18,37 @@ class ProcessController extends Controller
     {
         //return latest data
         try {
+
             $checkIfExist = $dbUse::where('datalist_id', $id)
                 ->where('datalist_lot_number', $lot_number)
                 ->orderBy('batch_number', 'desc')
                 ->first();
+
             return $checkIfExist;
+
         } catch (ModelNotFoundException $E) {
+
             return false;
+
         }
+
     }
     public function  checkBatch1(string $id, string $lot_number, string $dbUse)
     {
         //return latest data
         try {
+
             $checkIfExist = $dbUse::where('datalist_id', $id)
                 ->where('datalist_lot_number', $lot_number)
                 ->where('batch_number', 1)
                 ->first();
+
             return $checkIfExist;
+
         } catch (ModelNotFoundException $E) {
+
             return false;
+            
         }
     }
 
@@ -98,6 +111,8 @@ class ProcessController extends Controller
         $processBank = [
             'barelling' => Barelling::class,
             'cghl' => cghModel::class,
+            'lapping' => lappingModel::class,
+            'slicing' => slicingModel::class,
         ];
 
         $dataBank = [
@@ -130,10 +145,10 @@ class ProcessController extends Controller
                 'checker' => $checker,
                 'staff_engineer' => $staffEngineer
             ];
-
-
             return $this->savingQuery($dbUse, $addedBatch);
+
         } else {
+
             $initialData = [
                 'datalist_id' => $id,
                 'datalist_lot_number' => $lot_number,
@@ -144,6 +159,7 @@ class ProcessController extends Controller
                 'staff_engineer' => $staffEngineer
             ];
             return $this->savingQuery($dbUse, $initialData);
+            
         }
     }
 }

@@ -32,7 +32,7 @@ export default function GraphControlR({data , min , max}){
     const mergeData =[...[null],...data,...[null]]
     console.log('Graph R: ',mergeData,min);
     const dataset = {
-        labels: ['Value','1', '2', '3', '4', '5','6','7','8','9','End'],
+        labels: ['Value','1', '2', '3', '4', '5','6','7','8','9','10','End'],
         datasets: [
             {
                 label: 'R point',
@@ -50,8 +50,8 @@ export default function GraphControlR({data , min , max}){
     const options = {
         scales: {
             y: {
-                min: minCurrent + 0.01 ,
-                max:  maxCurrent - 0.02,
+                min: - 0.001 ,
+                max:  maxCurrent + 0.005,
             },
         },
 

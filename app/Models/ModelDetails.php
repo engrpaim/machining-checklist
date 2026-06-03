@@ -51,5 +51,7 @@ class ModelDetails extends Model
         'lapping_points',
         'cghl_points',
 
+        'histogram_point'
+
     ];
 }

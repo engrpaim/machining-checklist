@@ -193,7 +193,5 @@ Route::post('/machining-checklist/home/goto', [MachiningChecklistController::cla
 Route::post('/machining-checklist/admin/models', [AdminController::class, 'create']);
 Route::post('/machining-checklist/admin/user', [AdminController::class, 'createUser']);
 
-
 //dashboard
-
 Route::post('/machining-checklist/home/delete', [DashBoardController::class, 'delete']);

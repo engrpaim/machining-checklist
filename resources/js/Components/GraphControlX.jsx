@@ -25,16 +25,21 @@ ChartJS.register(
     ChartDataLabels
 );
 
-export default function GraphControlX({XAverage,model}){
-    console.log('Graph x: ',model);
+export default function GraphControlX({target,max,min,XAverage}){
+    
     const xdata = [null]
     const averageX =  XAverage ? XAverage:null
     const xmerge = averageX ? [ ...xdata , ...averageX] :null
-    const targetValue = Number(model.cghl_target);
-    const minValue = Number(model.cghl_min);
-    const maxValue = Number(model.cghl_max);
+    // const targetValue = Number(model.cghl_target);
+    // const minValue = Number(model.cghl_min);
+    // const maxValue = Number(model.cghl_max);
+
+    const targetValue = Number(target);
+    const minValue = Number(min);
+    const maxValue = Number(max);
+    
     const data = {
-        labels: ['Value','1', '2', '3', '4', '5','6','7','8','9','End'],
+        labels: ['Value','1', '2', '3', '4', '5','6','7','8','9','10','End'],
         datasets: [
             {
                 label: 'Good',

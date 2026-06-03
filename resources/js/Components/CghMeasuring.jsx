@@ -634,7 +634,11 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                     <h1>Dimension Graph</h1>
                     <div className="container-row" style={{  margin:'0rem'}}>
                         <div>
-                            <GraphControlX XAverage={XAverage} model={currentModel}/>
+                            <GraphControlX 
+                                XAverage={XAverage} 
+                                max={currentModel.cghl_max ?? 0}  
+                                min={currentModel.cghl_min ?? 0}
+                                target={currentModel.cghl_target ?? 0}/>
                         </div>
                         <div>
                             <GraphControlR data={allRaverage} min={SPCControlls.r_ucl} max={SPCControlls.average_UCL}/>
@@ -642,7 +646,7 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                     </div>
                          <div className="container-row" style={{  margin:'0rem'}}>
                         <div>
-                            <CountingGraph process={'Lapping'} specification={'Perpendicularity'} max={currentModel.cghl_max??0} min={currentModel.cghl_min??0} perpendicularity={perpenCghlThickness} maxperpen={currentModel.perpendicularity??0}/>
+                            <CountingGraph process={'cghl'} specification={'Perpendicularity'} max={currentModel.cghl_max??0} min={currentModel.cghl_min??0} perpendicularity={perpenCghlThickness} maxperpen={currentModel.perpendicularity??0}/>
                         </div>
                     </div>
                 </div>

@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 import { CrossIcon } from "../Icons/SVG";
 export default function Lapping({data , setData,setLotContainer}){
 

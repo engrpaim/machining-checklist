@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Barelling;
 use App\Models\cghModel;
 use App\Models\Datalist;
+use App\Models\lappingModel;
+use App\Models\slicingModel;
+
+  
 use Carbon\Carbon;
 use Exception;
 
@@ -17,6 +21,8 @@ class DashBoardController extends Controller
             'datalist' =>   Datalist::class,
             'barelling' =>   Barelling::class,
             'cghl' =>   cghModel::class,
+            'lapping' => lappingModel::class,
+            'slicing' => slicingModel::class
         ];
 
         if (!array_key_exists($page, $db)) return false;

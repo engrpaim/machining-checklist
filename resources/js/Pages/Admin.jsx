@@ -72,7 +72,7 @@ export default function Admin(){
         slicing_min: "",
         slicing_target: "",
         slicing_points:"",
-
+        histogram_point:"",
         flatness_lapping: "",
         height_lapping: "",
         parallelism_lapping: "",

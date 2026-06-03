@@ -95,6 +95,7 @@ export default function AdminUser({modelDetails,setModeltails,handleKeyDown,hand
                                                     </div>
                                                 </div>
                                             </div>
+                                            
                                             {/*Slicing Data*/}
                                             <div>
                                                 <div>
@@ -131,6 +132,13 @@ export default function AdminUser({modelDetails,setModeltails,handleKeyDown,hand
                                                     </div>
                                                     <h1>Histogram</h1>
                                                     <div className="modal-input">
+                                                        <label>Histogram points:</label>
+                                                        <input  type="number"
+                                                            value={modelDetails.histogram_point}
+                                                            onChange={(e)=>setModeltails('histogram_point',e.target.value)}
+                                                            onKeyDown={(e)=>handleKeyDown(e)}></input>
+                                                    </div>
+                                                     <div className="modal-input">
                                                         <label>Flatness:</label>
                                                         <input  type="number"
                                                             value={modelDetails.flatness_lapping}

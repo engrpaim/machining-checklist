@@ -26,7 +26,7 @@ ChartJS.register(
 export default function CountingGraph({process,specification,max,min,perpendicularity,maxperpen}){
      console.log('COUNTING PERPEN DATA: ',perpendicularity)
     const maxValue = Number(maxperpen)
-    const divisor = maxValue >= 0.05? 0.010:0.005
+    const divisor = maxValue >= 0.05? 0.0020:0.005
     const quotient = Math.ceil(maxValue/divisor)
     const subdivision = []
     const yAxis = []
@@ -40,7 +40,7 @@ export default function CountingGraph({process,specification,max,min,perpendicul
     //compute for the subdivision of max
     for(let i = 0; i < quotient ; i++){
         currentMax += divisor
-        const minPush = currentMin+0.001
+        const minPush =  currentMin+0.001
         let newMax = currentMax > maxValue ? maxValue: currentMax
         newMax = newMax === maxValue?  maxValue - 0.001 :newMax
         subdivision.push({min:Number(minPush.toFixed(3)),max:Number((newMax).toFixed(3))})
@@ -54,11 +54,12 @@ export default function CountingGraph({process,specification,max,min,perpendicul
         const minMaxCombine = items[1]
         const labelGraph = minMaxCombine.min.toFixed(3) + ` ~ ` + minMaxCombine.max.toFixed(3)
         yAxis.push(labelGraph)
+        yAxis[0]= '0.00' +divisor
         console.log('xxx: ',minMaxCombine , minMaxCombine.min , minMaxCombine.max,yAxis,);
     })
 
     //map grap average value per points of magnet
-    if(perpendicularity){
+    if(perpendicularity && process === 'cghl'){
         Object.entries(perpendicularity).map(([key,value])=>{
             let currentMaxPoint = 0;
             let graphIndex = null;
@@ -78,14 +79,42 @@ export default function CountingGraph({process,specification,max,min,perpendicul
                     currentData.push(currentMaxPoint >= insideValue.min && currentMaxPoint <= insideValue.max?  graphIndex =  1:null)
                     currentMaxPoint >= insideValue.min && currentMaxPoint <= insideValue.max && currentMaxPoint < maxValue?colorSet = colorMap[key]: currentMaxPoint >= maxValue? colorSet= 'red':null
                 })
-
+                console.log('dataaa',currentData);
                 maxPerpenDicularity[key]= {label:`Magnet ${key}`, data:currentData,backgroundColor:colorSet}
                 currentData =[]
                 }
             })
         })
-    }
+    }else if(perpendicularity && process === 'lapping'){
 
+        // single format
+        let checkPlacement = []
+        let count = 1
+        let colorSet = ''
+
+        Object.values(perpendicularity).map((values)=>{
+                console.log('lapping counting: ',values);
+            Object.entries(subdivision).map(([insideKey,insideValue])=>{
+                console.log('lapping checking: ',values,insideKey,insideValue); 
+                
+                const inBetweenData = Number(values.toFixed(3)) >= insideValue.min && Number(values.toFixed(3)) <= insideValue.max?    1:null
+                checkPlacement.push(inBetweenData) 
+                inBetweenData ? colorSet = colorMap[count]:null
+
+                if(values === 0){
+                    checkPlacement[0] = 1 
+                    colorSet = colorMap[count]
+                }  
+
+                 console.log(checkPlacement)
+            })
+            
+            maxPerpenDicularity[count]= {label:`Magnet ${count}`, data:checkPlacement,backgroundColor:colorSet}
+            count += 1
+            checkPlacement =[]
+        })
+    }   
+    console.log('maxperpen',maxPerpenDicularity,yAxis);
     // stacked bar graph data,settings and design
     const data = {
         labels: yAxis,
@@ -116,7 +145,7 @@ export default function CountingGraph({process,specification,max,min,perpendicul
     return(
         <>
             <div  style={{ display:'flex' ,color: '#19232e',justifyContent:'center',flexDirection:'column',width:'40vw', height:'40vh', padding:'2rem', background:'white',borderRadius:'1rem' ,minWidth:'fit-content'}}>
-                <h1 style={{ color: '#19232e' }}>{process}&nbsp;{specification}&nbsp;Histogram Chart</h1>
+                <h1 style={{ color: '#19232e' }}>{process ?process[0].toUpperCase() + process.slice(1):null}&nbsp;{specification}&nbsp;Histogram Chart</h1>
                 <p>Max{Number(maxValue).toFixed(3)}</p>
                 <Bar data={data} options={options} />
             </div>
