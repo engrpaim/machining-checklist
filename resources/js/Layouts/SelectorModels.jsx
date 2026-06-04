@@ -34,7 +34,7 @@ export default function SelectorModels({ model, setProcessState, setModelState, 
                             disabled={!modelState} value={processState && processState.process? processState.process:null} 
                             onChange={(e) => setProcessState({ process: e.target.value, value: processValues[e.target.value] })}
                         >
-                            <option disabled={true}></option>
+                            <option disabled={true} selected={true}></option>
                             <option value="barelling" >IN-PROCESS INSPECTION SHEET</option>
                             <option value="cghl">CGH (L) DIMENSION MONITORING</option>
                             <option value="lapping">LAPPING (T) DIMENSION MONITORING</option>
