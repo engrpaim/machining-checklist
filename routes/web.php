@@ -61,6 +61,10 @@ use Carbon\Carbon;
 Route::get('/', function () {
     return redirect('/machining-checklist/home');
 });
+
+Route::get('/machining-checklist', function () {
+    return redirect('/machining-checklist/home');
+});
 Route::get('/machining-checklist/home', function (Request $request) {
 
     //default filtering

@@ -1,4 +1,5 @@
 
+import SlicingGraph from "./SlicingGraph";
 export default function MassProRow({category = 3,point = 3,row,data,set,handleKeyDown,target,max,min,layers = 1}){
     const timing = ["Start","Middle","End"]
 
@@ -37,7 +38,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                                 ...judgementResult ,
                                                 [i+1]:{
                                                         ...(judgementResult[i+1] || {}),
-                                                        [j+1+`${suffix}${x+1}`]:{
+                                                        [j+1+(suffix?`${suffix}${x+1}`:0)]:{
                                                                 ...(judgementResult[i+1]?.[k+1] || {}),
                                                                     max:currentMax,
                                                                     min:currentMin,
@@ -89,6 +90,9 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                 <th className="data-color">Max</th>
                                 <th className="data-color">Min</th>
                                 <th className="data-color">Worst</th>
+                                <th className="lower-color">Lower Limit</th>
+                                <th className="accepted-color">Accepted</th>
+                                <th className="higher-color">Higher Limit</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -125,9 +129,12 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                                                     </td>
                                                                 ))
                                                             }
-                                                            <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+`${suffix}${x+1}`] ? judgementResult[j+1]?.[i+1+`${suffix}${x+1}`].max:null}   </td>
-                                                            <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+`${suffix}${x+1}`] ? judgementResult[j+1]?.[i+1+`${suffix}${x+1}`].min:null}   </td>
-                                                            <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+`${suffix}${x+1}`] ? judgementResult[j+1]?.[i+1+`${suffix}${x+1}`].worst:null} </td>                                                    
+                                                            <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].max:null}   </td>
+                                                            <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].min:null}   </td>
+                                                            <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].worst:null} </td>
+                                                            <td></td>   
+                                                            <td></td> 
+                                                            <td></td>                                                  
                                                         </tr> 
                                                     )
                                                 )
@@ -138,11 +145,6 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                             }
                         </tbody>
                     </table>
-                </div>
-            </div>
-            <div className="details-white">
-                <div className='container-theme-black'>
-                    <h1>Row</h1>
                 </div>
             </div>
         </div>

@@ -30,8 +30,11 @@ export default function SelectorModels({ model, setProcessState, setModelState, 
                     <hr className="inside-hr" />
                     <div className="inside-spacebetween">
                         <label>Process:&nbsp;</label>
-                        <select disabled={!modelState} value={processState && processState.process ?processState.process:null} onChange={(e) => setProcessState({ process: e.target.value, value: processValues[e.target.value] })}>
-                            <option></option>
+                        <select 
+                            disabled={!modelState} value={processState && processState.process? processState.process:null} 
+                            onChange={(e) => setProcessState({ process: e.target.value, value: processValues[e.target.value] })}
+                        >
+                            <option disabled={true}></option>
                             <option value="barelling" >IN-PROCESS INSPECTION SHEET</option>
                             <option value="cghl">CGH (L) DIMENSION MONITORING</option>
                             <option value="lapping">LAPPING (T) DIMENSION MONITORING</option>
