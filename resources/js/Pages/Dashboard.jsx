@@ -9,15 +9,16 @@ import devPic from '../Icons/dev.png';
 export default function Dashboard(){
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page');
+    const pageFiltered = params.get('page-filtered');
     const {flash , allLot , ip_client ,modelsList} = usePage().props
     const [clientIp,setClientIp] = useState(ip_client);
-    const [viewOption ,setViewOption] = useState(page ?'viewlist':'home');
+    const [viewOption ,setViewOption] = useState(page || pageFiltered ?'viewlist':'home');
   
     console.log(allLot,flash,'Modelx: ',modelsList,params);
     return(
         <>
         
-        <main>
+        <main >
             <div>
                 <h1>Dashboard - Machining Checklist</h1>
             </div>
@@ -51,8 +52,8 @@ export default function Dashboard(){
                         </div>
                     </section>:
                 viewOption === 'viewlist'?
-                    <section className="">
-                        <div>
+                    <section >
+                        <div >
                             <AllProcess data={allLot} clientIp={clientIp} model={modelsList}/>
                         </div>
                     </section>

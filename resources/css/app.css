@@ -2057,10 +2057,22 @@ td {
     outline:1px #8BD5FD solid;
 }
 
-.lower-color{
-    background: #C11007;
-    color:#FEE8E6;
-    width: 7 rem;
+.lower-color-limit{
+    background: #FFCCD3;
+    color:#71050C;
+    width: 10rem;
+}
+
+.accepted-color-limit{
+    background: #B9F8CF;
+    color:#034F3B;
+    width: 15rem;
+}
+
+.higher-color-limit{
+    background: #FFD6A7;
+    color:#6F2D06;
+    width: 10rem;
 }
 
 .lower-color{

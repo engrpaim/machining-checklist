@@ -407,7 +407,7 @@ export default function Measure() {
                                     }))
                                 })
                             };
-                            
+                        
 
                         default:
                             break;
@@ -712,6 +712,13 @@ export default function Measure() {
              //time
             convertedData.mass_pro && Object.entries(convertedData.mass_pro).map(([key, values]) => {
                setMassProForm(key,values);
+            })
+            
+           
+        }  else if(processState.process === 'slicing'){
+             //time
+            convertedData.mass_pro && Object.entries(convertedData.mass_pro).map(([key, values]) => {
+               setSlicingMassPro(key,values);
             })
             
            

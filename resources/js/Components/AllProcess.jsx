@@ -100,7 +100,7 @@ export default function AllProcess({data , clientIp , model}){
   return dateString ? dateString.split('T')[0] : '';
 };
     return(
-        <div className="dashboard-container">
+        <div className="dashboard-container" style={{ width:'90vw' }}>
             {
                 loading && <Loading/>
             }
@@ -138,8 +138,8 @@ export default function AllProcess({data , clientIp , model}){
                             <tr>
                                 <th style={{ width:'9rem' }}>Model</th>
                                 <th style={{ width:'9rem' }}>Lot Number</th>
-                                <th>Shift</th>
-                                <th>Shift Date</th>
+                                <th style={{ width:'9rem' }}>Shift</th>
+                                <th style={{ width:'9rem' }}>Shift Date</th>
                                 <th  style={{ width:'16rem' }}>Process </th>
                                 {
                                     clientIp &&<th>Action</th>
