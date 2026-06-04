@@ -7,10 +7,13 @@ import smpLogo from '../Icons/smp_logo.png';
 import AELogo from '../Icons/AE2.png';
 import devPic from '../Icons/dev.png';
 export default function Dashboard(){
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get('page');
     const {flash , allLot , ip_client ,modelsList} = usePage().props
     const [clientIp,setClientIp] = useState(ip_client);
-    const [viewOption ,setViewOption] = useState('home');
-    console.log(allLot,flash,'Modelx: ',modelsList);
+    const [viewOption ,setViewOption] = useState(page ?'viewlist':'home');
+  
+    console.log(allLot,flash,'Modelx: ',modelsList,params);
     return(
         <>
         
@@ -29,7 +32,7 @@ export default function Dashboard(){
                             <div className="home-title">
                                 <h1>Machining Checklist</h1>
                             </div>
-                            <div style={{ display:'flex' , flexDirection:'row',gap:'1rem' }}>
+                            <div style={{ display:'flex' , flexDirection:'row',gap:'1rem'  ,animation: 'fadeIn 0.2s ease-in-out' }}>
                                 <div className="home-buttons">
                                     <button className="home-nav" onClick={(e)=>setViewOption('viewlist')}>View List</button>
                                 </div>
@@ -42,7 +45,7 @@ export default function Dashboard(){
                         </div>
                         <div className="footer-bg">
                             <div className="footer-col">
-                                <img className="ae-logo"  src={AELogo}/> by Automation Engineering
+                                <img className="ae-logo"  src={AELogo}/> by Automation Engineering 
                             </div>
                             <p>&copy; 2026 Shin-Etsu Magnetics Philippines, Inc. All rights reserved.</p>
                         </div>

@@ -2066,19 +2066,19 @@ td {
 .lower-color{
     background: #C11007;
     color:#FEE8E6;
-    width: 7rem;
+    width: 10rem;
 }
 
 .accepted-color{
     background: #047154;
     color:#BAFDEB;
-    width: 7rem;
+    width: 15rem;
 }
 
 .higher-color{
     background: #D03C01;
     color:#FFEDE6;
-    width: 7rem;
+    width: 10rem;
 }
 .home-option{
     display: flex;
@@ -2126,6 +2126,7 @@ td {
 .home-buttons button{
      cursor: pointer;
     background-image: linear-gradient(to right, #1FA2FF 0%, #12D8FA 51%, #1FA2FF 100%);
+      animation: fadeIn 2s ease-in-out;
 }
 .home-buttons a{
     text-decoration: none;
@@ -2155,7 +2156,7 @@ td {
     height: 5rem;
 }
 .footer-bg{
-     animation: fadeIn 1s ease-in-out;
+     animation: fadeIn 3s ease-in-out;
     position: absolute;
     bottom:0;
     display: flex;

@@ -38,7 +38,7 @@ export default function SelectorModels({ model, setProcessState, setModelState, 
                             <option value="barelling" >IN-PROCESS INSPECTION SHEET</option>
                             <option value="cghl">CGH (L) DIMENSION MONITORING</option>
                             <option value="lapping">LAPPING (T) DIMENSION MONITORING</option>
-                            <option value="slicing" disabled={true}>SLICING (W) MONITORING</option>
+                            <option value="slicing" >SLICING (W) MONITORING</option>
                         </select>
                     </div>
                 </div>
