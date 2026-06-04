@@ -2112,6 +2112,7 @@ td {
 
 .home-option{
     margin:1rem;
+     animation: fadeIn 1s ease-in-out;
 }
 
 .home-title h1{
@@ -2154,6 +2155,7 @@ td {
     height: 5rem;
 }
 .footer-bg{
+     animation: fadeIn 1s ease-in-out;
     position: absolute;
     bottom:0;
     display: flex;
