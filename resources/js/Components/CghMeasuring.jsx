@@ -69,8 +69,8 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
 
     const resultStatusJudgement=()=>{
-        const max = currentModel.cghl_max
-        const min = currentModel.cghl_min
+        const max = Number(currentModel.cghl_max)
+        const min = Number(currentModel.cghl_min)
 
         const TOL = max - min
         const STEP = Number((TOL/10) - 0.001)
