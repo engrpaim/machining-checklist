@@ -167,7 +167,7 @@ const options = {
                     label: {
                         display: true,
                         content: 'TARGET',
-                        position: 'top',
+                        position: 'start',
                         color:'#011912'
                     },
                 },
