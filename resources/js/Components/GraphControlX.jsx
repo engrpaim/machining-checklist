@@ -53,7 +53,7 @@ export default function GraphControlX({target,max,min,XAverage}){
                     console.log(context , context.dataIndex);
                     if(context.dataIndex <= 0 )return 'blue'
 
-                    const color = context.raw >= targetValue && context.raw <= maxValue - 0.005 ? 'blue': (context.raw <= targetValue && context.raw >= minValue) || (context.raw > maxValue - 0.005 && context.raw < maxValue) ?'orange':'red'
+                    const color = context.raw >= minValue && context.raw <= maxValue - 0.005 ? 'blue': (context.raw <= targetValue && context.raw >= minValue) || (context.raw > maxValue - 0.005 && context.raw < maxValue) ?'orange':'red'
                     return  color
                 },
                 segment:{
@@ -64,7 +64,7 @@ export default function GraphControlX({target,max,min,XAverage}){
                             const currentPoint = ctx[`p${i}`].raw
                             const nextPoint = ctx[`p${i+1}`].raw ? ctx[`p${i+1}`].raw : 0
 
-                            return currentPoint >= targetValue && currentPoint <= maxValue - 0.005 && (nextPoint >= targetValue && nextPoint <= maxValue -0.005 || 0) ? '#142E90':'red'
+                            return currentPoint >= minValue && currentPoint <= maxValue - 0.005 && (nextPoint >= minValue && nextPoint <= maxValue -0.005 || 0) ? '#142E90':'red'
 
                         }
                      }
@@ -114,7 +114,7 @@ const options = {
                     const index = context.dataIndex
                     const data = xmerge[index]
 
-                    return data >= targetValue && data <= maxValue - 0.005 && data >= targetValue && data <= maxValue -0.005 ? '#142E90'
+                    return data >= minValue && data <= maxValue - 0.005 && data >= minValue && data <= maxValue -0.005 ? '#142E90'
                                 : (context.raw < targetValue ||  context.raw > maxValue - 0.005 ) && (context.raw < maxValue || context.raw > minValue ) ?'orange'
                                 :'red'
                 },
@@ -137,7 +137,7 @@ const options = {
                         content: 'MIN',
                         position: 'end',
                         color:'#753F00',
-                        align:'bottom'
+                       
                     },
                 },
                 maxLine: {
@@ -150,15 +150,15 @@ const options = {
                     label: {
                         display: true,
                         content: 'MAX',
-                        align:'top',
+                      
                         color:'#753F00',
-                        position: 'end',
+                        position: 'start',
                     },
                 },
                 targetLine: {
                     type: 'box',
                     yMin: maxValue - 0.005,
-                    yMax: targetValue,
+                    yMax: Number(min) + 0.01,
                     borderColor: 'green',
                     backgroundColor:'rgba(5, 223, 114,.1)',
                     borderDash: [6, 6],

@@ -64,7 +64,7 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
        // return  point > refValueNew.AA90 && point < refValueNew.AA91? 'ACCEPT' :point >= refValueNew.AA87 && point <= refValueNew.AA94 ?'FOR ADJUSTMENT' :point ? 'REJECT':null
         if(!point || point === 0) return
-       return  point  < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT':point < refValueNew.OK_DIM_MIN || point > refValueNew.AA96?'FOR ADJUSTMENT':'ACCEPT'
+       return  point  < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT':point < refValueNew.AA87 + 0.01 || point > refValueNew.AA96?'FOR ADJUSTMENT':'ACCEPT'
     }
 
 
