@@ -26,8 +26,8 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
 
                         currentMax = !currentMax && value? value:value > currentMax? value:currentMax
                         currentMin = !currentMin && value? value:value < currentMin? value:currentMin
-                        
-                        limitValue =  value && value > min - 0.01 &&  value < max - 0.01 ? 'accept' : value && value <= min - 0.01?'lower':value && value >= max - 0.01 ?'higher':''
+                        console.log('limitttxxx' , min - 0.01 ,Number(min) + 0.01 );
+                        limitValue =  value && value > Number(min) + 0.01 &&  value < Number(max) - 0.01 ? 'accept' : value && value < Number(min) + 0.01?'lower':value && value >= Number(max) - 0.01 ?'higher':''
                         currentLimit = {
                             ...currentLimit,
                             [k+1]:limitValue

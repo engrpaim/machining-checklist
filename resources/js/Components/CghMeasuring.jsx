@@ -46,13 +46,13 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
     const refereceValues=(u=0)=>{
         const currentCell = u
         const values = {
-            AA90:currentModel.cghl_target - 0.001,
-            AA87:currentModel.cghl_min,
-            AA94:currentModel.cghl_max,
+            AA90:Number(currentModel.cghl_target) - 0.001,
+            AA87:Number(currentModel.cghl_min),
+            AA94:Number(currentModel.cghl_max),
             AA95:currentCell+0.001,
-            AA91:currentModel.cghl_max - 0.005,
-            AA96:(currentModel.cghl_max - 0.005) - 0.001,
-            OK_DIM_MIN:currentModel.cghl_target,
+            AA91:Number(currentModel.cghl_max) - 0.005,
+            AA96:(Number(currentModel.cghl_max) - 0.005) - 0.001,
+            OK_DIM_MIN:Number(currentModel.cghl_target),
             OK_DIM_MAX:currentCell - 0.001
         }
         return values
