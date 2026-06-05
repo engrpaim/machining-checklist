@@ -133,7 +133,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                                                     <td>
                                                                         <input id={`p${k+1}_${i+1}` + (suffix ? `${suffix}${x+1}`:'')}
                                                                             onKeyDown={(e)=>handleKeyDown(e)}
-                                                                            value={data?.[`p${k+1}_${i+1}` + (suffix ? `${suffix}${x+1}`:'')]}
+                                                                            value={data[j+1]?.[`p${k+1}_${i+1}` + (suffix ? `${suffix}${x+1}`:'')]}
                                                                             onChange={
                                                                                 (e)=>set?.((prev)=>
                                                                                     ({

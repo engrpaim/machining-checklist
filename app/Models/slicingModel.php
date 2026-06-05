@@ -28,10 +28,12 @@ class slicingModel extends Model
         'comparator_serial_number',
         'perpendicularity',
         'parallelism',
+        'mass_pro'
     ];
 
     protected $casts = [
         'perpendicularity' => 'array',
-        'parallelism' => 'array'
+        'parallelism' => 'array',
+        'mass_pro' => 'array'
     ];
 }

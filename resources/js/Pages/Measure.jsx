@@ -407,7 +407,12 @@ export default function Measure() {
                                     }))
                                 })
                             };
-                        
+                        case "slicing":
+                            if(key === 'mass_pro'){
+                                console.log('go to slicing: ',dataObjectCurrent);
+                                setSlicingMassPro({...dataObjectCurrent});
+                            }
+                            break;
 
                         default:
                             break;
@@ -1039,10 +1044,10 @@ export default function Measure() {
                                 data={slicingMassPro} 
                                 setdata={setSlicingMassPro}
                                 handleKeyDown={handleKeyDown}
-                                target={model.slicing_target??null} 
-                                max={model.slicing_max??null} 
-                                min={model.slicing_min??null}
-                                points={model.slicing_points??null}
+                                target={model && model.slicing_target ? model.slicing_target:null} 
+                                max={model && model.slicing_max ? model.slicing_max:null} 
+                                min={model && model.slicing_min ? model.slicing_min:null}
+                                points={model && model.slicing_points ? model.slicing_points:null}
                             />
                         :null
                     }
@@ -1144,7 +1149,20 @@ export default function Measure() {
                                         process={processState.process??processState.process}
                                     />
                                 </div>
-                            : null
+                            :statusCheck &&  modelState && processState && processState.process === 'slicing' && processForm?.details["status"] === 'approved'  ?
+                                <div className="container-column">
+                                    <SlicingDetails setSlicingDetails={setSlicingDetails} slicingDetails={slicingDetails} handleKeyDown={handleKeyDown}/>
+                                    <SlicingMeasuring 
+                                        data={slicingMassPro} 
+                                        setdata={setSlicingMassPro}
+                                        handleKeyDown={handleKeyDown}
+                                        target={model && model.slicing_target ? model.slicing_target:null} 
+                                        max={model && model.slicing_max ? model.slicing_max:null} 
+                                        min={model && model.slicing_min ? model.slicing_min:null}
+                                        points={model && model.slicing_points ? model.slicing_points:null}
+                                    />
+                                </div>
+                            :null
                     }
 
 

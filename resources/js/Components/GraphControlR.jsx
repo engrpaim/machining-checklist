@@ -27,8 +27,13 @@ ChartJS.register(
 
 export default function GraphControlR({data , min , max}){
 
-    const maxCurrent = max? Number(max.toFixed(3)) : 0
-    const minCurrent = min ?Number(min.toFixed(3)) : 0
+    let maxCurrent = 0
+    let minCurrent = 0
+    Object.entries(data).map(([key,value])=>{
+        maxCurrent = value > maxCurrent ? value:maxCurrent
+        minCurrent = value < minCurrent ? value:minCurrent
+    })
+  
     const mergeData =[...[null],...data,...[null]]
     console.log('Graph R: ',mergeData,min);
     const dataset = {
@@ -50,8 +55,8 @@ export default function GraphControlR({data , min , max}){
     const options = {
         scales: {
             y: {
-                min: - 0.001 ,
-                max:  maxCurrent + 0.005,
+                min: minCurrent < - 0.02 ? minCurrent - 0.02 : -0.02 ,
+                max:  maxCurrent + 0.02,
             },
         },
 
