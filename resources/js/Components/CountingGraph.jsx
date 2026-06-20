@@ -34,7 +34,10 @@ export default function CountingGraph({process,specification,max,min,perpendicul
     let currentMin = 0
     let currentMax = 0
     let maxPointValue = 0
-    const colorMap = ['#FF6467','#FE9A37','#31C950','#3BB8DB','#615FFF','#FDC745','#615FFF','#FFDF20','#FF637E','#F9068C']
+    const colorMap = ['#FF6467','#FE9A37','#31C950','#3BB8DB','#615FFF','#FDC745','#615FFF','#FFDF20','#FF637E','#F9068C'
+                       ,'#FF6467','#FE9A37','#31C950','#3BB8DB','#615FFF','#FDC745','#615FFF','#FFDF20','#FF637E','#F9068C',
+                       '#FF6467','#FE9A37','#31C950','#3BB8DB','#615FFF','#FDC745','#615FFF','#FFDF20','#FF637E','#F9068C'
+    ]
     console.log('DIVIDER: ',maxValue , divisor, quotient)
 
     //compute for the subdivision of max
@@ -43,8 +46,8 @@ export default function CountingGraph({process,specification,max,min,perpendicul
         const minPush =  currentMin+0.001
         let newMax = currentMax > maxValue ? maxValue: currentMax
         newMax = newMax === maxValue?  maxValue - 0.001 :newMax
-        subdivision.push({min:Number(minPush.toFixed(3)),max:Number((newMax).toFixed(3))})
-        i === quotient - 1 ?  subdivision.push({min:Number(maxValue),max:9999}):null
+        subdivision.push({min:i === 0 ? 0.000:Number(minPush.toFixed(3)),max:Number((newMax).toFixed(3))})
+        i === quotient - 1 ?  subdivision.push({min:Number(maxValue),max:999999999}):null
         currentMin = currentMax
     }
 
@@ -93,11 +96,39 @@ export default function CountingGraph({process,specification,max,min,perpendicul
         let colorSet = ''
 
         Object.values(perpendicularity).map((values)=>{
-                console.log('lapping counting: ',values);
+            console.log('lapping counting: ',values);
             Object.entries(subdivision).map(([insideKey,insideValue])=>{
                 console.log('lapping checking: ',values,insideKey,insideValue); 
                 
                 const inBetweenData = Number(values.toFixed(3)) >= insideValue.min && Number(values.toFixed(3)) <= insideValue.max?    1:null
+                checkPlacement.push(inBetweenData) 
+                inBetweenData ? colorSet = colorMap[count]:null
+
+                if(values === 0){
+                    checkPlacement[0] = 1 
+                    colorSet = colorMap[count]
+                }  
+
+                 console.log(checkPlacement)
+            })
+            
+            maxPerpenDicularity[count]= {label:`Magnet ${count}`, data:checkPlacement,backgroundColor:colorSet}
+            count += 1
+            checkPlacement =[]
+        })
+    }else if(perpendicularity && process === 'slicing'){
+
+        // single format
+        let checkPlacement = []
+        let count = 1
+        let colorSet = ''
+
+        Object.values(perpendicularity).map((values)=>{
+                console.log('lapping counting: ',values);
+            Object.entries(subdivision).map(([insideKey,insideValue])=>{
+                console.log('lapping checking: ',values,insideKey,insideValue); 
+                
+                const inBetweenData =  Number(values.toFixed(3)) >= insideValue.min && Number(values.toFixed(3)) <= insideValue.max?    1:null
                 checkPlacement.push(inBetweenData) 
                 inBetweenData ? colorSet = colorMap[count]:null
 
@@ -135,17 +166,18 @@ export default function CountingGraph({process,specification,max,min,perpendicul
                 },
             y: {
                 min: 0,
-                max:10,
-                 stacked: true
+                max:perpendicularity.length > 10 ? perpendicularity.length / 1.2 :10,
+                stacked: true
             }
         }
+
     };
 
     console.log('counting g: ',subdivision, ' max average: ',maxPerpenDicularity);
     return(
         <>
             <div  style={{ display:'flex' ,color: '#19232e',justifyContent:'center',flexDirection:'column',width:'40vw', height:'40vh', padding:'2rem', background:'white',borderRadius:'1rem' ,minWidth:'fit-content'}}>
-                <h1 style={{ color: '#19232e' }}>{process ?process[0].toUpperCase() + process.slice(1):null}&nbsp;{specification}&nbsp;Histogram Chart</h1>
+                <h1 style={{ color: '#19232e' }}>{process ? process[0].toUpperCase() + process.slice(1):null}&nbsp;{specification}&nbsp;Histogram Chart</h1>
                 <p>Max{Number(maxValue).toFixed(3)}</p>
                 <Bar data={data} options={options} />
             </div>

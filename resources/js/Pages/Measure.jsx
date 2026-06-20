@@ -48,7 +48,7 @@ export default function Measure() {
     const [passworModal, setPasswordModal] = useState(false);
     const [copyBatchDetails ,setCopyBatchDetails] = useState(false);
     const [histogram,setHistogram] = useState(false);
-
+    
     //Notification
     const [flashNotification , setFlashNotification] = useState(false);
     const [Notification, setNotification] = useState(false);
@@ -225,6 +225,8 @@ export default function Measure() {
     });
 
     const {data:slicingMassPro , setData:setSlicingMassPro , processing: slicingMassproProcessing, reset:slicingMassProReset}=useForm({})
+    const {data:slicingPerpenD , setData:setSlicingPerpenD , processing: slicingPerpenDProcessing, reset:slicingPerpenDReset}=useForm({})
+    const {data:slicingParallelism , setData:setSlicingParallelism , processing: slicingParallelismProcessing, reset:slicingParallelismReset}=useForm({})
 
     const handleCloseModal = () => {
         setTriModal(false);
@@ -285,6 +287,11 @@ export default function Measure() {
                 details:slicingDetails,
                 set:setSlicingDetails,
                 mass_pro:slicingMassPro,
+                perpendicularity: slicingPerpenD,
+                parallelism:slicingParallelism,
+                set_parallelism:setSlicingParallelism,
+                subreset:slicingMassProReset,
+                set_perpen:setPerpenCghlThickness,
                 set_data:setData,
                 reset:slicingReset,
             },
@@ -411,6 +418,12 @@ export default function Measure() {
                             if(key === 'mass_pro'){
                                 console.log('go to slicing: ',dataObjectCurrent);
                                 setSlicingMassPro({...dataObjectCurrent});
+                            }else if(key === 'perpendicularity'){
+                                console.log('go to slicsing: ',dataObjectCurrent);
+                                setSlicingPerpenD({...dataObjectCurrent});
+                            }else if(key === 'parallelism'){
+                                console.log('go to slicsing: ',dataObjectCurrent);
+                                setSlicingParallelism({...dataObjectCurrent});
                             }
                             break;
 
@@ -447,7 +460,12 @@ export default function Measure() {
         console.log('Updating data!');
         setArrayBank(arrayBankNew)
         console.log('check if updating: ', cghlDetails);
-    }, [barellingDetails, timerDetails, magnetPoints,cghlDetails,cghTools,cghlPoint,processState,perpenCghlThickness,lappingForm,massProForm,hfpData,slicingDetails,slicingMassPro])
+    }, 
+        [
+            barellingDetails, timerDetails, magnetPoints,cghlDetails,cghTools,cghlPoint,processState,
+            perpenCghlThickness,lappingForm,massProForm,hfpData,slicingDetails,
+            slicingMassPro,slicingPerpenD,slicingParallelism
+        ])
 
 
 
@@ -505,6 +523,7 @@ export default function Measure() {
         setSubmittingForm(false);
         processForm?.reset()
         typeof processForm?.resetPoints === 'function' ??  processForm?.resetPoints()
+        typeof processForm?.subreset === 'function' ?? processForm?.subreset()
         typeof processForm?.subreset === 'function' ?? processForm?.subreset()
         setEditBatch(false);
         setStatusCheck(false);
@@ -725,8 +744,13 @@ export default function Measure() {
             convertedData.mass_pro && Object.entries(convertedData.mass_pro).map(([key, values]) => {
                setSlicingMassPro(key,values);
             })
-            
-           
+
+            convertedData.perpendicularity && Object.entries(convertedData.perpendicularity).map(([key, values]) => {
+               setSlicingPerpenD(key,values);
+            })
+           convertedData.parallelism && Object.entries(convertedData.parallelism).map(([key, values]) => {
+               setSlicingParallelism(key,values);
+            })
         } 
 
     }, [existing])
@@ -1043,11 +1067,17 @@ export default function Measure() {
                             <SlicingMeasuring 
                                 data={slicingMassPro} 
                                 setdata={setSlicingMassPro}
+                                perpenD={slicingPerpenD}
+                                setPerpenD={setSlicingPerpenD}
                                 handleKeyDown={handleKeyDown}
+                                parallelism={slicingParallelism}
+                                setParallelism={setSlicingParallelism}
                                 target={model && model.slicing_target ? model.slicing_target:null} 
                                 max={model && model.slicing_max ? model.slicing_max:null} 
                                 min={model && model.slicing_min ? model.slicing_min:null}
-                                points={model && model.slicing_points ? model.slicing_points:null}
+                                edit={editBatch}
+                                statusNow={processForm?.details["status"]}
+                                processing={slicingProcessing}
                             />
                         :null
                     }
@@ -1151,15 +1181,29 @@ export default function Measure() {
                                 </div>
                             :statusCheck &&  modelState && processState && processState.process === 'slicing' && processForm?.details["status"] === 'approved'  ?
                                 <div className="container-column">
-                                    <SlicingDetails setSlicingDetails={setSlicingDetails} slicingDetails={slicingDetails} handleKeyDown={handleKeyDown}/>
+                                    <SlicingDetails 
+                                        setSlicingDetails={setSlicingDetails} 
+                                        slicingDetails={slicingDetails} 
+                                        handleKeyDown={handleKeyDown}
+                                        edit={editBatch}
+                                        statusNow={processForm?.details["status"]}
+                                        processing={slicingProcessing}
+                                    />
                                     <SlicingMeasuring 
                                         data={slicingMassPro} 
                                         setdata={setSlicingMassPro}
+                                        perpenD = {slicingPerpenD}
+                                        setPerpenD={setSlicingPerpenD}
+                                        parallelism={slicingParallelism}
+                                        setParallelism={setSlicingParallelism}
                                         handleKeyDown={handleKeyDown}
                                         target={model && model.slicing_target ? model.slicing_target:null} 
                                         max={model && model.slicing_max ? model.slicing_max:null} 
                                         min={model && model.slicing_min ? model.slicing_min:null}
                                         points={model && model.slicing_points ? model.slicing_points:null}
+                                        edit={editBatch}
+                                        statusNow={processForm?.details["status"]}
+                                        processing={slicingProcessing}
                                     />
                                 </div>
                             :null

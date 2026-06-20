@@ -1990,24 +1990,28 @@ td {
 
 
 .masspro-table  .point-masspro{
-    width: 7.5rem;
+    min-width: 7.5rem;
 }
 
 .masspro-table  .accept-masspro, .accept-masspro{
     background: #178236;
-    width: 7.5rem;
+    min-width: 7.5rem;
     color:white;
 }
 
 .masspro-table  .reject-masspro,.reject-masspro{
     background: #C81609;
-    width: 7.5rem;
+    min-width: 7.5rem;
     color:white;
 }
-
+.masspro-table  .idle-masspro,.idle-masspro{
+    background: none;
+    min-width: 7.5rem;
+    color:white;
+}
 .masspro-table  .adjust-masspro,.adjust-masspro{
     background: #FF8904;
-    width: 7.5rem;
+    min-width: 7.5rem;
     color:white;
 }
 
@@ -2189,4 +2193,23 @@ td {
     justify-content: center;
     flex-direction: row;
     color:#005075;
+}
+
+.highlight-point:hover{
+    background:#E6F7FF;
+}
+
+.copy-btn{
+    border: none;
+    background: #FFD900;
+    color:#1A1600;
+    padding:0.5rem;
+    margin:0.2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
+.copy-btn:hover{
+    background: #D1B200;
+    color:#1A1600;
 }

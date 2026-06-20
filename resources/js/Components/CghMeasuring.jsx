@@ -18,7 +18,9 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
     const title = [
         'Start' , 'Middle','End'
     ]
-    const judgement = {};
+    const judgement = {
+        all_worst:[]
+    };
     const spcAverage = [];
     const RAverage = [];
     const XAverage = [];
@@ -269,6 +271,7 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
             const worstJudgement = resultJudgementPoint(worstValue)
             const worstTheme = resultTheme(worstJudgement);
             judgement[magnetNumber][items]["worst"] = worstValue
+            judgement["all_worst"].push(worstValue)
             judgement[magnetNumber][items]["worst_color"] = worstTheme
 
             //Judgement per Piece
@@ -358,8 +361,35 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
     });
 
-    console.log('Histogram data: ',histogram);
 
+
+   const copyPaste = (data) => {
+        console.log('DATAAAAA',data);
+        const text = data.join("\n");
+        // Modern clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+            .then(() => {
+                console.log("Copied!");
+            })
+            .catch(err => {
+                console.error("Clipboard error:", err);
+            });
+        } else {
+            // Fallback
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            document.execCommand("copy");
+
+            document.body.removeChild(textarea);
+
+            console.log("Copied using fallback!");
+        }
+    };
     return(
         <>
             <div>
@@ -368,11 +398,11 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                     <div>
                         <h1>CGH (L) Specification</h1>
                         <p><strong style={{ fontWeight:'bold' }}>Maximum:</strong>&nbsp;{model && model.cghl_max}&nbsp;<strong style={{ fontWeight:'bold' }}>Target:</strong>&nbsp;{model && model.cghl_target}&nbsp;<strong style={{ fontWeight:'bold' }}>Minimum:</strong>&nbsp;{model && model.cghl_min}</p>
+                       
                     </div>
                     <table className="measuring-table">
                         <thead>
                             <tr>
-
                                 <th colSpan={2} rowSpan={2}>S/N</th>
                                 <th colSpan={3}>DATA</th>
                                 <th colSpan={3}>JUDGEMENT</th>
@@ -381,7 +411,7 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                                 <th rowSpan={2}>MIN</th>
                                 <th rowSpan={2}>MAX</th>
                                 <th rowSpan={2}>REMARKS</th>
-                                <th rowSpan={2}>WORST</th>
+                                <th rowSpan={2}>WORST <button class="copy-btn" onClick={(e)=>copyPaste(judgement["all_worst"])}>Copy</button></th>
                             </tr>
                             <tr>
                                 <th>Pt.1</th>

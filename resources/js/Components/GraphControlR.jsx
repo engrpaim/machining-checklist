@@ -56,7 +56,7 @@ export default function GraphControlR({data , min , max}){
         scales: {
             y: {
                 min: minCurrent < -0.01 ? minCurrent - 0.01 : -0.01 ,
-                max:  maxCurrent + 0.01,
+                max: maxCurrent + 0.01,
             },
         },
 

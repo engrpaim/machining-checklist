@@ -155,7 +155,7 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                                                                             }))
                                                                     }
                                                             onKeyDown={(e=>handleKeyDown(e)) }
-                                                            disabled={(currentStatus) && !(edit)}/>
+                                                            disabled={(currentStatus) && !(edit) || hfpData?.[i+1] && hfpData?.[i+1]["p5_top"] ? false:true}/>
                                                 </div>
                                             </td>
                                             <td>

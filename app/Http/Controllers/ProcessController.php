@@ -75,7 +75,7 @@ class ProcessController extends Controller
     }
     public function updateQuery($db, $data, $batchNumber, $dataListId)
     {
-
+        
         // Save data
         unset($data['created_at']);
         unset($data['updated_at']);
@@ -87,6 +87,7 @@ class ProcessController extends Controller
                 $result = $db::where('datalist_id', $dataListId)
                     ->where('batch_number', $batchNumber)
                     ->first();
+                    
                 return $result->toarray();
             };
             return false;

@@ -463,15 +463,26 @@ class MachiningChecklistController  extends ProcessController
             }
         }
 
+     
         $process =  $identifyData['process'] ?? null;
         $batch_number = $data['batch_number'] ?? null;
+        $model = $data["model"] ?? null;
         $db = $this->dataBaseBank($process);
         $id = $data['datalist_id'] ?? null;
+        
+        $updateData  = new ProcessController;
+
+        //get model 
+
+        $modelDb = $this->dataBaseBank('models');
+        $models = $updateData->getModel($modelDb, $model);
+        if (!$models) return redirect()->back()->with('error', 'Model database not found!');
+        $convertModel = $models->toArray();
 
         if (!$process || !$batch_number || !$db || !$id) return redirect()->back()->with('error', '[Updating]Failed: Missing data!');
-        $updateData  = new ProcessController;
+      
         $result = $updateData->updateQuery($db, $data, $batch_number, $id);
-        if ($result) return redirect()->back()->with('success', '[Updating]Pic updated successfully!');
+        if ($result) return redirect()->back()->with(['success'=> '[Updating--]Pic updated successfully!','model'=> $convertModel ]);
 
         return redirect()->back()->with('error', '[Updating]Error 404!');
     }

@@ -1,6 +1,6 @@
 
 import SlicingGraph from "./SlicingGraph";
-export default function MassProRow({category = 3,point = 3,row,data,set,handleKeyDown,target,max,min,layers = 1}){
+export default function MassProRow({category = 3,point = 3,row,data,set,handleKeyDown,target,max,min,layers = 1,status}){
     const timing = ["Start","Middle","End"]
 
    
@@ -10,7 +10,12 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
         let judgementResult={}
       
         const targetValue = target
-
+        /*
+            layers  - return jigs
+            category - return row
+            row - return numebr of sampple
+            points - return number of point
+        */
         Array.from({length:layers},(_,x)=>{
             Array.from({length:category},(_,i)=>{
                 Array.from({length:row},(_,j)=>{
@@ -19,6 +24,15 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                     let currentMin = false;
                     let currentLimit = {};
                     let limitValue = '';
+                    
+                    let lw = 0;
+                    let critlw = 0;
+                    let crit100lw = 0;
+                    let goodPoint = 0;
+                    let hw = 0;
+                    let crithw = 0;
+                    let crit100hw = 0;
+
                     Array.from({length:point},(_,k)=>{
                         console.log('sssx',i+1,k+1,j+1, suffix,x+1 , `p${k+1}_${j+1}`+(suffix?`${suffix}${x+1}`:''))
 
@@ -34,7 +48,23 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                         }
                         let diffMax = currentMax - targetValue
                         let diffMin = targetValue - currentMin
-                        
+
+                        //lower limit
+                        console.log('lower limit:' , Number(min)+ 0.1);
+                        value > 0 && value < Number(min) ?lw = value
+                            :value >= Number(min) && value <= Number(min)  + 0.005 ? crit100lw = value
+                                :value >= Number(min)  + 0.005 && value < Number(min)  + 0.01 ? critlw  =value
+                                    :value > Number(min)  - 0.001 && value < Number(max)  + 0.01 ? goodPoint  =value
+                                        :null;
+
+                        // higher limit
+                        value > 0 && value >= Number(max) ?hw = value
+                            :value >=  Number(max) - 0.01  && value <  Number(max)? crit100hw = value
+                                :value >=  Number(max) - 0.02  && value <  Number(max)? crithw = value
+                                        :null;
+
+
+                       
                         const worst = currentMax && currentMin ? 
                                             diffMax > diffMin ? 
                                                 currentMax:currentMin
@@ -49,7 +79,14 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                                                     max:currentMax,
                                                                     min:currentMin,
                                                                     worst:worst,
-                                                                    points:currentLimit
+                                                                    points:currentLimit,
+                                                                    lw:lw,
+                                                                    hw:hw,
+                                                                    crithw:crithw,
+                                                                    critlw:critlw,
+                                                                    crit100hw:crit100hw,
+                                                                    crit100lw:crit100lw,
+                                                                    goodPoint:goodPoint
                                                                 }  
                                                         }
                                             }
@@ -60,7 +97,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                 })
             })
         })
-        console.log('Testing: ',judgementResult);
+        console.log('Testing: ',judgementResult,);
         return judgementResult
     }
 
@@ -80,6 +117,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
 
         return pointsIncluded
     }
+    console.log('Maassprro',status)
     return(
        <>
         <div className="container-row">
@@ -92,7 +130,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                     <table className='masspro-table' border={1}>
                         <thead>
                             <tr>
-                                <th  className="dimension-title" colSpan={5+point+IsLayerExist}>ACTUAL MEASUREMENT</th>
+                                <th  className="dimension-title" colSpan={5+point+IsLayerExist+3}>ACTUAL MEASUREMENT</th>
                             </tr>
                             <tr>
                                 {
@@ -109,9 +147,6 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                 <th className="data-color">Max</th>
                                 <th className="data-color">Min</th>
                                 <th className="data-color">Worst</th>
-                                <th className="lower-color">Lower Limit</th>
-                                <th className="accepted-color">Accepted</th>
-                                <th className="higher-color">Higher Limit</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -134,6 +169,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                                                         <input id={`p${k+1}_${i+1}` + (suffix ? `${suffix}${x+1}`:'')}
                                                                             onKeyDown={(e)=>handleKeyDown(e)}
                                                                             value={data[j+1]?.[`p${k+1}_${i+1}` + (suffix ? `${suffix}${x+1}`:'')]}
+                                                                            disabled={status}
                                                                             onChange={
                                                                                 (e)=>set?.((prev)=>
                                                                                     ({
@@ -152,26 +188,80 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                                             <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].max:null}   </td>
                                                             <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].min:null}   </td>
                                                             <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].worst:null} </td>
-                                                            <td className="lower-color-limit">
-                                                                {
-                                                                    judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? 
-                                                                        pointJudegement(point , 'lower',judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)]["points"])
-                                                                        :null
-                                                                }
-                                                            </td>   
-                                                            <td className="accepted-color-limit"> 
-                                                                {
-                                                                    judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ?
-                                                                        pointJudegement(point , 'accept',judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)]["points"])
-                                                                        :null
-                                                                }</td>   
-                                                            <td className="higher-color-limit"> 
-                                                                {
-                                                                    judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? 
-                                                                        pointJudegement(point , 'higher',judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)]["points"])
-                                                                        :null
-                                                                }
-                                                            </td>   
+                                                        </tr>  
+                                                    )
+                                                )
+                                            }
+                                        </>
+                                    ))
+                                })
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/*Graph*/}
+            <div className="details-white">
+                <div className='container-column'>
+                    <div className='container-theme-black'>
+                        <h1>Slicing</h1>
+                        <p>Minimum:&nbsp;{min}&nbsp;Target:&nbsp;{target}&nbsp;Maximum:&nbsp;{max}</p>
+                    </div>
+                    <table className='masspro-table' border={1}>
+                        <thead>
+                            <tr>
+                                <th  className="dimension-title" colSpan={5+point+IsLayerExist+3}>ACTUAL MEASUREMENT</th>
+                            </tr>
+                            <tr>
+                                {
+                                    IsLayerExist > 1  && (<th className="sn-color">Jigs</th>)
+                                }
+                                <th className="sn-color">Row</th>
+                                <th className="data-color">No</th>
+                                <th className="data-color">LW</th>
+                                <th className="data-color">100% Checking</th>
+                                <th className="data-color">Critical Limit</th>
+                                <th className="data-color">Good</th>
+                                <th className="data-color">Critical Limit</th>
+                                <th className="data-color">100% Checking</th>
+                                <th className="data-color">HW</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                Array.from({length:layers},(_,x)=>{
+                                    return Array.from({length:category},(_,j)=>(
+                                        <>
+                                        {
+                                                Array.from(
+                                                    {length:row},(_,i)=>
+                                                    (
+                                                        <tr>
+                                                            {(j === 0 && i === 0  && layers > 1)&& <td className="sn-color" rowSpan={row * category}>JIGS {x+1}</td>}
+                                                            {i === 0  && <td className="sn-color" rowSpan={row}>ROW {j+1}</td>}
+                                                            <td>{i+1}</td>
+                                                            <td 
+                                                                className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].lw > 0? "reject-masspro":"idle-masspro"}>
+                                                            </td>
+                                                            <td 
+                                                                className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crit100lw > 0? "adjust-masspro":"idle-masspro"}>    
+                                                            </td>
+                                                            <td 
+                                                                className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].critlw > 0? "adjust-masspro":"idle-masspro"}>
+                                                            </td>
+                                                            <td 
+                                                                className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].goodPoint > 0? "accept-masspro":"idle-masspro"}>
+                                                            </td>
+                                                            <td  
+                                                                className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crithw > 0? "adjust-masspro":"idle-masspro"}>
+                                                            </td>
+                                                            <td  
+                                                                className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crit100hw > 0? "reject-masspro":"idle-masspro"}>
+                                                            </td>
+                                                            <td  
+                                                                className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].hw > 0? "reject-masspro":"idle-masspro"}>
+                                                            </td>
                                                         </tr>  
                                                     )
                                                 )

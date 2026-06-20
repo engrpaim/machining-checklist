@@ -1,4 +1,12 @@
-export default function SlicingDetails({slicingDetails,setSlicingDetails,handleKeyDown}){
+import { useState , useEffect } from "react";
+export default function SlicingDetails({slicingDetails,setSlicingDetails,handleKeyDown,edit,statusNow , processing}){
+     const [currentStatus, setCurrentStatus] = useState(null);
+            const toDisabled = ['prepared', 'measured', 'approved']
+            useEffect(() => {
+                const status = slicingDetails.status
+                const allowed = toDisabled.includes(status) ? true : false
+                setCurrentStatus(allowed);
+            }, [slicingDetails]);
     return(
         <div className="details-container-gray">
             <h1>Slicing Details</h1>
@@ -6,39 +14,38 @@ export default function SlicingDetails({slicingDetails,setSlicingDetails,handleK
                 <div className="details-part">
                     <div className="details-data">
                         <label>Machine Number:</label>
-                        <input value={slicingDetails.machine_number} onChange={(e)=>setSlicingDetails('machine_number',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}/>
+                        <input value={slicingDetails.machine_number} onChange={(e)=>setSlicingDetails('machine_number',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}  disabled={(currentStatus || processing) && !(edit)}/>
                     </div>
                     <div className="details-data">
                         <label>Pattern:</label>
-                        <input value={slicingDetails.pattern} onChange={(e)=>setSlicingDetails('pattern',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}/>
+                        <input value={slicingDetails.pattern} onChange={(e)=>setSlicingDetails('pattern',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus || processing) && !(edit)}/>
                     </div>
                     <div className="details-data">
                         <label>Cutting Speed:</label>
-                        <input value={slicingDetails.cutting_speed} onChange={(e)=>setSlicingDetails('cutting_speed',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}/>
+                        <input value={slicingDetails.cutting_speed} onChange={(e)=>setSlicingDetails('cutting_speed',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus || processing) && !(edit)}/>
                     </div>
 
                     <div className="details-data">
                         <label>No. of pass</label>
-                        <input value={slicingDetails.no_of_pass} onChange={(e)=>setSlicingDetails('no_of_pass',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}/>
+                        <input value={slicingDetails.no_of_pass} onChange={(e)=>setSlicingDetails('no_of_pass',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus || processing) && !(edit)}/>
                     </div>
                 </div>
-                <div className="details-part" >
+                <div className="details-part">
                     <div className="details-data" style={{ width:'20rem' }}>
                         <label>Motor Load:</label>
-                        <input value={slicingDetails.motor_load} onChange={(e)=>setSlicingDetails('motor_load',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}/>
+                        <input value={slicingDetails.motor_load} onChange={(e)=>setSlicingDetails('motor_load',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus || processing) && !(edit)}/>
                     </div>
                     <div className="details-data" style={{ width:'20rem' }}>
                         <label >Micrometer Serial No.:</label>
-                        <input value={slicingDetails.micrometer_serial_number} onChange={(e)=>setSlicingDetails('micrometer_serial_number',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}/>
+                        <input value={slicingDetails.micrometer_serial_number} onChange={(e)=>setSlicingDetails('micrometer_serial_number',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus || processing) && !(edit)}/>
                     </div>
                     <div className="details-data" style={{ width:'20rem' }}>
                         <label>Checking Condition:</label>
-                        <input value={slicingDetails.checking_condition} onChange={(e)=>setSlicingDetails('checking_condition',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}/>
+                        <input value={slicingDetails.checking_condition} onChange={(e)=>setSlicingDetails('checking_condition',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus || processing) && !(edit)}/>
                     </div>
-
                     <div className="details-data" style={{ width:'20rem' }}>
                         <label>No. of TB/CYCLE:</label>
-                        <input value={slicingDetails.no_of_tb_cycle} onChange={(e)=>setSlicingDetails('no_of_tb_cycle',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)}/>
+                        <input value={slicingDetails.no_of_tb_cycle} onChange={(e)=>setSlicingDetails('no_of_tb_cycle',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus || processing) && !(edit)}/>
                     </div>
                 </div>
             </div>
