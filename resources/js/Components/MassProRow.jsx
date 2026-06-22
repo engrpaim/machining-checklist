@@ -52,9 +52,9 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                         //lower limit
                         console.log('lower limit:' , Number(min)+ 0.1);
                         value > 0 && value < Number(min) ?lw = value
-                            :value >= Number(min) && value <= Number(min)  + 0.005 ? crit100lw = value
-                                :value >= Number(min)  + 0.005 && value < Number(min)  + 0.01 ? critlw  =value
-                                    :value > Number(min)  - 0.001 && value < Number(max)  + 0.01 ? goodPoint  =value
+                            :value >= Number(min) && value <= Number(min)  + 0.005 && crit100lw  < value? crit100lw = value
+                                :value >= Number(min)  + 0.005 && value < Number(min)  + 0.01 && critlw  < value? critlw  =value
+                                    :value > Number(min)  - 0.001 && value <= Number(target)  && goodPoint  < value ? goodPoint  =value
                                         :null;
 
                         // higher limit
@@ -214,10 +214,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                 <th  className="dimension-title" colSpan={5+point+IsLayerExist+3}>ACTUAL MEASUREMENT</th>
                             </tr>
                             <tr>
-                                {
-                                    IsLayerExist > 1  && (<th className="sn-color">Jigs</th>)
-                                }
-                                <th className="sn-color">Row</th>
+                                
                                 <th className="data-color">No</th>
                                 <th className="data-color">LW</th>
                                 <th className="data-color">100% Checking</th>
@@ -238,29 +235,35 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                                     {length:row},(_,i)=>
                                                     (
                                                         <tr>
-                                                            {(j === 0 && i === 0  && layers > 1)&& <td className="sn-color" rowSpan={row * category}>JIGS {x+1}</td>}
-                                                            {i === 0  && <td className="sn-color" rowSpan={row}>ROW {j+1}</td>}
+                                                           
                                                             <td>{i+1}</td>
                                                             <td 
                                                                 className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].lw > 0? "reject-masspro":"idle-masspro"}>
+                                                                   {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].lw > 0 ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].lw:''}
                                                             </td>
                                                             <td 
                                                                 className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crit100lw > 0? "adjust-masspro":"idle-masspro"}>    
+                                                                {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crit100lw > 0 ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crit100lw:''}
                                                             </td>
                                                             <td 
                                                                 className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].critlw > 0? "adjust-masspro":"idle-masspro"}>
+                                                                {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].critlw > 0 ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].critlw:''}
                                                             </td>
                                                             <td 
                                                                 className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].goodPoint > 0? "accept-masspro":"idle-masspro"}>
+                                                                {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].goodPoint > 0 ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].goodPoint:''}
                                                             </td>
                                                             <td  
                                                                 className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crithw > 0? "adjust-masspro":"idle-masspro"}>
+                                                                    {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crithw > 0 ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crithw:''}
                                                             </td>
                                                             <td  
                                                                 className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crit100hw > 0? "reject-masspro":"idle-masspro"}>
+                                                                    {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crit100hw > 0 ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].crit100hw:''}
                                                             </td>
                                                             <td  
                                                                 className={judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].hw > 0? "reject-masspro":"idle-masspro"}>
+                                                                    {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].hw > 0 ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].hw:''}
                                                             </td>
                                                         </tr>  
                                                     )

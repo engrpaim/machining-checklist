@@ -83,9 +83,9 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                             <th rowSpan={2}>S/N</th>
                             <th rowSpan={2}>Position</th>
                             <th colSpan={5}>Data</th>
-                            {(hmax || hmin) && (<th colSpan={2}>Height</th>)}
-                            { p && (<th colSpan={2}>Parallelism</th>)}
-                            { f && (<th colSpan={2}>Flatness</th>)}
+                            {(hmax > 0 || hmin > 0) && (<th colSpan={2}>Height</th>)}
+                            { p > 0 && (<th colSpan={2}>Parallelism</th>)}
+                            { f > 0 && (<th colSpan={2}>Flatness</th>)}
                         </tr>
                         <tr>
                             <th>Pt.1</th>
@@ -94,21 +94,21 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                             <th>Pt.4</th>
                             <th>Pt.5</th>
 
-                            {(hmax || hmin) && (
+                            {(hmax > 0 || hmin > 0) && (
                                         <>
                                             <th>Value</th>
                                             <th>Judgement</th>
                                         </>
                                     )}
 
-                            {p && (
+                            {p > 0 && (
                                         <>
                                             <th>Value</th>
                                             <th>Judgement</th>
                                         </>
                                     )}
 
-                            {f&& (
+                            {f > 0&& (
                                         <>
                                             <th>Value</th>
                                             <th>Judgement</th>
@@ -122,17 +122,17 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                         Array.from
                         (
                                 {length:magnet},(_,i)=>
+                                    <>
                                     
                                         <tr >
-                                            <td>{i+1}</td>
-                                            <td>
-                                                <div>
+                                            <td rowSpan={2}>{i+1}</td>
+                                            <td >
+
                                                     <p style={{ background:'#E6F6FF'}}>Top</p>
-                                                    <p>Bottom</p>
-                                                </div>
+                                                  
                                             </td>
                                             <td>
-                                                <div>
+                                               
                                                     <input  style={{ background:'#E6F6FF'}}  
                                                             type="number" 
                                                             onKeyDown={(e=>handleKeyDown(e))}
@@ -145,21 +145,11 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                                                                             }))
                                                                     }
                                                             disabled={(currentStatus) && !(edit)}/>
-                                                    <input  type="number"
-                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p1_bottom"] ? hfpData?.[i+1]["p1_bottom"]:null}
-                                                            onChange={
-                                                                        (e)=> 
-                                                                            setHfpData((prev)=>({
-                                                                                ...prev,
-                                                                                [i+1]:{...prev[i+1],p1_bottom:e.target.value}
-                                                                            }))
-                                                                    }
-                                                            onKeyDown={(e=>handleKeyDown(e)) }
-                                                            disabled={(currentStatus) && !(edit) || hfpData?.[i+1] && hfpData?.[i+1]["p5_top"] ? false:true}/>
-                                                </div>
+                                                            
+                                                
                                             </td>
                                             <td>
-                                                <div>
+                                          
                                                     <input  style={{ background:'#E6F6FF'}}  
                                                             type="number" 
                                                             onKeyDown={(e=>handleKeyDown(e))} 
@@ -172,21 +162,10 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                                                                             }))
                                                                     }
                                                             disabled={(currentStatus) && !(edit)}/>
-                                                    <input  type="number"
-                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p2_bottom"] ? hfpData?.[i+1]["p2_bottom"]:null}
-                                                            onChange={
-                                                                        (e)=> 
-                                                                            setHfpData((prev)=>({
-                                                                                ...prev,
-                                                                                [i+1]:{...prev[i+1],p2_bottom:e.target.value}
-                                                                            }))
-                                                                    }
-                                                            onKeyDown={(e=>handleKeyDown(e)) }
-                                                            disabled={(currentStatus) && !(edit)}/>
-                                                </div>
+                                                    
                                             </td>
                                             <td>
-                                                <div>
+                                                
                                                     <input  style={{ background:'#E6F6FF'}}  
                                                             type="number" 
                                                             onKeyDown={(e=>handleKeyDown(e))} 
@@ -199,21 +178,10 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                                                                             }))
                                                                     }
                                                             disabled={(currentStatus) && !(edit)}/>
-                                                    <input  type="number"
-                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p3_bottom"] ? hfpData?.[i+1]["p3_bottom"]:null}
-                                                            onChange={
-                                                                        (e)=> 
-                                                                            setHfpData((prev)=>({
-                                                                                ...prev,
-                                                                                [i+1]:{...prev[i+1],p3_bottom:e.target.value}
-                                                                            }))
-                                                                    }
-                                                            onKeyDown={(e=>handleKeyDown(e)) }
-                                                            disabled={(currentStatus) && !(edit)}/>
-                                                </div>
+                                                    
                                             </td>
                                             <td>
-                                                <div>
+                                                
                                                     <input  style={{ background:'#E6F6FF'}}  
                                                             type="number" 
                                                             onKeyDown={(e=>handleKeyDown(e))}
@@ -226,21 +194,10 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                                                                             }))
                                                                     }
                                                             disabled={(currentStatus) && !(edit)}/>
-                                                    <input  type="number"
-                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p4_bottom"] ? hfpData?.[i+1]["p4_bottom"]:null}
-                                                            onChange={
-                                                                        (e)=> 
-                                                                            setHfpData((prev)=>({
-                                                                                ...prev,
-                                                                                [i+1]:{...prev[i+1],p4_bottom:e.target.value}
-                                                                            }))
-                                                                    }
-                                                            onKeyDown={(e=>handleKeyDown(e)) }
-                                                            disabled={(currentStatus) && !(edit)}/>
-                                                </div>
+                                                    
                                             </td>
                                             <td>
-                                                <div>
+                                                
                                                     <input  style={{ background:'#E6F6FF'}}  
                                                             type="number" 
                                                             onKeyDown={(e=>handleKeyDown(e))}
@@ -253,8 +210,109 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                                                                             }))
                                                                     }
                                                             disabled={(currentStatus) && !(edit)}/>
-                                                    <input  type="number"
-                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p1_bottom"] ? hfpData?.[i+1]["p5_bottom"]:null}
+                                        
+                                                
+                                            </td>
+
+                                            {(hmax > 0 || hmin > 0)  &&  hfpData?.[i+1] && hfpData?.[i+1]["p1_top"]&& hfpData?.[i+1]["p1_bottom"]  && (
+                                                <>
+                                                    <td rowSpan={2} className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].htheme ?judgementResult?.[i+1].htheme:null}>
+                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].heightmax ? judgementResult?.[i+1].heightmax :null}
+                                                    </td>
+                                                    <td rowSpan={2}  className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].htheme ?judgementResult?.[i+1].htheme:null}>
+                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].heightjudgement ? judgementResult?.[i+1].heightjudgement :null}
+                                                    </td>
+                                                </>
+                                            )}
+                                            
+                                            {p > 0  &&  hfpData?.[i+1] && hfpData?.[i+1]["p1_top"]&& hfpData?.[i+1]["p1_bottom"]  && (
+                                                <>
+                                                    <td rowSpan={2}  className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].ptheme ?judgementResult?.[i+1].ptheme:null}>
+                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].parallelism >= 0 ? judgementResult?.[i+1].parallelism :null}
+                                                    </td>
+                                                    <td rowSpan={2}  className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].ptheme ?judgementResult?.[i+1].ptheme:null}>
+                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].parallelismjudgement ? judgementResult?.[i+1].parallelismjudgement :null}
+                                                    </td>
+                                                </>
+                                            )}
+
+                                            {f > 0 &&  hfpData?.[i+1] && hfpData?.[i+1]["p1_top"]&& hfpData?.[i+1]["p1_bottom"]  && (
+                                                <>
+                                                    <td rowSpan={2} className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].ftheme ?judgementResult?.[i+1].ftheme:null}>
+                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].flatness >= 0 ? judgementResult?.[i+1].flatness :null}
+                                                    </td>
+                                                    <td rowSpan={2}  className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].ftheme ?judgementResult?.[i+1].ftheme:null}>
+                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].flatnessjudgement ? judgementResult?.[i+1].flatnessjudgement :null}
+                                                    </td>
+                                                </>
+                                            )}
+
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                  <p>Bottom</p>
+                                            </td>
+                                            <td>
+                                                <input  
+                                                            type="number" 
+                                                            onKeyDown={(e=>handleKeyDown(e))}
+                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p1_bottom"] ? hfpData?.[i+1]["p1_bottom"]:null}
+                                                            onChange={
+                                                                        (e)=> 
+                                                                            setHfpData((prev)=>({
+                                                                                ...prev,
+                                                                                [i+1]:{...prev[i+1],p1_bottom:e.target.value}
+                                                                            }))
+                                                                    }
+                                                            disabled={(currentStatus) && !(edit)}/>
+                                            </td>
+                                            <td>
+                                                <input  
+                                                            type="number" 
+                                                            onKeyDown={(e=>handleKeyDown(e))}
+                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p2_bottom"] ? hfpData?.[i+1]["p2_bottom"]:null}
+                                                            onChange={
+                                                                        (e)=> 
+                                                                            setHfpData((prev)=>({
+                                                                                ...prev,
+                                                                                [i+1]:{...prev[i+1],p2_bottom:e.target.value}
+                                                                            }))
+                                                                    }
+                                                            disabled={(currentStatus) && !(edit)}/>
+                                            </td>
+                                            <td>
+                                                <input  
+                                                            type="number" 
+                                                            onKeyDown={(e=>handleKeyDown(e))}
+                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p3_bottom"] ? hfpData?.[i+1]["p3_bottom"]:null}
+                                                            onChange={
+                                                                        (e)=> 
+                                                                            setHfpData((prev)=>({
+                                                                                ...prev,
+                                                                                [i+1]:{...prev[i+1],p3_bottom:e.target.value}
+                                                                            }))
+                                                                    }
+                                                            disabled={(currentStatus) && !(edit)}/>
+                                            </td>
+                                            <td>
+                                                <input  
+                                                            type="number" 
+                                                            onKeyDown={(e=>handleKeyDown(e))}
+                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p4_bottom"] ? hfpData?.[i+1]["p4_bottom"]:null}
+                                                            onChange={
+                                                                        (e)=> 
+                                                                            setHfpData((prev)=>({
+                                                                                ...prev,
+                                                                                [i+1]:{...prev[i+1],p4_bottom:e.target.value}
+                                                                            }))
+                                                                    }
+                                                            disabled={(currentStatus) && !(edit)}/>
+                                            </td>
+                                            <td>
+                                                <input  
+                                                            type="number" 
+                                                            onKeyDown={(e=>handleKeyDown(e))}
+                                                            value ={hfpData?.[i+1] && hfpData?.[i+1]["p5_bottom"] ? hfpData?.[i+1]["p5_bottom"]:null}
                                                             onChange={
                                                                         (e)=> 
                                                                             setHfpData((prev)=>({
@@ -262,45 +320,10 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
                                                                                 [i+1]:{...prev[i+1],p5_bottom:e.target.value}
                                                                             }))
                                                                     }
-                                                            onKeyDown={(e=>handleKeyDown(e)) }
                                                             disabled={(currentStatus) && !(edit)}/>
-                                                </div>
                                             </td>
-
-                                            {(hmax || hmin)  && (
-                                                <>
-                                                    <td className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].htheme ?judgementResult?.[i+1].htheme:null}>
-                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].heightmax ? judgementResult?.[i+1].heightmax :null}
-                                                    </td>
-                                                    <td className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].htheme ?judgementResult?.[i+1].htheme:null}>
-                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].heightjudgement ? judgementResult?.[i+1].heightjudgement :null}
-                                                    </td>
-                                                </>
-                                            )}
-                                            
-                                            {p && (
-                                                <>
-                                                    <td className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].ptheme ?judgementResult?.[i+1].ptheme:null}>
-                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].parallelism >= 0 ? judgementResult?.[i+1].parallelism :null}
-                                                    </td>
-                                                    <td className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].ptheme ?judgementResult?.[i+1].ptheme:null}>
-                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].parallelismjudgement ? judgementResult?.[i+1].parallelismjudgement :null}
-                                                    </td>
-                                                </>
-                                            )}
-
-                                            {f && (
-                                                <>
-                                                    <td className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].ftheme ?judgementResult?.[i+1].ftheme:null}>
-                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].flatness >= 0 ? judgementResult?.[i+1].flatness :null}
-                                                    </td>
-                                                    <td className={judgementResult && judgementResult?.[i+1] && judgementResult?.[i+1].ftheme ?judgementResult?.[i+1].ftheme:null}>
-                                                        {judgementResult &&judgementResult?.[i+1] && judgementResult?.[i+1].flatnessjudgement ? judgementResult?.[i+1].flatnessjudgement :null}
-                                                    </td>
-                                                </>
-                                            )}
-
                                         </tr>
+                                    </>
                                 
                         )
                         }
@@ -309,19 +332,19 @@ export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false
             </div>
             <div className="container-row">
                 {
-                    htarget && 
+                    htarget > 0 && 
                     <div>
                         <GraphControlX target={htarget} max={hmax} min={hmin} XAverage={judgementResult && judgementResult.hplot ? judgementResult.hplot:null}/>
                     </div>
                 }
                 {
-                    f && 
+                    f > 0 && 
                     <div>
                         <CountingGraph process={process} maxperpen={flatTarget} perpendicularity={judgementResult && judgementResult.fplot ? judgementResult.fplot:null}/>
                     </div>
                 }
                 {
-                    p && 
+                    p > 0 && 
                     <div>
                         <CountingGraph process={process} maxperpen={paraTarget} perpendicularity={judgementResult && judgementResult.pplot ? judgementResult.pplot:null}/>
                     </div>

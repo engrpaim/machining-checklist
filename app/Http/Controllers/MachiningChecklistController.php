@@ -119,7 +119,7 @@ class MachiningChecklistController  extends ProcessController
         $processListCurrent = [];
         array_push($processListCurrent, $process);
         $preparing = $processListCurrent;
-        $checkIfexist  =  $isTableExist::where('lot_number', $lotNumber)->first();
+        $checkIfexist  =  $isTableExist::where('lot_number', $lotNumber)->where('model',$modelProcessing)->first();
 
         $insertProcessDetails = new ProcessController();
 

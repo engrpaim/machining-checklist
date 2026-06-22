@@ -478,11 +478,25 @@ export default function Measure() {
             model: modelState ?? null,
         }
     }
+    const countEmpty =(data)=>{
+        if(!data) return
+        let emptyNumber = 0
+        Object.entries(data).map(([key,values])=>{
+            if(!values || values === ''){
+                emptyNumber ++
+            }
+        })
 
+        return emptyNumber
+    }
     const handleStore = async () => {
+        
+        // Create the payload
+        const proceedPost = countEmpty(data);
+        console.log( 'storee:',proceedPost);
+        if(proceedPost  > 0 ) return setFlashNotification({theme: 'error-notif-text', message: 'Incomplete data'})
         setSubmittingForm(false);
         setLoading(true);
-        // Create the payload
         try {
             console.log('Loaidng: ', loading);
             // Send to Laravel
@@ -497,7 +511,9 @@ export default function Measure() {
     };
 
     const handleCreate = async () => {
+
         setSubmittingForm(false);
+
         try {
             setLoading(true);
             // Send to Laravel
@@ -505,7 +521,6 @@ export default function Measure() {
                 preserveState: true,
                 preserveScroll: true,
             });
-
         } catch (err) {
             console.error("Error submitting form:", err);
         } finally {
@@ -1079,6 +1094,7 @@ export default function Measure() {
                                 row={model && model.slicing_row ? model.slicing_row:null}
                                 layer={model && model.slicing_layer ? model.slicing_layer:null}
                                 edit={editBatch}
+                                points={model && model.slicing_points ? model.slicing_points:null}
                                 statusNow={processForm?.details["status"]}
                                 processing={slicingProcessing}
                             />

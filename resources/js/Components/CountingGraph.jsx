@@ -97,10 +97,11 @@ export default function CountingGraph({process,specification,max,min,perpendicul
 
         Object.values(perpendicularity).map((values)=>{
             console.log('lapping counting: ',values);
+            if(!subdivision) return
             Object.entries(subdivision).map(([insideKey,insideValue])=>{
                 console.log('lapping checking: ',values,insideKey,insideValue); 
                 
-                const inBetweenData = Number(values.toFixed(3)) >= insideValue.min && Number(values.toFixed(3)) <= insideValue.max?    1:null
+                const inBetweenData = values && Number(values.toFixed(3)) >= insideValue.min && Number(values.toFixed(3)) <= insideValue.max?    1:null
                 checkPlacement.push(inBetweenData) 
                 inBetweenData ? colorSet = colorMap[count]:null
 
@@ -125,10 +126,11 @@ export default function CountingGraph({process,specification,max,min,perpendicul
 
         Object.values(perpendicularity).map((values)=>{
                 console.log('lapping counting: ',values);
+            if(!subdivision) return
             Object.entries(subdivision).map(([insideKey,insideValue])=>{
                 console.log('lapping checking: ',values,insideKey,insideValue); 
                 
-                const inBetweenData =  Number(values.toFixed(3)) >= insideValue.min && Number(values.toFixed(3)) <= insideValue.max?    1:null
+                const inBetweenData =  values && Number(values.toFixed(3)) >= insideValue.min && Number(values.toFixed(3)) <= insideValue.max?    1:null
                 checkPlacement.push(inBetweenData) 
                 inBetweenData ? colorSet = colorMap[count]:null
 
