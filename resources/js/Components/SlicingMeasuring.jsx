@@ -3,7 +3,7 @@ import MassProRow from "./MassProRow";
 import SlicingHFP from "./SlicingPerpenD";
 import SlicingParallelism from "./SlicingParallelism";
 import CountingGraph from "./CountingGraph";
-export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,min,points,statusNow,edit,processing,perpenD,setPerpenD,parallelism,setParallelism}){
+export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,min,points,statusNow,edit,processing,perpenD,setPerpenD,parallelism,setParallelism,jig,row,layer}){
     const [tableOption,setTableOption] = useState('masspro');
     const [currentStatus, setCurrentStatus] = useState(null);
             const toDisabled = ['prepared', 'measured', 'approved']
@@ -24,9 +24,9 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,
                 tableOption === 'masspro' ?
                     <MassProRow 
                                 point={points} 
-                                layers={2}
-                                row={6}
-                                category={4}
+                                layers={jig}
+                                row={row}
+                                category={layer}
                                 data={data} 
                                 set={setdata} 
                                 handleKeyDown={handleKeyDown} 
@@ -39,9 +39,9 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,
                     <SlicingHFP 
                         perpenD={perpenD}
                         setPerpenD={setPerpenD}
-                        jigs={2}
-                        layers={6}
-                        row={4}
+                        jigs={jig}
+                        layers={layer}
+                        row={row}
                         status ={(currentStatus || processing) && !(edit)}
                         handleKeyDown={handleKeyDown} 
                         perpen={0.05}
@@ -51,9 +51,9 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,
                     <SlicingParallelism 
                         parallelism={parallelism}
                         setParallelism={setParallelism}
-                        jigs={2}
-                        layers={6}
-                        row={4}
+                        jigs={jig}
+                        layers={layer}
+                        row={row}
                         status ={(currentStatus || processing) && !(edit)}
                         handleKeyDown={handleKeyDown} 
                         perpen={0.05}

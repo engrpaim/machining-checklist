@@ -2,7 +2,7 @@ import '../../css/app.css'
 import CountingGraph from './CountingGraph';
 import GraphControlX from './GraphControlX';
 export default function HFPDisplay({hmax=false,hmin =false,htarget=false,f=false,p=false,magnet = 10,handleKeyDown , hfpData , setHfpData,edit,currentStatus,process,max,min,target,flatTarget,paraTarget}){
-    console.log('New Data HFP: ', hfpData);
+    console.log('New Data HFP: ', f,p);
 
 
     const heightJudgement=(hfpData,hmax,hmin)=>{

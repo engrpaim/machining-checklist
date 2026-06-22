@@ -94,40 +94,72 @@ export default function AdminUser({modelDetails,setModeltails,handleKeyDown,hand
                                                             onKeyDown={(e)=>handleKeyDown(e)}></input>
                                                     </div>
                                                 </div>
+                                                <div>
+                                                <div>
+                                                    <h1>Slicing</h1>
+                                                </div>
+                                                    <div>
+                                                        <div className="modal-input">
+                                                            <label>Slicing points:</label>
+                                                            <input  type="number"
+                                                                value={modelDetails.slicing_points}
+                                                                onChange={(e)=>setModeltails('slicing_points',e.target.value)}
+                                                                onKeyDown={(e)=>handleKeyDown(e)}></input>
+                                                        </div>
+                                                        <div className="modal-input">
+                                                            <label>Slicing target:</label>
+                                                            <input  type="number"
+                                                                value={modelDetails.slicing_target}
+                                                                onChange={(e)=>setModeltails('slicing_target',e.target.value)}
+                                                                onKeyDown={(e)=>handleKeyDown(e)}></input>
+                                                        </div>
+                                                        <div className="modal-input">
+                                                            <label>Slicing minimum:</label>
+                                                            <input  type="number"
+                                                                value={modelDetails.slicing_min}
+                                                                onChange={(e)=>setModeltails('slicing_min',e.target.value)}
+                                                                onKeyDown={(e)=>handleKeyDown(e)}></input>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             
                                             {/*Slicing Data*/}
                                             <div>
                                                 <div>
-                                                    <h1>Slicing</h1>
-                                                </div>
-                                                <div>
                                                     <div className="modal-input">
-                                                        <label>Slicing points:</label>
+                                                        <label>Slicing Jigs:</label>
                                                         <input  type="number"
-                                                            value={modelDetails.slicing_points}
-                                                            onChange={(e)=>setModeltails('slicing_points',e.target.value)}
+                                                            value={modelDetails.slicing_jigs}
+                                                            onChange={(e)=>setModeltails('slicing_jigs',e.target.value)}
                                                             onKeyDown={(e)=>handleKeyDown(e)}></input>
                                                     </div>
                                                     <div className="modal-input">
-                                                        <label>Slicing target:</label>
+                                                        <label>Slicing Row:</label>
                                                         <input  type="number"
-                                                            value={modelDetails.slicing_target}
-                                                            onChange={(e)=>setModeltails('slicing_target',e.target.value)}
+                                                            value={modelDetails.slicing_row}
+                                                            onChange={(e)=>setModeltails('slicing_row',e.target.value)}
                                                             onKeyDown={(e)=>handleKeyDown(e)}></input>
                                                     </div>
                                                     <div className="modal-input">
-                                                        <label>Slicing minimum:</label>
+                                                        <label>Slicing Layer:</label>
                                                         <input  type="number"
-                                                            value={modelDetails.slicing_min}
-                                                            onChange={(e)=>setModeltails('slicing_min',e.target.value)}
+                                                            value={modelDetails.slicing_layer}
+                                                            onChange={(e)=>setModeltails('slicing_layer',e.target.value)}
                                                             onKeyDown={(e)=>handleKeyDown(e)}></input>
                                                     </div>
                                                     <div className="modal-input">
-                                                        <label>Slicing maximum:</label>
+                                                        <label>Slicing Perpendicularity:</label>
                                                         <input  type="number"
-                                                            value={modelDetails.slicing_max}
-                                                            onChange={(e)=>setModeltails('slicing_max',e.target.value)}
+                                                            value={modelDetails.slicing_perpendicularity}
+                                                            onChange={(e)=>setModeltails('slicing_perpendicularity',e.target.value)}
+                                                            onKeyDown={(e)=>handleKeyDown(e)}></input>
+                                                    </div>
+                                                    <div className="modal-input">
+                                                        <label>Slicing Parallelism:</label>
+                                                        <input  type="number"
+                                                            value={modelDetails.slicing_parallelism}
+                                                            onChange={(e)=>setModeltails('slicing_parallelism',e.target.value)}
                                                             onKeyDown={(e)=>handleKeyDown(e)}></input>
                                                     </div>
                                                     <h1>Histogram</h1>

@@ -33,6 +33,12 @@ class ModelDetails extends Model
         'slicing_max',
         'slicing_min',
         'slicing_target',
+        'slicing_jigs',
+        'slicing_row',
+        'slicing_layer',
+        'slicing_perpendicularity',
+        'slicing_parallelism',
+        
 
         // Special Lapping
         'flatness_lapping',

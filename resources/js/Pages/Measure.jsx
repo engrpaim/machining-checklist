@@ -63,7 +63,7 @@ export default function Measure() {
             barelling: 'IN-PROCESS INSPECTION SHEET',
             cghl:'CGH (L) DIMENSION MONITORING',
             lapping:'LAPPING (T) DIMENSION MONITORING',
-            slicing:'SLICING (W) MONITORING'
+            slicing:'SLICING MONITORING'
     }
     const toHide = ["prepared", "measured", "approved"];
     const buttonStatus = {
@@ -1075,6 +1075,9 @@ export default function Measure() {
                                 target={model && model.slicing_target ? model.slicing_target:null} 
                                 max={model && model.slicing_max ? model.slicing_max:null} 
                                 min={model && model.slicing_min ? model.slicing_min:null}
+                                jig={model && model.slicing_jigs ? model.slicing_jigs:null}
+                                row={model && model.slicing_row ? model.slicing_row:null}
+                                layer={model && model.slicing_layer ? model.slicing_layer:null}
                                 edit={editBatch}
                                 statusNow={processForm?.details["status"]}
                                 processing={slicingProcessing}
@@ -1200,6 +1203,9 @@ export default function Measure() {
                                         target={model && model.slicing_target ? model.slicing_target:null} 
                                         max={model && model.slicing_max ? model.slicing_max:null} 
                                         min={model && model.slicing_min ? model.slicing_min:null}
+                                        jig={model && model.slicing_jigs ? model.slicing_jigs:null}
+                                        row={model && model.slicing_row ? model.slicing_row:null}
+                                        layer={model && model.slicing_layer ? model.slicing_layer:null}
                                         points={model && model.slicing_points ? model.slicing_points:null}
                                         edit={editBatch}
                                         statusNow={processForm?.details["status"]}
