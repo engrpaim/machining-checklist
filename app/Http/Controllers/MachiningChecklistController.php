@@ -403,7 +403,7 @@ class MachiningChecklistController  extends ProcessController
 
         $convertData = json_encode($result);
         $page = $data["page"];
-        $shift = $data["shift"];
+        $shift = $data["shift"]??'';
         $ip = $request->ip();
         $lot_number = $data["lot_number"];
 
@@ -462,7 +462,7 @@ class MachiningChecklistController  extends ProcessController
         $ip = $request->ip();
         $page = $data['page'] ?? null ;
         $modelProcessing =  $form["model"];
-        $shift = $data['shift'] ?? null;
+        $shift = $data['shift'] ?? '';
 
         $this->saveToLogs($page , $request->all(), $ip,'','',$lot_number,'proceed[ '.$bankStatus[$details["status"]].']',$modelProcessing,$process,$shift);
 
@@ -543,7 +543,7 @@ class MachiningChecklistController  extends ProcessController
 
         if (!$process || !$batch_number || !$db || !$id) return redirect()->back()->with('error', '[Updating]Failed: Missing data!');
         $page = $identifyData["page"];
-        $shift = $identifyData["shift"];
+        $shift = $identifyData["shift"] ?? '';
         $lotNumber = $identifyData["lot_number"];
         $ip = $request->ip();
         $result = $updateData->updateQuery($db, $data, $batch_number, $id);
