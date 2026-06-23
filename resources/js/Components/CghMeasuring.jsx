@@ -674,11 +674,14 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                             <GraphControlR data={allRaverage} min={SPCControlls.r_ucl} max={SPCControlls.average_UCL}/>
                         </div>
                     </div>
-                         <div className="container-row" style={{  margin:'0rem'}}>
-                        <div>
-                            <CountingGraph process={'cghl'} specification={'Perpendicularity'} max={currentModel.cghl_max??0} min={currentModel.cghl_min??0} perpendicularity={perpenCghlThickness} maxperpen={currentModel.perpendicularity??0}/>
+                    {
+                        currentModel.perpendicularity && Number (currentModel.perpendicularity) > 0 && 
+                        <div className="container-row" style={{  margin:'0rem'}}>
+                            <div>
+                                <CountingGraph process={'cghl'} specification={'Perpendicularity'} max={currentModel.cghl_max??0} min={currentModel.cghl_min??0} perpendicularity={perpenCghlThickness} maxperpen={currentModel.perpendicularity??0}/>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
         </>
