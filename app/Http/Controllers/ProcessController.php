@@ -10,6 +10,7 @@ use App\Models\cghModel;
 use App\Models\lappingModel;
 use App\Models\ModelDetails;
 use App\Models\slicingModel;
+use App\Models\logs;
 use Mockery\Expectation;
 
 class ProcessController extends Controller
@@ -98,7 +99,7 @@ class ProcessController extends Controller
 
     public function Batching($process, $id, $lot_number, $data)
     {
-
+     
         if (!$process) return redirect()->back()->with('error', 'Process not exist!');
         if (!$data) return redirect()->back()->with('error', 'Data not exist!');
 

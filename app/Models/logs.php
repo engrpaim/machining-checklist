@@ -13,10 +13,14 @@ class logs extends Model
         "data",
         "ip_address",
         "area",
-        "user_id"
+        "user_id",
+        "action",
+        "model",
+        "process",
+        "lot_number"
     ];
 
     protected $casts = [
-        "data"
+        "data" => 'array',
     ];
 }

@@ -16,6 +16,7 @@ use App\Http\Controllers\ProcessController;
 use App\Models\Barelling;
 use App\Models\lappingModel;
 use App\Models\slicingModel;
+use App\Models\logs;
 use GuzzleHttp\Handler\Proxy;
 use Illuminate\Support\Facades\Process;
 
@@ -34,6 +35,30 @@ class MachiningChecklistController  extends ProcessController
         ];
 
         return $bank[$process];
+    }
+
+    public function saveToLogs(string $page,array $data ,string $ip_address,string $area,string $userId,string $lotnumber ,string $action,string $model,string $process){
+        try{
+
+            $lotSave = logs::create([
+                'page' => $page ?? null,
+                'data' => $data ?? null,
+                'ip_address' => $ip_address ?? null,
+                'area' => $area  ?? null,
+                'user_id' => $userId ?? null,
+                'action' => $action ?? null,
+                'model' => $model ?? null,
+                'process' => $process?? null,
+                'lot_number' => $lotnumber ?? null
+            ]);
+         
+            return true;
+
+        }catch(Exception $e){
+
+            return false;
+
+        }
     }
 
     public function otherJSON(string $process)
@@ -80,7 +105,7 @@ class MachiningChecklistController  extends ProcessController
         //array for value exist checking
         $preparedItems = [];
         $ip = $request->ip();
-
+        
         $toBecheked = [
             'measure' => ['lot_number' => 'required|string', 'process' => 'required|string'],
         ];
@@ -142,6 +167,9 @@ class MachiningChecklistController  extends ProcessController
                 ]);
                 $data = $processingDetails['processing'];
                 $creatBatch = $insertProcessDetails->Batching($process, $isSaved->id, $isSaved->lot_number, $data);
+                   
+                $this->saveToLogs($page , $request->all(), $ip,'','',$lotNumber,'store',$modelProcessing,$process );
+          
                 if ($isSaved) return redirect()->back()->with(
                     [
                         'success' => 'Saved Successfully[Datalist-NW]!',
@@ -156,7 +184,7 @@ class MachiningChecklistController  extends ProcessController
 
 
         if ($checkIfexist->model !== $modelProcessing) return redirect()->back()->with('error', 'Model must be ' . $checkIfexist->model);
-
+     
         if ($checkIfexist && $process) {
 
             //update datalist process
@@ -173,9 +201,12 @@ class MachiningChecklistController  extends ProcessController
             if (!$getAllBatch) return redirect()->back()->with('error', 'Process database not found!');
             $isGetDetails =  $getAllBatch::where('datalist_id', $checkIfexist->id)->get();
 
+            
             if (!$isGetDetails->toArray()) {
                 $data = $processingDetails['processing'];
                 $creatBatch = $insertProcessDetails->Batching($process, $checkIfexist->id, $checkIfexist->lot_number, $data);
+                $this->saveToLogs($page , $request->all(), $ip,'','',$lotNumber,'store',$modelProcessing,$process );
+          
                 if ($creatBatch) return redirect()->back()->with(
                     [
                         'success' => 'Saved Successfully[Datalist-NW]!',
@@ -240,6 +271,7 @@ class MachiningChecklistController  extends ProcessController
             $copyJSON =  $copyArray ? json_encode($copyArray) : null;
         }
 
+
         if ($creatBatch) return redirect()->back()->with([
             'success' => 'Successfully created new batch!',
             'current_lot' => $creatBatch,
@@ -295,6 +327,7 @@ class MachiningChecklistController  extends ProcessController
         $details = $form['details'];
         $data = $form['data'];
         $magnet = [];
+  
         if (!$details) return redirect()->back()->with('error', 'Details not found! complete all data');
 
 
@@ -353,8 +386,17 @@ class MachiningChecklistController  extends ProcessController
         $result = $databaseProcess->updateQuery($db, $details, $details["batch_number"], $details["datalist_id"]);
     
         if (!$result) return redirect()->back()->with('error', 'Finalized successfully status updated!');
+
+        
+
         $convertData = json_encode($result);
-              
+        $page = $data["page"];
+        $ip = $request->ip();
+        $lot_number = $data["lot_number"];
+
+        $modelProcessing =  $form['model'] ??null;
+        $this->saveToLogs($page , $request->all(), $ip,'','',$lot_number,'finalize',$modelProcessing,$process );
+
         if ($result) return redirect()->back()->with([
             'success' => 'Finalized successfully status updated!',
             'existing' => $convertData,
@@ -402,8 +444,12 @@ class MachiningChecklistController  extends ProcessController
         if (!$updateData) return redirect()->back()->with('error', "Failed proceeding to " . $bankStatus[$details["status"]] . "! ");
 
 
-
+     
         $convertData = json_encode($updateData);
+        $ip = $request->ip();
+        $page = $data['page'] ?? null ;
+        $modelProcessing =  $form["model"];
+        $this->saveToLogs($page , $request->all(), $ip,'','',$lot_number,'proceed[ '.$bankStatus[$details["status"]].']',$modelProcessing,$process );
 
         if (!$convertData) return redirect()->back()->with('error', " " . $lot_number . " not exist!");
         return redirect()->back()->with([
@@ -450,7 +496,7 @@ class MachiningChecklistController  extends ProcessController
 
     public function updateData(Request $request)
     {
-
+      
         $form = $request->input('processForm') ?? null;
         if (!$form) return redirect()->back()->with('error', "Data not found!");
         $data =  $form["details"];
@@ -480,8 +526,11 @@ class MachiningChecklistController  extends ProcessController
         $convertModel = $models->toArray();
 
         if (!$process || !$batch_number || !$db || !$id) return redirect()->back()->with('error', '[Updating]Failed: Missing data!');
-      
+        $page = $identifyData["page"];
+        $lotNumber = $identifyData["lot_number"];
+        $ip = $request->ip();
         $result = $updateData->updateQuery($db, $data, $batch_number, $id);
+        $this->saveToLogs($page , $request->all(), $ip,'','',$lotNumber,'update',$model,$process );
         if ($result) return redirect()->back()->with(['success'=> '[Updating--]Pic updated successfully!','model'=> $convertModel ]);
 
         return redirect()->back()->with('error', '[Updating]Error 404!');
