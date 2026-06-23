@@ -3,7 +3,7 @@ export default function SelectorModels({ model, setProcessState, setModelState, 
 
     const modelsParse = JSON.parse(model);
     const processValues = {
-        'barelling': 'IN-PROCESS INSPECTION SHEET',
+        'barelling': 'BARELLING',
         'cghl': 'CGH (L) DIMENSION MONITORING',
         'lapping': 'LAPPING (T) DIMENSION MONITORING',
         'slicing': 'SLICING MONITORING',
@@ -35,7 +35,7 @@ export default function SelectorModels({ model, setProcessState, setModelState, 
                             onChange={(e) => setProcessState({ process: e.target.value, value: processValues[e.target.value] })}
                         >
                             <option disabled={true} selected={true}></option>
-                            <option value="barelling" >IN-PROCESS INSPECTION SHEET</option>
+                            <option value="barelling" >BARELLING</option>
                             <option value="cghl">CGH (L) DIMENSION MONITORING</option>
                             <option value="lapping">LAPPING (T) DIMENSION MONITORING</option>
                             <option value="slicing" >SLICING MONITORING</option>

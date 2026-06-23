@@ -60,7 +60,7 @@ export default function Measure() {
         slicing:{preparing:8},
     }
     const sheetTitle = {
-            barelling: 'IN-PROCESS INSPECTION SHEET',
+            barelling: 'BARELLING',
             cghl:'CGH (L) DIMENSION MONITORING',
             lapping:'LAPPING (T) DIMENSION MONITORING',
             slicing:'SLICING MONITORING'

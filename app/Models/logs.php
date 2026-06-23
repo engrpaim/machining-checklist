@@ -17,7 +17,8 @@ class logs extends Model
         "action",
         "model",
         "process",
-        "lot_number"
+        "lot_number",
+        "shift"
     ];
 
     protected $casts = [
