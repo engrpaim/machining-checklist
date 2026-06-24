@@ -182,6 +182,7 @@ export default function Measure() {
         datalist_lot_number: '',
         batch_number: '',
         comparator_serial:'',
+        model:'',
     });
 
     const {data:massProForm , setData:setMassProForm ,processing:MassproProcessing, reset:resetMassProForm} = useForm({
