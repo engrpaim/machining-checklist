@@ -18,7 +18,9 @@ class lappingModel extends Model
         'staff_engineer',
         'comparator_serial',
         'mass_pro',
-        'histogram_point'
+        'histogram_point',
+        'process_number',
+        'om_specs'
     ];
 
     protected $casts = [

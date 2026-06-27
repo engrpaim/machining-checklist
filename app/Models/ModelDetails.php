@@ -57,7 +57,11 @@ class ModelDetails extends Model
         'lapping_points',
         'cghl_points',
 
-        'histogram_point'
+        'histogram_point',
+
+        'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs'
 
     ];
+
+    protected $casts = ['cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs'];
 }

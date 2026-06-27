@@ -136,14 +136,23 @@ Route::get('/machining-checklist/measure', function (Request $request) {
 
     $models = ModelDetails::orderBy('id')->get();
     $modified = [];
+    $om_modified = [];
 
     foreach ($models as  $key => $values) {
         $data = $values->toArray();
         $modified[$data["model"]] =    $data;
+        
+        foreach($data  as $innerKey => $innerValue){
+            if(str_contains($innerKey,"om_specs")){
+                $om_modified[$data["model"]][$innerKey]=$data[$innerKey];
+            }
+        }
+        
     }
-    
+  
+      
     $finalModel = json_encode($modified);
-
+    $finalOMModified = json_encode($om_modified);
     $clientIp = $request->ip();
     $isExistUser = false;
 
@@ -153,7 +162,8 @@ Route::get('/machining-checklist/measure', function (Request $request) {
     return Inertia::render('Measure', [
         'ip_client' => $isExistUser ? $isExistUser->toArray():null,
         'message' => 'Hello from Laravel!',
-        'modelsList' =>  $finalModel
+        'modelsList' =>  $finalModel,
+        'omList' => $finalOMModified
     ]);
 });
 

@@ -74,7 +74,11 @@
     font-size: 11px;
     text-align: center;
 }
-
+.details-data select {
+    padding: 0.3rem;
+    font-size: 11px;
+    text-align: center;
+}
 .details-container-sky h1 {
     color: #2b2e2e;
 }

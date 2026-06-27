@@ -40,7 +40,6 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
                 'check' => fn() => $request->session()->get('check'),
-
             ],
             'modal' => fn() => $request->session()->get('modal'),
             'current_lot' => fn() => $request->session()->get('current_lot'),

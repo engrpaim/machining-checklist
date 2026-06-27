@@ -28,7 +28,9 @@ class cghModel extends Model
         'mass_pro',
         'technician_gl',
         'points',
-        'perpendicularity'
+        'perpendicularity',
+        'process_number',
+        'om_specs'
 
     ];
 

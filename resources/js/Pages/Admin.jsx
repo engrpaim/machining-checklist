@@ -67,7 +67,6 @@ export default function Admin(){
         lappingt_max: "",
         lappingt_min: "",
         lapping_points:"",
-
         slicing_max: "",
         slicing_min: "",
         slicing_target: "",
@@ -77,6 +76,9 @@ export default function Admin(){
         slicing_points:"",
         slicing_perpendicularity:'',
         slicing_parallelism:"",
+        cghl_om_specs:{},
+        slicing_om_specs:{},
+        lapping_om_specs:{},
         histogram_point:"",
         flatness_lapping: "",
         height_lapping: "",
@@ -195,12 +197,17 @@ export default function Admin(){
             case 'model':
                 if(!modelsList.data[index]) return
                 const selectedModel = modelsList.data[index];
+                console.log('Model display:',selectedModel);
                 Object.entries(modelDetails).map(([key,value])=>{
-                    setModeltails(key,selectedModel[key]);
+                    console.log('Model display2:',key);
 
                     if(key.includes('chamfer_point') && !key.includes('chamfer_points') ){
                         setPreview((prev)=>({...prev ,[key ]: `/storage/${encodeURI(selectedModel[key])}`}) )
-                    }
+                    }else if(key.includes('_om_specs')){
+                        const convertedData = JSON.parse(selectedModel[key])
+                        console.log('_om_specs:',key , convertedData)
+                        setModeltails(key,convertedData);
+                    }else{setModeltails(key,selectedModel[key]);}
                 })
                 setModeltails('page','model');
                 setModeltails('crud','save');

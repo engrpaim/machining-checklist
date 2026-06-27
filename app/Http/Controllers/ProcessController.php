@@ -15,13 +15,14 @@ use Mockery\Expectation;
 
 class ProcessController extends Controller
 {
-    public function  checkIfExist(string $id, string $lot_number, string $dbUse)
+    public function  checkIfExist(string $id, string $lot_number, string $dbUse ,string $om_specs)
     {
         //return latest data
         try {
 
             $checkIfExist = $dbUse::where('datalist_id', $id)
                 ->where('datalist_lot_number', $lot_number)
+                ->where('om_specs', $om_specs)
                 ->orderBy('batch_number', 'desc')
                 ->first();
 
@@ -66,6 +67,7 @@ class ProcessController extends Controller
     public function savingQuery($db, $data)
     {
         // Save data
+  
         try {
             $IsSaved = $db::create($data);
             if ($IsSaved) return $IsSaved;
@@ -74,19 +76,21 @@ class ProcessController extends Controller
             return false;
         }
     }
-    public function updateQuery($db, $data, $batchNumber, $dataListId)
+    public function updateQuery($db, $data, $batchNumber, $dataListId,$process_number,$om_specs)
     {
-        
+    
         // Save data
         unset($data['created_at']);
         unset($data['updated_at']);
 
         try {
-            $IsSaved = $db::where('datalist_id', $dataListId)->where('batch_number', $batchNumber)->update($data);
+            $IsSaved = $db::where('datalist_id', $dataListId)->where('batch_number', $batchNumber)->where('process_number',$process_number)->where('om_specs',$om_specs)->update($data);
 
             if ($IsSaved) {
                 $result = $db::where('datalist_id', $dataListId)
                     ->where('batch_number', $batchNumber)
+                    ->where('process_number',$process_number)
+                    ->where('om_specs',$om_specs)
                     ->first();
                     
                 return $result->toarray();
@@ -107,7 +111,9 @@ class ProcessController extends Controller
         $operatorName = $data['operator_name'] ?? null;
         $checker = $data['checker'] ?? null;
         $staffEngineer = $data['staff_engineer'] ?? null;
-
+        $model =  $data['model'] ?? null;
+        $process_number =  $data['process_number'] ?? null;
+        $om_specs =  $data['om_specs'] ?? null;
 
 
         $processBank = [
@@ -130,7 +136,7 @@ class ProcessController extends Controller
         if (!$processBank[$process] && !$dataBank[$process]['preparation']) return redirect()->back()->with('error', 'No preparation process!');
 
         $dbUse = $processBank[$process];
-        $checkIfExist = $this->checkIfExist($id, $lot_number, $dbUse);
+        $checkIfExist = $this->checkIfExist($id, $lot_number, $dbUse,$om_specs);
 
         if ($checkIfExist) {
 
@@ -145,7 +151,10 @@ class ProcessController extends Controller
                 'shift' => $shift,
                 'operator_name' => $operatorName,
                 'checker' => $checker,
-                'staff_engineer' => $staffEngineer
+                'staff_engineer' => $staffEngineer,
+                'om_specs' =>$om_specs,
+                'process_number'=> $process_number,
+                'model' => $model
             ];
             return $this->savingQuery($dbUse, $addedBatch);
 
@@ -158,7 +167,10 @@ class ProcessController extends Controller
                 'shift' => $shift,
                 'operator_name' => $operatorName,
                 'checker' => $checker,
-                'staff_engineer' => $staffEngineer
+                'staff_engineer' => $staffEngineer,
+                'om_specs' =>$om_specs,
+                'process_number'=> $process_number,
+                'model' => $model
             ];
             return $this->savingQuery($dbUse, $initialData);
             

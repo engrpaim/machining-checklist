@@ -113,7 +113,7 @@ class MachiningChecklistController  extends ProcessController
 
     public function store(Request $request)
     {
-       
+      
         //array for value exist checking
         $preparedItems = [];
         $ip = $request->ip();
@@ -151,6 +151,8 @@ class MachiningChecklistController  extends ProcessController
         //First Save in datalsit
         $lotNumber = $processingDetails['processing']['lot_number'];
         $shift = $processingDetails['processing']['shift'];
+        $om_specs =$processingDetails['processing']['om_specs'];
+        $process_number =$processingDetails['processing']['process_number'];
         $process = $processingDetails['processing']['process'];
         $modelProcessing = $processingDetails['model'];
         $processListCurrent = [];
@@ -166,17 +168,50 @@ class MachiningChecklistController  extends ProcessController
         $models = $insertProcessDetails->getModel($modelDb, $currentModel);
         if (!$models) return redirect()->back()->with('error', 'Model database not found!');
         $convertModel = $models->toArray();
+        
+        
+        //hanle om specs exist
+        $omExist = null;
+        if($checkIfexist){
+            $omExist = $classBank[$process]::where('datalist_lot_number', $lotNumber)->where('model',$modelProcessing)->where('om_specs','=',$om_specs)->first();
 
 
+            if(!$omExist){
+                    $omData = $classBank[$process]::where('datalist_lot_number', $lotNumber)->where('model',$modelProcessing)->where('om_specs','!=',$om_specs)->first();
+                    
+                    if($omData){
+                        $data = $processingDetails['processing'];
+                        $creatBatch = $insertProcessDetails->Batching($process, $omData->datalist_id, $omData->datalist_lot_number, $data);
+
+                        $this->saveToLogs($page , $request->all(), $ip,'','',$lotNumber,'store['.$om_specs.']',$modelProcessing,$process,$shift );
+            
+                        if ($creatBatch) return redirect()->back()->with(
+                            [
+                                'success' => 'Saved Successfully[OM-SPECS]!',
+                                'current_lot' => $creatBatch,
+                                'model' => $convertModel
+                            ]
+                        );
+                    }
+                    
+                }
+        }
+        //Batching returns the new batch
         if (!$checkIfexist) {
             try {
-                $isSaved = $isTableExist::create([
-                    'lot_number' => $lotNumber,
-                    'shift' => $shift,
-                    'preparing' => $preparing,
-                    'ip_address' => $ip,
-                    'model' => $modelProcessing
-                ]);
+
+                
+                    $isSaved = $isTableExist::create([
+                        'lot_number' => $lotNumber,
+                        'shift' => $shift,
+                        'preparing' => $preparing,
+                        'ip_address' => $ip,
+                        'model' => $modelProcessing,
+                        'om_specs' => $om_specs,
+                        'process_number' => $process_number
+                    ]);
+                
+                
                 $data = $processingDetails['processing'];
                 $creatBatch = $insertProcessDetails->Batching($process, $isSaved->id, $isSaved->lot_number, $data);
                    
@@ -189,7 +224,9 @@ class MachiningChecklistController  extends ProcessController
                         'model' => $convertModel
                     ]
                 );
+
             } catch (Exception $e) {
+                $this->saveToLogs($page , [ 'error' => $e->getMessage()], $ip,'','',$lotNumber,'error',$modelProcessing,$process,$shift );
                 return redirect()->back()->with('error', `Failed:` . $e->getMessage());
             }
         }
@@ -211,7 +248,7 @@ class MachiningChecklistController  extends ProcessController
             $getAllBatch = $classBank[$process];
 
             if (!$getAllBatch) return redirect()->back()->with('error', 'Process database not found!');
-            $isGetDetails =  $getAllBatch::where('datalist_id', $checkIfexist->id)->get();
+            $isGetDetails =  $getAllBatch::where('datalist_id', $checkIfexist->id)->where('om_specs','=', $om_specs)->get();
 
             
             if (!$isGetDetails->toArray()) {
@@ -227,6 +264,7 @@ class MachiningChecklistController  extends ProcessController
                     ]
                 );
             }
+
             $allBatchLot = json_encode($isGetDetails->toArray());
             return redirect()->back()->with([
                 'modal' => $lotNumber . ' already exist!',
@@ -341,7 +379,7 @@ class MachiningChecklistController  extends ProcessController
         $magnet = [];
   
         if (!$details) return redirect()->back()->with('error', 'Details not found! complete all data');
-
+        // dd($request->all());
 
         $datalist_id = $details["datalist_id"] ?? null;
         $datalist_lot_number = $details["datalist_lot_number"] ?? null;
@@ -355,7 +393,8 @@ class MachiningChecklistController  extends ProcessController
         $data['operator_name']  ? $details["operator_name"] = $data['operator_name'] : null;
         $data['checker']  ? $details["checker"] = $data['checker'] : null;
         $data['staff_engineer']  ? $details["staff_engineer"] = $data['staff_engineer'] : null;
-
+        $data['om_specs']  ? $details["om_specs"] = $data['om_specs'] : null;
+        $data['process_number']  ? $details["process_number"] = $data['process_number'] : null;        
 
         $checkPointForm = $form["points"] ?? null;
         if ($checkPointForm && $process === 'barelling') {
@@ -367,7 +406,7 @@ class MachiningChecklistController  extends ProcessController
 
         if ($status === 'preparing') unset($form["points"]);
        
-        if (!$datalist_id || !$datalist_lot_number || !$batch_number || !$status || !$process) return redirect()->back()->with('error', 'Finalize:Details not found![missing data!]');
+        if (!$datalist_id || !$datalist_lot_number || !$batch_number || !$status || !$process ||  !$details["process_number"] ||  !$details["om_specs"]) return redirect()->back()->with('error', 'Finalize:Details not found![missing data!]');
 
         //merge all data
         foreach ($form as $key => $value) {
@@ -394,10 +433,9 @@ class MachiningChecklistController  extends ProcessController
         $models = $databaseProcess->getModel($modelDb, $currentModel);
         if (!$models) return redirect()->back()->with('error', 'Model database not found!');
         $convertModel = $models->toArray();
-
-        $result = $databaseProcess->updateQuery($db, $details, $details["batch_number"], $details["datalist_id"]);
+        $result = $databaseProcess->updateQuery($db, $details, $details["batch_number"], $details["datalist_id"], $details["process_number"], $details["om_specs"]);
     
-        if (!$result) return redirect()->back()->with('error', 'Finalized successfully status updated!');
+        if (!$result) return redirect()->back()->with('error', 'Finalized not updated!');
 
         
 
@@ -439,6 +477,9 @@ class MachiningChecklistController  extends ProcessController
         $id =  $details["datalist_id"] ?? null;
         $batch_number = $details["batch_number"] ?? null;
         $lot_number = $details["datalist_lot_number"] ?? null;
+        $process_number = $details["process_number"] ?? null;
+        $om_specs = $details["om_specs"] ?? null;
+
         $process = $data["process"] ?? null;
         if (!$dataUpdate || !$id || !$batch_number || !$process || !$lot_number) return redirect()->back()->with('error', 'Incomplete data cannot be updated![Proceed]');
         $db = $this->dataBaseBank($process);
@@ -452,11 +493,9 @@ class MachiningChecklistController  extends ProcessController
         if (!$models) return redirect()->back()->with('error', 'Model database not found!');
         $convertModel = $models->toArray();
        
-        $updateData = $processQuery->updateQuery($db, $dataUpdate, $batch_number, $id);
+        $updateData = $processQuery->updateQuery($db, $dataUpdate, $batch_number, $id , $process_number ,$om_specs);
 
         if (!$updateData) return redirect()->back()->with('error', "Failed proceeding to " . $bankStatus[$details["status"]] . "! ");
-
-
      
         $convertData = json_encode($updateData);
         $ip = $request->ip();
@@ -481,14 +520,16 @@ class MachiningChecklistController  extends ProcessController
         $batch = $request->input('batch');
         $id = $request->input('id');
         $model = $request->input('model');
+        $process_number = $request->input('process_number');
+        $om_specs = $request->input('om_specs');
 
-        if (!$process && !$batch && !$id && !$model) return redirect()->back()->with('error', '[Updating]Failed: Missing Data!');
+        if (!$process && !$batch && !$id && !$model && !$process_number  && !$om_specs) return redirect()->back()->with('error', '[Updating]Failed: Missing Data!');
 
         $bank = $this->dataBaseBank($process);
 
         if (!$bank) return redirect()->back()->with('error', '[Updating]Failed: Process database not found!');
-
-        $isGetDetails = $bank::where('datalist_id', $id)->where('batch_number', $batch)->first();
+        // dd($process_number,$om_specs);
+        $isGetDetails = $bank::where('datalist_id','=', $id)->where('batch_number','=', $batch)->where('process_number','=',$process_number)->where('om_specs','=',$om_specs)->first();
 
         $processQuery = new ProcessController;
 
@@ -545,8 +586,10 @@ class MachiningChecklistController  extends ProcessController
         $page = $identifyData["page"];
         $shift = $identifyData["shift"];
         $lotNumber = $identifyData["lot_number"];
+         $om_specs = $identifyData["om_specs"];
+        $process_number = $identifyData["process_number"];
         $ip = $request->ip();
-        $result = $updateData->updateQuery($db, $data, $batch_number, $id);
+        $result = $updateData->updateQuery($db, $data, $batch_number, $id,$process_number,$om_specs );
         $this->saveToLogs($page , $request->all(), $ip,'','',$lotNumber,'update',$model,$process,$shift );
         if ($result) return redirect()->back()->with(['success'=> '[Updating--]Pic updated successfully!','model'=> $convertModel ]);
 
@@ -560,13 +603,15 @@ class MachiningChecklistController  extends ProcessController
         $points =  $data['points'];
         $process = $data['process'];
         $details = $data['details'];
+        $om_process = $data['om_process'];
+        $process_number = $data['process_number'];
 
         if (!$points || !$process) return redirect()->back()->with('error', '[Part Updating]Missing Data!');
         $updateData =  new ProcessController;
         $dbuse = $this->dataBaseBank($process);
         $batch_number = $details["batch_number"];
         $id = $details["datalist_id"];
-        $result = $updateData->updateQuery($dbuse, $points, $batch_number, $id);
+        $result = $updateData->updateQuery($dbuse, $points, $batch_number, $id, $process_number, $om_process);
         if ($result) return redirect()->back()->with('success', 'Updated successfully!');
 
         return redirect()->back()->with('error', '[Part Updating]Error 404!');

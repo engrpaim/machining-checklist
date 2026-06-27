@@ -1579,7 +1579,7 @@ td {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 28rem;
+    width: 34rem;
     margin: 0.3rem;
 }
 
@@ -2212,4 +2212,46 @@ td {
 .copy-btn:hover{
     background: #D1B200;
     color:#1A1600;
+}
+
+.om-select{
+    border:none;
+    border-color: none;
+    padding:0.2rem;
+    width: 10rem;
+    outline:none;
+    cursor: pointer;
+}
+.om-select:hover {
+    border-color: #888;
+}
+.om-select:focus{
+    border-color: #4a90e2;
+  
+}
+
+.om-container{
+    display: flex;
+    flex-direction: row;
+    background: #DFF2FE;
+    border-radius: 1rem;
+    padding:1rem;
+}
+.om-input{
+    width: 4rem;
+    text-align:center;
+    
+}
+.om-modal-input{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    padding:0.5rem;
+    width: 35rem;
+}
+
+.om-group{
+    display: flex;
+    flex-direction: row;
+    gap:1rem;
 }

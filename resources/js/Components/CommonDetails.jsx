@@ -2,16 +2,17 @@ import '../../css/common.css';
 import { removeUnwanted } from '../utils/UtilityFunctions';
 import { useState } from 'react';
 import { InfoIcon } from '../Icons/SVG';
-export default function CommonDetails({ data, setData, handleStore, handleKeyDown, loading, batch_number }) {
+export default function CommonDetails({ data, setData, handleStore, handleKeyDown, loading, batch_number,process_number,omList,setProcessNumber,resetDetailsMeasuring}) {
     const firstPart = ['Lot Number', 'Operator Name', 'Checker']
     const secondPart = ['Shift', 'Date', 'Staff/Engineer']
-
-
+    const convertedList = omList ? JSON.parse(omList):null
+    const specsOm = convertedList && convertedList.specs ? convertedList.specs?.[process_number]:null
     return (
         <div className="details-container-gray">
             <h1>Processing Details</h1>
             <div className='details-container-inner'>
                 <div className="details-part">
+
                     {
                         firstPart.map((details, index) => {
                             const cleanData = removeUnwanted(details);
@@ -42,7 +43,6 @@ export default function CommonDetails({ data, setData, handleStore, handleKeyDow
                                 hour12: false
                             }).format(hourFormat);
 
-
                             const shift = formattedTime24 > 6 && formattedTime24 < 18 ? 'E' : 'F'
                             const currentDate = hourFormat.toISOString().slice(0, 10);
                             const dateShift = details === 'Shift' ? shift : details === 'Date' ? currentDate : null;
@@ -68,6 +68,27 @@ export default function CommonDetails({ data, setData, handleStore, handleKeyDow
                             )
                         })
                     }
+                </div>
+                <div className="details-part">
+                    <div className="details-data">
+                        <label>Process #:</label>
+                        <select value={ data.process_number} className="om-select" onChange={(e)=>{
+                                                                        resetDetailsMeasuring()
+                                                                        setData((prev)=>({ ...prev , process_number:e.target.value , om_specs:convertedList?.specs?.[e.target.value]}))
+                                                                        
+                                                                 }   
+                                                                }>
+                            <option value={''}></option>
+                            <option value={'first'}>1st</option>
+                            <option value={'second'}>2nd</option>
+                            <option value={'third'}>3rd</option>
+                            <option value={'fourth'}>4th</option>
+                        </select>
+                    </div>
+                    <div className="details-data">
+                        <label>OM SPECS</label>
+                        <input value={specsOm ? specsOm:''} disabled={true}/>
+                    </div>
                 </div>
             </div>
             <div className='inside-data-center'>

@@ -29,10 +29,12 @@ export default function Measure() {
      *
      *
      * **/
-    const { modelsList, flash, modal, current_lot, batches, existing, model , copy_batch , GoToProcess, GoToModel } = usePage().props;
-    console.log('Props', flash, modal, current_lot, existing, 'Models: ', model,'Details: ',copy_batch , ' Go to:',GoToProcess, GoToModel );
+    const { modelsList, flash, modal, current_lot, batches, existing, model , copy_batch , GoToProcess, GoToModel ,omList} = usePage().props;
+    console.log('Props', flash, modal, current_lot, existing, 'Models: ', model,'Details: ',copy_batch , ' Go to:',GoToProcess, GoToModel,'OM LIST:',omList );
+
     const [modelState, setModelState] = useState(null);
     const [processState, setProcessState] = useState(null);
+
     const [measureButton, setMeasureButton] = useState(null);
     const [areaState, setAreaState] = useState(null);
     const [statusCheck, setStatusCheck] = useState(null);
@@ -48,29 +50,35 @@ export default function Measure() {
     const [passworModal, setPasswordModal] = useState(false);
     const [copyBatchDetails ,setCopyBatchDetails] = useState(false);
     const [histogram,setHistogram] = useState(false);
-    
+    const [omListState , setOmListState] = useState(omList ? JSON.parse(omList):null);
+
+    console.log('OM STATE:' , omListState);
     //Notification
     const [flashNotification , setFlashNotification] = useState(false);
     const [Notification, setNotification] = useState(false);
     console.log('type chamfer: ', currentModel.chamfer_type);
+
     const alloweAble = {
-        barelling: { preparing: 7},
-        cghl:{preparing:11},
-        lapping:{preparing:0},
-        slicing:{preparing:8},
+        barelling: { preparing: 7,om:'barelling_om_specs'},
+        cghl:{preparing:10,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
+        lapping:{preparing:0,om:'lapping_om_specs'},
+        slicing:{preparing:4,om:'slicing_om_specs'},
     }
+
     const sheetTitle = {
-            barelling: 'BARELLING',
-            cghl:'CGH (L) DIMENSION MONITORING',
-            lapping:'LAPPING (T) DIMENSION MONITORING',
-            slicing:'SLICING MONITORING'
+        barelling: 'BARELLING',
+        cghl:'CGH (L) DIMENSION MONITORING',
+        lapping:'LAPPING (T) DIMENSION MONITORING',
+        slicing:'SLICING MONITORING'
     }
+
     const toHide = ["prepared", "measured", "approved"];
     const buttonStatus = {
         prepared: 'Measure',
         measured: 'Approved',
         update: 'Edit',
     }
+
     const common = ['lot_number', 'date', 'shift', 'operator_name', 'checker', 'staff_engineer', 'process'];
     //preparation details
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -81,6 +89,9 @@ export default function Measure() {
         checker: '',
         staff_engineer: '',
         process: '',
+        model:'',
+        process_number:'',
+        om_specs:'',
         page: 'measure'
     });
     /** Barelling Page **/
@@ -89,6 +100,7 @@ export default function Measure() {
         datalist_id: '',
         datalist_lot_number: '',
         batch_number: '',
+        process_number: '',
         total_qty_lot: '',
         media_size: '',
         media_weight: '',
@@ -282,6 +294,7 @@ export default function Measure() {
                 set:setLappingForm,
                 set_data:setData,
                 reset:resetLappingForm,
+                subreset:hfpReset
             },
             slicing: {
                 data:data,
@@ -313,7 +326,10 @@ export default function Measure() {
 
         const details = arrayBankNew[GoToProcess]?.details
         const data = arrayBankNew[GoToProcess]?.data
+        const dateCreated = current_lot.created_at.split("T")[0];
+        
 
+        console.log("Date Createdxx: ",dateCreated);
         //return common data
         data && Object.entries(data).map(([key,value])=>{
             console.log('low: ',key,value);
@@ -328,6 +344,15 @@ export default function Measure() {
                     break;
                 case 'id':
                     arrayBankNew[GoToProcess]?.set_data(key,current_lot.datalist_id)
+                    break;
+                case 'om_specs':
+                    arrayBankNew[GoToProcess]?.set_data(key,current_lot.om_specs)
+                    break;
+                case 'date':
+                    arrayBankNew[GoToProcess]?.set_data('date',dateCreated)
+                    break;
+                case 'process_number':
+                    arrayBankNew[GoToProcess]?.set_data(key,current_lot.process_number)
                     break;
                 default:
                     break;
@@ -532,7 +557,24 @@ export default function Measure() {
         }
 
     }
-
+    
+    const resetDetailsMeasuring =()=>{
+        hfpReset();
+        resetBarellingDetails()
+        resetMagnetPoints()
+        resetTimerDetails()
+        resetCghlPoint()
+        resetCghTools()
+        resetCghlDetails()
+        resetLappingForm()
+        slicingReset()
+        slicingMassProReset()
+        resetPerpenCghlThickness(); 
+        resetMassProForm();
+        slicingParallelismReset();
+        slicingPerpenDReset();
+        slicingMassProReset();
+    }
 
     const handleBatch = async (batch_number) => {
     
@@ -545,20 +587,25 @@ export default function Measure() {
         setStatusCheck(false);
         setLoading(true);
         setTriModal(false);
+        hfpReset();
 
         console.log('get data', allBatches[batch_number]);
         const details = allBatches[batch_number]
         const datalist_id = details.datalist_id ?? null
         const process_batch = details.batch_number ?? null
         const process = processState.process ?? null
-
+        const process_number = details.process_number ?? null 
+        const om_specs = details.om_specs ?? null 
         if (!datalist_id || !process_batch || !process) return
-        console.log('Selected: ', process_batch);
+        console.log('Selected: ', process_batch,process_number,om_specs);
+
         const getPayLoad = {
             id: datalist_id,
             batch: process_batch,
             process: process,
             model: modelState ?? null,
+            process_number: process_number ?? null,
+            om_specs:om_specs ?? null
         }
 
         try {
@@ -599,10 +646,7 @@ export default function Measure() {
                         const inputs = document.querySelectorAll("input");
                         const arr = Array.from(inputs);
                         let index = arr.indexOf(e.target);
-
                         let next = index + 1;
-
-
                         if (arr[next]) {
                             if (arr[next].disabled) {
                                 arr[next].disabled = false;
@@ -610,7 +654,6 @@ export default function Measure() {
                             arr[next].focus();
                             console.log('FOCUS AUTO:', next, arr[next].focus());
                         }
-
                     }, 1000)
 
 
@@ -754,6 +797,9 @@ export default function Measure() {
                setMassProForm(key,values);
             })
             
+            convertedData.histogram_point && Object.entries(convertedData.histogram_point).map(([key, values]) => {
+               setHfpData(key,values);
+            })
            
         }  else if(processState.process === 'slicing'){
              //time
@@ -782,6 +828,7 @@ export default function Measure() {
         const process = processState && processState.process ? processState.process :GoToProcess
         setData('process', process );
         setProcessForm(arrayBank[process]);
+        setData('model',modelState);
         console.log('Current Processform:' ,processForm);
     }, [processState, arrayBank ,GoToProcess])
 
@@ -841,7 +888,7 @@ export default function Measure() {
 
         Object.entries(processForm).map(([key, value]) => {
             console.log('to count', key)
-            if (typeof value === 'object' && key !== 'data') {
+            if (typeof value === 'object' && key !== 'data'  && key === 'details') {
                 const countEmpty = emptyCount(value);
                 countCurrentEmpty += countEmpty
                 console.log('Counted Empty: ', countCurrentEmpty, ' Current Empty: ', alloweAble[processState.process].preparing);
@@ -851,7 +898,7 @@ export default function Measure() {
         countCurrentEmpty > alloweAble[processState.process].preparing ? setProcessFromCount(false) : setProcessFromCount(true)
     }, [processForm, existing]);
 
-    console.log('DATA NOW:', processFromCount);
+    console.log('DATA NOW:', data);
 
     //Handle copy batch details @@handle
 
@@ -904,7 +951,7 @@ export default function Measure() {
             console.error("Error submitting form:", err);
         }
     }
-    console.log("Processx:x ", slicingMassPro);
+    console.log("Processx:x ", processForm,);
     return (
         <>
             {
@@ -946,16 +993,18 @@ export default function Measure() {
                     />
                     {
                         modelState && processState &&
-                        <div className="process-group">
-                            <div className="process-result">
-                                <h1 style={{ color: "currentColor" }}>{processState.process.toUpperCase()}</h1>
-                                <p>{modelState}&nbsp;{processState.value}</p>
+                        <>
+                            <div className="process-group">
+                                <div className="process-result">
+                                    <h1 style={{ color: "currentColor" }}>{processState.process.toUpperCase()}</h1>
+                                    <p>{modelState}&nbsp;{processState.value}</p>
+                                </div>
+                                <div className="process-result2">
+                                    <h1 style={{ color: "currentColor" }}>PLANT AREA</h1>
+                                    <p>{areaState ?? 'Not registered! Contact PIC!'}</p>
+                                </div>
                             </div>
-                            <div className="process-result2">
-                                <h1 style={{ color: "currentColor" }}>PLANT AREA</h1>
-                                <p>{areaState ?? 'Not registered! Contact PIC!'}</p>
-                            </div>
-                        </div>
+                        </>
                     }
                     {
                         measureButton && <CommonDetails
@@ -967,8 +1016,11 @@ export default function Measure() {
                             loading={loading}
                             handleClear={handleClear}
                             statusCheck={statusCheck}
-                            batch_number={barellingDetails && processForm && processForm.details &&processForm.details.batch_number ?processForm.details.batch_number: 'Finding.....'}
-
+                            omList = {modelState && processState ? omListState[modelState][alloweAble[processState.process].om]:null}
+                            batch_number={ processForm && processForm.details && processForm.details.batch_number ? processForm.details.batch_number : 'Finding.....'}
+                            process_number={data && data.process_number ? data.process_number:null }
+                            resetDetailsMeasuring={resetDetailsMeasuring}
+                           
                         />
                     }
                 </div>

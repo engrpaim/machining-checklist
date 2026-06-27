@@ -28,7 +28,9 @@ class slicingModel extends Model
         'comparator_serial_number',
         'perpendicularity',
         'parallelism',
-        'mass_pro'
+        'mass_pro',
+        'process_number',
+        'om_specs'
     ];
 
     protected $casts = [
