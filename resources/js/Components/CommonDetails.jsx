@@ -2,7 +2,7 @@ import '../../css/common.css';
 import { removeUnwanted } from '../utils/UtilityFunctions';
 import { useState } from 'react';
 import { InfoIcon } from '../Icons/SVG';
-export default function CommonDetails({ data, setData, handleStore, handleKeyDown, loading, batch_number,process_number,omList,setProcessNumber,resetDetailsMeasuring}) {
+export default function CommonDetails({ data, setData, handleStore, handleKeyDown, loading, batch_number,process_number,omList,setProcessNumber,resetDetailsMeasuring,process}) {
     const firstPart = ['Lot Number', 'Operator Name', 'Checker']
     const secondPart = ['Shift', 'Date', 'Staff/Engineer']
     const convertedList = omList ? JSON.parse(omList):null
@@ -74,7 +74,7 @@ export default function CommonDetails({ data, setData, handleStore, handleKeyDow
                         <label>Process #:</label>
                         <select value={ data.process_number} className="om-select" onChange={(e)=>{
                                                                         resetDetailsMeasuring()
-                                                                        setData((prev)=>({ ...prev , process_number:e.target.value , om_specs:convertedList?.specs?.[e.target.value]}))
+                                                                        setData((prev)=>({ ...prev , process_number:e.target.value , om_specs:process === 'barelling' ?'N/A':convertedList?.specs?.[e.target.value]}))
                                                                         
                                                                  }   
                                                                 }>
@@ -87,7 +87,7 @@ export default function CommonDetails({ data, setData, handleStore, handleKeyDow
                     </div>
                     <div className="details-data">
                         <label>OM SPECS</label>
-                        <input value={specsOm ? specsOm:''} disabled={true}/>
+                        <input value={specsOm ? specsOm:process === 'barelling' ?'N/A':''} disabled={true}/>
                     </div>
                 </div>
             </div>

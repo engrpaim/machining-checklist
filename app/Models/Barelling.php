@@ -34,7 +34,9 @@ class Barelling extends Model
         'contracer_serial',
         'chamfer_jig_serial',
         'total_wt_batch',
-        'micrometer_serial'
+        'micrometer_serial',
+         'process_number',
+        'om_specs'
     ];
 
     protected $casts = [

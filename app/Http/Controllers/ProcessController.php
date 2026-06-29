@@ -15,7 +15,7 @@ use Mockery\Expectation;
 
 class ProcessController extends Controller
 {
-    public function  checkIfExist(string $id, string $lot_number, string $dbUse ,string $om_specs)
+    public function  checkIfExist(string $id, string $lot_number, string $dbUse ,string $om_specs,string $process_number)
     {
         //return latest data
         try {
@@ -23,6 +23,7 @@ class ProcessController extends Controller
             $checkIfExist = $dbUse::where('datalist_id', $id)
                 ->where('datalist_lot_number', $lot_number)
                 ->where('om_specs', $om_specs)
+                ->where('process_number', $process_number)
                 ->orderBy('batch_number', 'desc')
                 ->first();
 
@@ -43,6 +44,26 @@ class ProcessController extends Controller
             $checkIfExist = $dbUse::where('datalist_id', $id)
                 ->where('datalist_lot_number', $lot_number)
                 ->where('batch_number', 1)
+                ->first();
+
+            return $checkIfExist;
+
+        } catch (ModelNotFoundException $E) {
+
+            return false;
+            
+        }
+    }
+    public function  checkBatch2(string $id, string $lot_number, string $dbUse,string $om_specs,string $process_number)
+    {
+        //return latest data
+        try {
+
+            $checkIfExist = $dbUse::where('datalist_id', $id)
+                ->where('datalist_lot_number', $lot_number)
+                ->where('batch_number', 1)
+                ->where('om_specs', $om_specs)
+                ->where('process_number', $process_number)
                 ->first();
 
             return $checkIfExist;
@@ -106,7 +127,7 @@ class ProcessController extends Controller
      
         if (!$process) return redirect()->back()->with('error', 'Process not exist!');
         if (!$data) return redirect()->back()->with('error', 'Data not exist!');
-
+       
         $shift = $data['shift'] ?? null;
         $operatorName = $data['operator_name'] ?? null;
         $checker = $data['checker'] ?? null;
@@ -136,7 +157,7 @@ class ProcessController extends Controller
         if (!$processBank[$process] && !$dataBank[$process]['preparation']) return redirect()->back()->with('error', 'No preparation process!');
 
         $dbUse = $processBank[$process];
-        $checkIfExist = $this->checkIfExist($id, $lot_number, $dbUse,$om_specs);
+        $checkIfExist = $this->checkIfExist($id, $lot_number, $dbUse,$om_specs,$process_number);
 
         if ($checkIfExist) {
 

@@ -59,17 +59,17 @@ export default function Measure() {
     console.log('type chamfer: ', currentModel.chamfer_type);
 
     const alloweAble = {
-        barelling: { preparing: 7,om:'barelling_om_specs'},
-        cghl:{preparing:10,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
+        barelling: { preparing: 4,om:'barelling_om_specs'},
+        cghl:{preparing:4,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
         lapping:{preparing:0,om:'lapping_om_specs'},
-        slicing:{preparing:4,om:'slicing_om_specs'},
+        slicing:{preparing:6,om:'slicing_om_specs'},
     }
 
     const sheetTitle = {
-        barelling: 'BARELLING',
-        cghl:'CGH (L) DIMENSION MONITORING',
-        lapping:'LAPPING (T) DIMENSION MONITORING',
-        slicing:'SLICING MONITORING'
+            barelling: 'BARELLING',
+            cghl:'CGH (L) DIMENSION MONITORING',
+            lapping:'LAPPING (T) DIMENSION MONITORING',
+            slicing:'SLICING MONITORING'
     }
 
     const toHide = ["prepared", "measured", "approved"];
@@ -91,7 +91,7 @@ export default function Measure() {
         process: '',
         model:'',
         process_number:'',
-        om_specs:'',
+        om_specs:'N/A',
         page: 'measure'
     });
     /** Barelling Page **/
@@ -519,7 +519,7 @@ export default function Measure() {
         
         // Create the payload
         const proceedPost = countEmpty(data);
-        console.log( 'storee:',proceedPost);
+        console.log( 'storee:',proceedPost,data);
         if(proceedPost  > 0 ) return setFlashNotification({theme: 'error-notif-text', message: 'Incomplete data'})
         setSubmittingForm(false);
         setLoading(true);
@@ -539,7 +539,16 @@ export default function Measure() {
     const handleCreate = async () => {
 
         setSubmittingForm(false);
+       
 
+        const notIncluded = ["perpendicularity","mass_pro",'points',"parallelism","histogram_point"];
+        if (payload?.page?.measuring) {
+            notIncluded.forEach((key) => {
+                delete payload.page.measuring[key];
+            });
+        }
+        handleBatchingClear();
+         console.log('new xxbatch',payload);
         try {
             setLoading(true);
             // Send to Laravel
@@ -587,8 +596,6 @@ export default function Measure() {
         setStatusCheck(false);
         setLoading(true);
         setTriModal(false);
-        hfpReset();
-
         console.log('get data', allBatches[batch_number]);
         const details = allBatches[batch_number]
         const datalist_id = details.datalist_id ?? null
@@ -596,6 +603,7 @@ export default function Measure() {
         const process = processState.process ?? null
         const process_number = details.process_number ?? null 
         const om_specs = details.om_specs ?? null 
+      
         if (!datalist_id || !process_batch || !process) return
         console.log('Selected: ', process_batch,process_number,om_specs);
 
@@ -730,12 +738,43 @@ export default function Measure() {
             inputs[index + 1]?.focus();
         }, 300);
     };
+     const handleBatchingClear = () => {
+        setStatusCheck(false)
+        resetBarellingDetails();
+        resetCghTools();
+        resetCghlDetails();
+        resetCghlPoint();
+        resetDetailsMeasuring();
+        resetLappingForm();
+        resetMagnetPoints();
+        resetMassProForm();
+        resetPerpenCghlThickness();
+        resetTimerDetails();
+        hfpReset();
+        slicingMassProReset();
+        slicingParallelismReset();
+        slicingPerpenDReset();
+    }
     const handleClear = () => {
         reset()
         processForm?.reset()
         processForm?.subreset()
         processForm?.resetPoints()
         setStatusCheck(false)
+        resetBarellingDetails();
+        resetCghTools();
+        resetCghlDetails();
+        resetCghlPoint();
+        resetDetailsMeasuring();
+        resetLappingForm();
+        resetMagnetPoints();
+        resetMassProForm();
+        resetPerpenCghlThickness();
+        resetTimerDetails();
+        hfpReset();
+        slicingMassProReset();
+        slicingParallelismReset();
+        slicingPerpenDReset();
     }
 
     useEffect(() => {
@@ -905,9 +944,10 @@ export default function Measure() {
     useEffect(()=>{
         if(!copy_batch) return
         const copyDetails = JSON.parse(copy_batch);
-        console.log('Copy Branch: ',arrayBank);
+        console.log('Copy Branch: ',arrayBank,copyDetails,processForm);
         Object.entries(copyDetails).map(([key,value])=>{
-            if(key !== 'created_at' && key !== 'updated_at' && key !== 'shift' && key !== 'status') {
+            
+            if( key !== 'created_at' && key !== 'updated_at' && key !== 'shift' && key !== 'status') {
 
                 if( typeof value === 'object'){
                     console.log('OBJECT: ',processForm?.[key]);
@@ -926,7 +966,7 @@ export default function Measure() {
                         processForm?.set_data(key,value);
                     }
 
-                    if(processForm?.details[key] !== undefined && key !== 'batch_number' && key !== 'status'){
+                    if(processForm?.details[key] !== undefined && key !== 'batch_number' && key !== 'status' ){
                         console.log('cc: ',key , value)
                         processForm?.set(key,value)
                     }
@@ -968,6 +1008,7 @@ export default function Measure() {
                     handleCreate={handleCreate}
                     allBatches={allBatches}
                     handleBatch={handleBatch}
+                    
                 />
             }
             {
@@ -1020,6 +1061,7 @@ export default function Measure() {
                             batch_number={ processForm && processForm.details && processForm.details.batch_number ? processForm.details.batch_number : 'Finding.....'}
                             process_number={data && data.process_number ? data.process_number:null }
                             resetDetailsMeasuring={resetDetailsMeasuring}
+                            process={processState.process}
                            
                         />
                     }

@@ -2,7 +2,7 @@
 import workingImg from '@/Icons/working.png';
 import { InfoIcon ,ArrowCircleIcon} from '../Icons/SVG';
 import { useState } from 'react';
-export default function TriBlockModal({message,handleCloseModal,handleCreate,allBatches,handleBatch,process}){
+export default function TriBlockModal({message,handleCloseModal,handleCreate,allBatches,handleBatch,process,handleBatchingClear}){
     const [update ,setUpdate] = useState(false);
     return(
         <div className="modal">
@@ -17,7 +17,10 @@ export default function TriBlockModal({message,handleCloseModal,handleCreate,all
                 <div className='container-row-center border-modal-sky'>
                     <div className='btn-container-col'>
                         <div className='row-center'>
-                            <button onClick={(e)=>handleCreate()} className='btn-grad'>CREATE BATCH</button>
+                            <button onClick={(e)=>
+                                            handleCreate()
+                                            
+                                            } className='btn-grad'>CREATE BATCH</button>
                             <p>for this lot number?</p>
                         </div>
                         <div className='row-center'>

@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * 
+ * @copy_batch Copy batch return copy batch objects not included
+ * 
+ */
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -83,10 +87,12 @@ class MachiningChecklistController  extends ProcessController
 
     public function goTo(Request $request)
     {
+        
         $lot = $request->input('lot_number') ?? null;
         $process = $request->input('process') ?? null;
         $id = $request->input('id') ?? null;
         $model = $request->input('model') ?? null;
+        
 
         if (!$lot || !$process  || !$id) return redirect()->back()->with('error', 'Incomplete data! Please contact PIC.');
 
@@ -279,12 +285,13 @@ class MachiningChecklistController  extends ProcessController
 
     public function lotBatching(Request $request)
     {
-
+        //@copy_batch
         //return batches
         $pageData =  $request->input('page');
         if (!$pageData) return redirect()->back()->with('error', 'Cannot start batching!');
 
         $lot_number =  $pageData['processing']["lot_number"];
+       
         //get id and created_at
 
         if (!$lot_number) return redirect()->back()->with('error', 'Lot number not found!');
@@ -295,7 +302,8 @@ class MachiningChecklistController  extends ProcessController
         $reference_id = $isGetDetails->id;
         $reference_lot_number = $isGetDetails->lot_number;
         $process =  $pageData["processing"]["process"];
-
+        $process_number =  $pageData["processing"]["process_number"];
+        $om_specs =  $pageData["processing"]["om_specs"];
         $data = $pageData["processing"];
 
         $processControl  = new ProcessController();
@@ -306,18 +314,26 @@ class MachiningChecklistController  extends ProcessController
         $models = $processControl->getModel($modelDb, $currentModel);
         if (!$models) return redirect()->back()->with('error', 'Model database not found!');
         $convertModel = $models->toArray();
-
+      
         $creatBatch =  $processControl->Batching($process,  $reference_id, $reference_lot_number, $data);
         $batchDetails = $creatBatch->toArray();
-
-
+        unset($batchDetails['id']);
+        
         $detailsBatchNumber = $batchDetails["batch_number"];
         $currentDBProcess = $this->dataBaseBank($process);
 
 
         if ($detailsBatchNumber  >  1) {
-            $copyBatch =   $processControl->checkBatch1($batchDetails["datalist_id"], $batchDetails["datalist_lot_number"], $currentDBProcess);
+            $copyBatch =   $processControl->checkBatch2($batchDetails["datalist_id"], $batchDetails["datalist_lot_number"], $currentDBProcess,$om_specs,$process_number);
             $copyArray =  $copyBatch  ? $copyBatch->toArray() : null;
+            
+         
+            //add object if not needed in copy batch
+            $removeItems = ["perpendicularity","mass_pro",'points',"parallelism","histogram_point","magnet"];
+
+            foreach ($removeItems as $notNeeded) {
+                unset($copyArray[$notNeeded]);
+            }
             $copyJSON =  $copyArray ? json_encode($copyArray) : null;
         }
 
@@ -524,12 +540,12 @@ class MachiningChecklistController  extends ProcessController
         $om_specs = $request->input('om_specs');
 
         if (!$process && !$batch && !$id && !$model && !$process_number  && !$om_specs) return redirect()->back()->with('error', '[Updating]Failed: Missing Data!');
-
+    
         $bank = $this->dataBaseBank($process);
 
         if (!$bank) return redirect()->back()->with('error', '[Updating]Failed: Process database not found!');
         // dd($process_number,$om_specs);
-        $isGetDetails = $bank::where('datalist_id','=', $id)->where('batch_number','=', $batch)->where('process_number','=',$process_number)->where('om_specs','=',$om_specs)->first();
+        $isGetDetails = $bank::where('datalist_id', $id)->where('batch_number', $batch)->where('process_number',$process_number)->where('om_specs',$om_specs)->first();
 
         $processQuery = new ProcessController;
 
