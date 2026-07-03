@@ -1,6 +1,6 @@
 
 import SlicingGraph from "./SlicingGraph";
-export default function MassProRow({category = 3,point = 3,row,data,set,handleKeyDown,target,max,min,layers = 1,status,tolerance = 0.01}){
+export default function MassProRow({category = 3,point = 3,row,data,set,handleKeyDown,target,max,min,layers = 1,status,tolerance = 0.01,side}){
     const timing = ["Start","Middle","End"]
 
    
@@ -124,7 +124,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
             <div className="details-white">
                 <div className='container-column'>
                     <div className='container-theme-black'>
-                        <h1>Slicing</h1>
+                        <h1>Slicing&nbsp;{side?side:''}</h1>
                         <p>Minimum:&nbsp;{min}&nbsp;Target:&nbsp;{target}&nbsp;Maximum:&nbsp;{max}</p>
                     </div>
                     <table className='masspro-table' border={1}>

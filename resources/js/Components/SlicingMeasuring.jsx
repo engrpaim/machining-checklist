@@ -61,7 +61,7 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,points,stat
                         row={row}
                         status ={(currentStatus || processing) && !(edit)}
                         handleKeyDown={handleKeyDown} 
-                        side={slicingState && slicingState.specs ? Number(slicingState.specs?.[om_specs]):null} 
+                         side={slicingState && slicingState.specs ?slicingState.specs?.[om_specs]:null}
                         perpenTarget={slicingState && slicingState.para ?Number(slicingState.para?.[om_specs]):null} 
                         max={slicingState && slicingState.max ?Number(slicingState.max?.[om_specs]):null} 
                         min={slicingState && slicingState.min ?Number(slicingState.min?.[om_specs]):null}
