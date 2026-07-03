@@ -44,13 +44,13 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
         if(!currentModelState) return
         const currentCell = u
         const values = {
-            AA90:Number(currentModelState && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):0) - 0.001,
-            AA87:Number(currentModelState && currentModelState.min?.[om_specs]  ?Number(currentModelState.min?.[om_specs]):0),
-            AA94:Number(currentModelState && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):0),
+            AA90:Number(currentModelState && currentModelState.target && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):0) - 0.001,
+            AA87:Number(currentModelState && currentModelState.min && currentModelState.min?.[om_specs]  ?Number(currentModelState.min?.[om_specs]):0),
+            AA94:Number(currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):0),
             AA95:currentCell+0.001,
-            AA91:Number(currentModelState && currentModelState.max?.[om_specs]  ? Number(currentModelState.max?.[om_specs]):0) - 0.005,
-            AA96:(Number(currentModelState && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):0) - 0.005) - 0.001,
-            OK_DIM_MIN:Number(currentModelState && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):0),
+            AA91:Number(currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ? Number(currentModelState.max?.[om_specs]):0) - 0.005,
+            AA96:(Number(currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):0) - 0.005) - 0.001,
+            OK_DIM_MIN:Number(currentModelState && currentModelState.target && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):0),
             OK_DIM_MAX:currentCell - 0.001
         }
         return values
