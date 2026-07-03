@@ -63,8 +63,8 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
        // return  point > refValueNew.AA90 && point < refValueNew.AA91? 'ACCEPT' :point >= refValueNew.AA87 && point <= refValueNew.AA94 ?'FOR ADJUSTMENT' :point ? 'REJECT':null
         if(!point || point === 0) return
 
-        const diffMinTolerance = refValueNew.AA87 + Number(currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):null)
-        const diffMaxTolerance = refValueNew.AA94 - Number(currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):null)
+        const diffMinTolerance = refValueNew.AA87 + currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):0
+        const diffMaxTolerance = refValueNew.AA94 - currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):0
 
         console.log('TOL DIFF:',point  ,diffMinTolerance);
         return  point  < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT':point < diffMinTolerance  || point > diffMaxTolerance?'FOR ADJUSTMENT':'ACCEPT'
@@ -256,10 +256,8 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
             const refValues = refereceValues()
             // worst theme
-            console.log('WORST DIFFERENCE: ',currentMax3points ,refValues.OK_DIM_MIN ,currentMax3points -  refValues.OK_DIM_MIN  ,  refValues.OK_DIM_MIN - currentMin3points , currentMin3points);
 
             const worstValue = currentMax3points - refValues.OK_DIM_MIN > refValues.OK_DIM_MIN - currentMin3points ? currentMax3points : currentMin3points
-            console.log('DIFFERENCE: ',currentMax3points -  currentMin3points ,currentMax3points ,  currentMin3points);
             const rValueCurrent = (currentMax3points -  currentMin3points)
 
             //R value
