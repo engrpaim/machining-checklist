@@ -44,13 +44,13 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
         if(!currentModelState) return
         const currentCell = u
         const values = {
-            AA90:currentModelState && currentModelState.target && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):0 - 0.001,
-            AA87:currentModelState && currentModelState.min && currentModelState.min?.[om_specs]  ?Number(currentModelState.min?.[om_specs]):0,
-            AA94:currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):0,
+            AA90:currentModelState && currentModelState.target && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):null - 0.001,
+            AA87:currentModelState && currentModelState.min && currentModelState.min?.[om_specs]  ?Number(currentModelState.min?.[om_specs]):null,
+            AA94:currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):null,
             AA95:currentCell+0.001,
-            AA91:currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ? Number(currentModelState.max?.[om_specs]):0 - 0.005,
-            AA96:(currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):0 - 0.005) - 0.001,
-            OK_DIM_MIN:currentModelState && currentModelState.target && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):0,
+            AA91:currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ? Number(currentModelState.max?.[om_specs]):null - 0.005,
+            AA96:(currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):null- 0.005) - 0.001,
+            OK_DIM_MIN:currentModelState && currentModelState.target && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):null,
             OK_DIM_MAX:currentCell - 0.001
         }
         return values
@@ -63,11 +63,12 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
        // return  point > refValueNew.AA90 && point < refValueNew.AA91? 'ACCEPT' :point >= refValueNew.AA87 && point <= refValueNew.AA94 ?'FOR ADJUSTMENT' :point ? 'REJECT':null
         if(!point || point === 0) return
 
-        const diffMinTolerance = refValueNew.AA87 + currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):0
-        const diffMaxTolerance = refValueNew.AA94 - currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):0
+        const tol = currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):0.01
+        const diffMinTolerance = refValueNew.AA87 + tol
+        const diffMaxTolerance = refValueNew.AA94 - tol
 
-        console.log('TOL DIFF:',point  ,diffMinTolerance);
-        return  point  < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT':point < diffMinTolerance  || point > diffMaxTolerance?'FOR ADJUSTMENT':'ACCEPT'
+        console.log('TOL DIFF:',point  ,diffMinTolerance,refValueNew.AA94,diffMaxTolerance);
+        return  point  < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT':point < diffMinTolerance  || point > diffMaxTolerance?'FOR ADJUSTMENT':point ?'ACCEPT':null
     }
 
 
@@ -257,7 +258,7 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
             const refValues = refereceValues()
             // worst theme
 
-            const worstValue = currentMax3points - refValues.OK_DIM_MIN ?refValues.OK_DIM_MIN:0 > refValues.OK_DIM_MIN ?refValues.OK_DIM_MIN: 0- currentMin3points ? currentMax3points : currentMin3points
+            const worstValue = currentMax3points - refValues.OK_DIM_MIN  > refValues.OK_DIM_MIN - currentMin3points ? currentMax3points : currentMin3points
             const rValueCurrent = (currentMax3points -  currentMin3points)
 
             //R value
