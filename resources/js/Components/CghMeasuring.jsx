@@ -257,7 +257,7 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
             const refValues = refereceValues()
             // worst theme
 
-            const worstValue = currentMax3points - refValues.OK_DIM_MIN > refValues.OK_DIM_MIN - currentMin3points ? currentMax3points : currentMin3points
+            const worstValue = currentMax3points - refValues.OK_DIM_MIN ?refValues.OK_DIM_MIN:0 > refValues.OK_DIM_MIN ?refValues.OK_DIM_MIN: 0- currentMin3points ? currentMax3points : currentMin3points
             const rValueCurrent = (currentMax3points -  currentMin3points)
 
             //R value
