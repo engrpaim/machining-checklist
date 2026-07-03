@@ -4,12 +4,12 @@ import { handleKeyDown } from "../utils/UtilityFunctions";
 import GraphControlX from "./GraphControlX"
 import GraphControlR from "./GraphControlR"
 import HFPDisplay from "./HFPDisplay";
-export default function LappingData({currentModel,numberOfPoints = 10, massProForm ,setMassProForm,MassproProcessing, statusNow,edit,hfpData,setHfpData,process}){
+export default function LappingData({currentModel,numberOfPoints = 10, massProForm ,setMassProForm,MassproProcessing, statusNow,edit,hfpData,setHfpData,process,om_specs}){
     console.log('Lapping Model: ',currentModel,massProForm,statusNow);
     const status = statusNow
     const toDisabled = ['prepared', 'measured', 'approved']
     const allowed = toDisabled.includes(status)
-
+    const [currnetModelState , setCurrentModel] = useState(currentModel?JSON.parse(currentModel.lapping_om_specs):null)
     const [currentStatus,setCurrentStatus] =useState(allowed);
     const [tableOption,setTableOption] = useState('masspro');
     console.log('EDIT OR STATUS',currentStatus,edit,toDisabled.includes(status));
@@ -46,7 +46,7 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
         return {average:averageX , r_point:Rpoint , r_max:Rmax , r_min:Rmin}
     }
     const average = getAverage(massProForm)
-    console.log('lapcurrrnet: ',massProForm,average);
+    console.log('lapcurrrnet: ',massProForm,average,currnetModelState,om_specs);
     return(
         <div>
             <div className="container-row">
@@ -70,13 +70,13 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
                             (
                                 <MassPro 
                                     numberOfPoints={numberOfPoints} 
-                                    max={currentModel.lappingt_max ?? 0}  
-                                    min={currentModel.lappingt_min ?? 0}
-                                    target={currentModel.lappingt_target ?? 0}
+                                    max={currnetModelState && currnetModelState.max ?Number(currnetModelState.max?.[om_specs]):null}  
+                                    min={currnetModelState && currnetModelState.min ?Number(currnetModelState.min?.[om_specs]):null}  
+                                    target={currnetModelState && currnetModelState.target ?Number(currnetModelState.target?.[om_specs]):null} 
                                     handleKeyDown={handleKeyDown} 
                                     massProForm={massProForm}
                                     setMassProForm={setMassProForm}
-                                    dimension="Thickness"
+                                    dimension={currnetModelState && currnetModelState.specs ? `${process ? process.toUpperCase():'Not Found'} ${currnetModelState && currnetModelState.specs ? currnetModelState.specs?.[om_specs]:null}`:null} 
                                     currentStatus={allowed}
                                     edit={edit}
                                 />
@@ -90,9 +90,9 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
                         <div className="container-row">
                             <div>
                                 <GraphControlX
-                                    max={currentModel.lappingt_max ?? 0}  
-                                    min={currentModel.lappingt_min ?? 0}
-                                    target={currentModel.lappingt_target ?? 0}
+                                    max={currnetModelState && currnetModelState.max ?Number(currnetModelState.max?.[om_specs]):null}  
+                                    min={currnetModelState && currnetModelState.min ?Number(currnetModelState.min?.[om_specs]):null}  
+                                    target={currnetModelState && currnetModelState.target ?Number(currnetModelState.target?.[om_specs]):null} 
                                     XAverage={average.average}
                                 />
                             </div>
@@ -106,43 +106,43 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
                 <>
                     <div className="container-column">
                         <h1>Measuring</h1>
-                        {(currentModel.lappingt_max || currentModel.lappingt_min || currentModel.flatness_lapping) && 
+                        { (currnetModelState && currnetModelState.max && currnetModelState.min && currnetModelState.target)  && 
                             (
                                 <div className="details-container-white-row">
                                     {
-                                        (currentModel.lappingt_max && currentModel.lappingt_min  && currentModel.lappingt_target)   &&
+                                        (currnetModelState && currnetModelState.max && currnetModelState.min && currnetModelState.target)   &&
                                         (
                                             <>
                                                 <div className="container-row">
                                                     <h1>Target Height Max:</h1>
-                                                    <p>{currentModel.lappingt_max}</p>
+                                                    <p>{currnetModelState && currnetModelState.max ?currnetModelState.max?.[om_specs]:null}</p>
                                                 </div>
                                                 <div className="container-row">
                                                     <h1>Target Height:</h1>
-                                                    <p>{currentModel.lappingt_target}</p>
+                                                    <p>{currnetModelState && currnetModelState.target ?currnetModelState.target?.[om_specs]:null}</p>
                                                 </div>
                                                 <div className="container-row">
                                                     <h1>Target Height Min:</h1>
-                                                    <p>{currentModel.lappingt_min}</p>
+                                                    <p>{currnetModelState && currnetModelState.min ?currnetModelState.min?.[om_specs]:null}</p>
                                                 </div>
                                             </>
                                         )
                                     }
                                     {
-                                        currentModel.flatness_lapping &&
+                                        currnetModelState && currnetModelState.flat&&
                                         (
                                             <div className="container-row">
                                                 <h1>Target Flatness:</h1>
-                                                <p>{currentModel.flatness_lapping}</p>
+                                                <p>{currnetModelState && currnetModelState.flat ?Number(currnetModelState.flat?.[om_specs]):null}</p>
                                             </div>
                                         )
                                     }
                                     {
-                                        currentModel.parallelism_lapping &&
+                                        currnetModelState && currnetModelState.para &&
                                         (
                                             <div className="container-row">
                                                 <h1>Target Parallelism:</h1>
-                                                <p>{currentModel.parallelism_lapping}</p>
+                                                <p>{currnetModelState && currnetModelState.para ?Number(currnetModelState.para?.[om_specs]):null}</p>
                                             </div>
                                         )
                                     }
@@ -152,19 +152,19 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
                         <div>
                             <HFPDisplay 
                                     handleKeyDown={handleKeyDown} 
-                                    hmax={currentModel.lappingt_max ?? false} 
-                                    hmin={currentModel.lappingt_min ?? false}
-                                    htarget={currentModel.lappingt_target ?? false}
-                                    f={currentModel.flatness_lapping ?? false} 
-                                    p={currentModel.parallelism_lapping ?? false} 
+                                    hmax={currnetModelState && currnetModelState.max ?Number(currnetModelState.max?.[om_specs]):null}    
+                                    hmin={currnetModelState && currnetModelState.min ?Number(currnetModelState.min?.[om_specs]):null}  
+                                    htarget={currnetModelState && currnetModelState.target ?Number(currnetModelState.target?.[om_specs]):null}
+                                    f={currnetModelState && currnetModelState.flat ?Number(currnetModelState.flat?.[om_specs]):null} 
+                                    p={currnetModelState && currnetModelState.para ?Number(currnetModelState.para?.[om_specs]):null} 
                                     magnet={currentModel.histogram_point ? currentModel.histogram_point  : numberOfPoints ? numberOfPoints :false} 
                                     hfpData={hfpData}
                                     setHfpData={setHfpData}
                                     currentStatus={allowed}
                                     edit={edit}
                                     process={process}
-                                    flatTarget={currentModel.flatness_lapping ?? 0}
-                                    paraTarget={currentModel.parallelism_lapping ?? 0}
+                                    flatTarget={currnetModelState && currnetModelState.flat ?Number(currnetModelState.flat?.[om_specs]):null} 
+                                    paraTarget={currnetModelState && currnetModelState.para ?Number(currnetModelState.para?.[om_specs]):null} 
                             />
                         </div>
                     </div>

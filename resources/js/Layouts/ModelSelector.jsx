@@ -40,9 +40,9 @@ export default function ModelSelector({data,setData, setManagementContainer,clea
                     <select value={data.process} onChange={(e)=>setData('process',e.target.value)}>
                         <option value=""></option>
                         <option value="inprocess">IN-PROCESS INSPECTION SHEET</option>
-                        <option value="cghl">CGH-(L) DIMENSION MONITORING</option>
-                        <option value="lapping">LAPPING-(T) DIMENSION MONITORING</option>
-                        <option value="slicing">SLICING (W) MONITOR</option>
+                        <option value="cghl">CGH DIMENSION MONITORING</option>
+                        <option value="lapping">LAPPING DIMENSION MONITORING</option>
+                        <option value="slicing">SLICING MONITOR</option>
                     </select>
                 </div>
             </div>

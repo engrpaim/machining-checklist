@@ -1,6 +1,6 @@
 
 import SlicingGraph from "./SlicingGraph";
-export default function MassProRow({category = 3,point = 3,row,data,set,handleKeyDown,target,max,min,layers = 1,status}){
+export default function MassProRow({category = 3,point = 3,row,data,set,handleKeyDown,target,max,min,layers = 1,status,tolerance = 0.01}){
     const timing = ["Start","Middle","End"]
 
    
@@ -60,7 +60,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                         // higher limit
                         value > 0 && value >= Number(max) ?hw = value
                             :value >=  Number(max) - 0.01  && value <  Number(max)? crit100hw = value
-                                :value >=  Number(max) - 0.02  && value <  Number(max)? crithw = value
+                                :value >=  Number(target) - 0.02  && value <  Number(max)? crithw = value
                                         :null;
 
 

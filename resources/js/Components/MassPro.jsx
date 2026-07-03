@@ -27,9 +27,10 @@ export default function MassPro({max,min,target,handleKeyDown ,numberOfPoints , 
            let theme = false
            let rpoint = false
            let countRpoint = 0
+           
            Object.entries(values).map(([key2,values2])=>{
             
-                minX = !minX &&  Number(values2) !==  0? Number(values2):  Number(values2) > 0 &&   Number(values2) !==  0 &&  Number(values2) < minX ? Number(values2): minX
+                minX = !minX &&  Number(values2) !==  0 ? Number(values2):  Number(values2) > 0 &&   Number(values2) !==  0 &&  Number(values2) < minX ? Number(values2): minX
                 max2 = !max2 &&  Number(values2) !==  0 ? Number(values2):  Number(values2) > 0 &&   Number(values2) !==  0 &&  Number(values2) > max2 ? Number(values2): max2 
 
                 count += 1

@@ -1,16 +1,13 @@
-import { useEffect,useState } from "react";
+import { useState } from "react";
 import { CrossIcon } from "../Icons/SVG";
 export default function Cghl({cghlDetails,setCghlDetails,handleKeyDown,edit}){
     console.log('CGHL: ',cghlDetails);
-
-    const [currentStatus , setCurrentStatus] = useState(false);
-    const toDisabled = ['prepared', 'measured', 'approved'];
-    useEffect(()=>{
-        if(!cghlDetails) return;
-        const status = cghlDetails.status
+     const status = cghlDetails.status
+       const toDisabled = ['prepared', 'measured', 'approved'];
         const allowed = toDisabled.includes(status) ? true:false
-        setCurrentStatus(allowed);
-    },[cghlDetails]);
+    const [currentStatus , setCurrentStatus] = useState(allowed);
+  
+ 
 
 
     return(

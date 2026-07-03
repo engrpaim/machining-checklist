@@ -619,7 +619,7 @@ class MachiningChecklistController  extends ProcessController
         $points =  $data['points'];
         $process = $data['process'];
         $details = $data['details'];
-        $om_process = $data['om_process'];
+        $om_specs = $data['om_specs'];
         $process_number = $data['process_number'];
 
         if (!$points || !$process) return redirect()->back()->with('error', '[Part Updating]Missing Data!');
@@ -627,7 +627,9 @@ class MachiningChecklistController  extends ProcessController
         $dbuse = $this->dataBaseBank($process);
         $batch_number = $details["batch_number"];
         $id = $details["datalist_id"];
-        $result = $updateData->updateQuery($dbuse, $points, $batch_number, $id, $process_number, $om_process);
+       
+        $result = $updateData->updateQuery($dbuse, $points, $batch_number, $id, $process_number, $om_specs);
+
         if ($result) return redirect()->back()->with('success', 'Updated successfully!');
 
         return redirect()->back()->with('error', '[Part Updating]Error 404!');

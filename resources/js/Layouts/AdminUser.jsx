@@ -34,7 +34,7 @@ export default function AdminUser({ modelDetails, setModeltails, handleKeyDown, 
                                 <div className="modal-row">
                                     <div>
                                         <div>
-                                            <h1>CGHL L</h1>
+                                            <h1>CGHL</h1>
                                         </div>
                                         <div>
                                             <div className="modal-input">
@@ -321,6 +321,75 @@ export default function AdminUser({ modelDetails, setModeltails, handleKeyDown, 
                                                 </div>
                                             </div>
                                             <div className="modal-input">
+                                                <label>CGH Tolerance:</label>
+                                                <div className="om-group">
+                                                    <input
+                                                        className="om-input"
+                                                        type="number"
+                                                        placeholder="1st"
+                                                        value={modelDetails.cghl_om_specs?.tol?.first}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['cghl_om_specs']: {
+                                                                ...(prev['cghl_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['cghl_om_specs']?.['tol'] || {}),
+                                                                    first: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="number"
+                                                        placeholder="2nd"
+                                                        value={modelDetails.cghl_om_specs?.tol?.second}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['cghl_om_specs']: {
+                                                                ...(prev['cghl_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['cghl_om_specs']?.['tol'] || {}),
+                                                                    second: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="number"
+                                                        placeholder="3rd"
+                                                        value={modelDetails.cghl_om_specs?.tol?.third}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['cghl_om_specs']: {
+                                                                ...(prev['cghl_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['cghl_om_specs']?.['tol'] || {}),
+                                                                    third: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="number"
+                                                        placeholder="4th"
+                                                        value={modelDetails.cghl_om_specs?.tol?.fourth}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['cghl_om_specs']: {
+                                                                ...(prev['cghl_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['cghl_om_specs']?.['tol'] || {}),
+                                                                    fourth: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="modal-input">
                                                 <label>CGH Perpen:</label>
                                                 <div className="om-group">
                                                     <input className="om-input" type="number" placeholder="1st"
@@ -511,7 +580,7 @@ export default function AdminUser({ modelDetails, setModeltails, handleKeyDown, 
                                                     />
                                                 </div>
                                             </div>
-                                            <h1>Lapping T</h1>
+                                            <h1>Lapping</h1>
                                             <div className="modal-input">
                                                 <label>Lapping T points:</label>
                                                 <input type="number"
@@ -719,6 +788,75 @@ export default function AdminUser({ modelDetails, setModeltails, handleKeyDown, 
                                                                 ...(prev['lapping_om_specs'] || {}),
                                                                 ['min']: {
                                                                     ...(prev['lapping_om_specs']?.['min'] || {}),
+                                                                    fourth: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="modal-input">
+                                                <label>Lapping Tolerance:</label>
+                                                <div className="om-group">
+                                                    <input
+                                                        className="om-input"
+                                                        type="text"
+                                                        placeholder="1st"
+                                                        value={modelDetails.lapping_om_specs?.tol?.first}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['lapping_om_specs']: {
+                                                                ...(prev['lapping_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['lapping_om_specs']?.['tol'] || {}),
+                                                                    first: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="text"
+                                                        placeholder="2nd"
+                                                        value={modelDetails.lapping_om_specs?.tol?.second}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['lapping_om_specs']: {
+                                                                ...(prev['lapping_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['lapping_om_specs']?.['tol'] || {}),
+                                                                    second: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="text"
+                                                        placeholder="3rd"
+                                                        value={modelDetails.lapping_om_specs?.tol?.third}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['lapping_om_specs']: {
+                                                                ...(prev['lapping_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['lapping_om_specs']?.['tol'] || {}),
+                                                                    third: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="text"
+                                                        placeholder="4th"
+                                                        value={modelDetails.lapping_om_specs?.tol?.fourth}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['lapping_om_specs']: {
+                                                                ...(prev['lapping_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['lapping_om_specs']?.['tol'] || {}),
                                                                     fourth: e.target.value
                                                                 }
                                                             }
@@ -1223,6 +1361,75 @@ export default function AdminUser({ modelDetails, setModeltails, handleKeyDown, 
                                                                 ...(prev['slicing_om_specs'] || {}),
                                                                 ['min']: {
                                                                     ...(prev['slicing_om_specs']?.['min'] || {}),
+                                                                    fourth: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="modal-input">
+                                                <label>Slicing Tolerance:</label>
+                                                <div className="om-group">
+                                                    <input
+                                                        className="om-input"
+                                                        type="number"
+                                                        placeholder="1st"
+                                                        value={modelDetails.slicing_om_specs?.tol?.first}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['slicing_om_specs']: {
+                                                                ...(prev['slicing_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['slicing_om_specs']?.['tol'] || {}),
+                                                                    first: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="number"
+                                                        placeholder="2nd"
+                                                        value={modelDetails.slicing_om_specs?.tol?.second}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['slicing_om_specs']: {
+                                                                ...(prev['slicing_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['slicing_om_specs']?.['tol'] || {}),
+                                                                    second: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="number"
+                                                        placeholder="3rd"
+                                                        value={modelDetails.slicing_om_specs?.tol?.third}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['slicing_om_specs']: {
+                                                                ...(prev['slicing_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['slicing_om_specs']?.['tol'] || {}),
+                                                                    third: e.target.value
+                                                                }
+                                                            }
+                                                        }))}
+                                                    />
+                                                    <input
+                                                        className="om-input"
+                                                        type="number"
+                                                        placeholder="4th"
+                                                        value={modelDetails.slicing_om_specs?.tol?.fourth}
+                                                        onChange={(e) => setModeltails((prev) => ({
+                                                            ...prev,
+                                                            ['slicing_om_specs']: {
+                                                                ...(prev['slicing_om_specs'] || {}),
+                                                                ['tol']: {
+                                                                    ...(prev['slicing_om_specs']?.['tol'] || {}),
                                                                     fourth: e.target.value
                                                                 }
                                                             }

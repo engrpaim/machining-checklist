@@ -62,13 +62,13 @@ export default function Measure() {
         barelling: { preparing: 4,om:'barelling_om_specs'},
         cghl:{preparing:4,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
         lapping:{preparing:0,om:'lapping_om_specs'},
-        slicing:{preparing:6,om:'slicing_om_specs'},
+        slicing:{preparing:8,om:'slicing_om_specs'},
     }
 
     const sheetTitle = {
             barelling: 'BARELLING',
-            cghl:'CGH (L) DIMENSION MONITORING',
-            lapping:'LAPPING (T) DIMENSION MONITORING',
+            cghl:`CGH  DIMENSION MONITORING`,
+            lapping:'LAPPING DIMENSION MONITORING',
             slicing:'SLICING MONITORING'
     }
 
@@ -536,18 +536,22 @@ export default function Measure() {
         }
     };
 
+    //create new data
     const handleCreate = async () => {
 
         setSubmittingForm(false);
        
 
         const notIncluded = ["perpendicularity","mass_pro",'points',"parallelism","histogram_point"];
+        //remove all unecessary data 
         if (payload?.page?.measuring) {
             notIncluded.forEach((key) => {
                 delete payload.page.measuring[key];
             });
         }
+
         handleBatchingClear();
+
          console.log('new xxbatch',payload);
         try {
             setLoading(true);
@@ -567,6 +571,7 @@ export default function Measure() {
 
     }
     
+    //reset all measuring 
     const resetDetailsMeasuring =()=>{
         hfpReset();
         resetBarellingDetails()
@@ -585,13 +590,11 @@ export default function Measure() {
         slicingMassProReset();
     }
 
+    //handle batching per lot number
     const handleBatch = async (batch_number) => {
-    
+        
         setSubmittingForm(false);
-        processForm?.reset()
-        typeof processForm?.resetPoints === 'function' ??  processForm?.resetPoints()
-        typeof processForm?.subreset === 'function' ?? processForm?.subreset()
-        typeof processForm?.subreset === 'function' ?? processForm?.subreset()
+        handleBatchingClear();
         setEditBatch(false);
         setStatusCheck(false);
         setLoading(true);
@@ -615,6 +618,8 @@ export default function Measure() {
             process_number: process_number ?? null,
             om_specs:om_specs ?? null
         }
+        //add to clear data when batching  
+        handleBatchingClear();
 
         try {
             await router.post("/machining-checklist/measure/get-details", getPayLoad, {
@@ -738,8 +743,8 @@ export default function Measure() {
             inputs[index + 1]?.focus();
         }, 300);
     };
-     const handleBatchingClear = () => {
-        setStatusCheck(false)
+    
+    const handleBatchingClear = () => {
         resetBarellingDetails();
         resetCghTools();
         resetCghlDetails();
@@ -755,6 +760,7 @@ export default function Measure() {
         slicingParallelismReset();
         slicingPerpenDReset();
     }
+
     const handleClear = () => {
         reset()
         processForm?.reset()
@@ -978,7 +984,8 @@ export default function Measure() {
     const handlePartUpdate =async(data,identifier)=>{
         setLoading(true);
         const  process =  processState.process
-        const currentData = {points:data,process:process,identifier:identifier,details:processForm?.details}
+        const currentData = {points:data,process:process,identifier:identifier,details:processForm?.details, om_specs:data.om_specs,process_number:data.process_number}
+        console.log('PART UPDATE XX:',currentData);
         try {
             console.log('Update Part: ', data);
             // Send to Laravel
@@ -991,7 +998,7 @@ export default function Measure() {
             console.error("Error submitting form:", err);
         }
     }
-    console.log("Processx:x ", processForm,);
+    console.log("Processx:x ", processForm,model);
     return (
         <>
             {
@@ -1160,6 +1167,7 @@ export default function Measure() {
                                         histogram={histogram}
                                         handlePartUpdate={handlePartUpdate}
                                         perpenCghlThickness={perpenCghlThickness}
+                                        om_specs={data && data.process_number ? data.process_number:null}
                                     />
                             : statusCheck && modelState && processState && processState.process === 'lapping' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
                                     <LappingData  
@@ -1172,6 +1180,7 @@ export default function Measure() {
                                         hfpData={hfpData}
                                         setHfpData={setHfpData}
                                         process={processState.process??processState.process}
+                                        om_specs={data && data.process_number ? data.process_number:null}
                                     />
                         :statusCheck &&  modelState && processState && processState.process === 'slicing' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
                             <SlicingMeasuring 
@@ -1182,9 +1191,6 @@ export default function Measure() {
                                 handleKeyDown={handleKeyDown}
                                 parallelism={slicingParallelism}
                                 setParallelism={setSlicingParallelism}
-                                target={model && model.slicing_target ? model.slicing_target:null} 
-                                max={model && model.slicing_max ? model.slicing_max:null} 
-                                min={model && model.slicing_min ? model.slicing_min:null}
                                 jig={model && model.slicing_jigs ? model.slicing_jigs:null}
                                 row={model && model.slicing_row ? model.slicing_row:null}
                                 layer={model && model.slicing_layer ? model.slicing_layer:null}
@@ -1192,6 +1198,8 @@ export default function Measure() {
                                 points={model && model.slicing_points ? model.slicing_points:null}
                                 statusNow={processForm?.details["status"]}
                                 processing={slicingProcessing}
+                                slicing_om_specs={currentModel && currentModel.slicing_om_specs ?currentModel.slicing_om_specs:null}
+                                om_specs={data && data.process_number ? data.process_number:null}
                             />
                         :null
                     }
@@ -1270,6 +1278,7 @@ export default function Measure() {
                                         histogram={histogram}
                                         handlePartUpdate={handlePartUpdate}
                                         perpenCghlThickness={perpenCghlThickness}
+                                        om_specs={data && data.process_number ? data.process_number:null}
                                     />
                                 </>
                             : statusCheck && modelState && processState && processState.process === 'lapping' && processForm?.details["status"] === 'approved' ?
@@ -1291,6 +1300,7 @@ export default function Measure() {
                                         hfpData={hfpData}
                                         setHfpData={setHfpData}
                                         process={processState.process??processState.process}
+                                        om_specs={data && data.process_number ? data.process_number:null}
                                     />
                                 </div>
                             :statusCheck &&  modelState && processState && processState.process === 'slicing' && processForm?.details["status"] === 'approved'  ?
@@ -1306,21 +1316,20 @@ export default function Measure() {
                                     <SlicingMeasuring 
                                         data={slicingMassPro} 
                                         setdata={setSlicingMassPro}
-                                        perpenD = {slicingPerpenD}
+                                        perpenD={slicingPerpenD}
                                         setPerpenD={setSlicingPerpenD}
+                                        handleKeyDown={handleKeyDown}
                                         parallelism={slicingParallelism}
                                         setParallelism={setSlicingParallelism}
-                                        handleKeyDown={handleKeyDown}
-                                        target={model && model.slicing_target ? model.slicing_target:null} 
-                                        max={model && model.slicing_max ? model.slicing_max:null} 
-                                        min={model && model.slicing_min ? model.slicing_min:null}
                                         jig={model && model.slicing_jigs ? model.slicing_jigs:null}
                                         row={model && model.slicing_row ? model.slicing_row:null}
                                         layer={model && model.slicing_layer ? model.slicing_layer:null}
-                                        points={model && model.slicing_points ? model.slicing_points:null}
                                         edit={editBatch}
+                                        points={model && model.slicing_points ? model.slicing_points:null}
                                         statusNow={processForm?.details["status"]}
                                         processing={slicingProcessing}
+                                        slicing_om_specs={currentModel && currentModel.slicing_om_specs ?currentModel.slicing_om_specs:null}
+                                        om_specs={data && data.process_number ? data.process_number:null}
                                     />
                                 </div>
                             :null

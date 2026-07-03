@@ -1,10 +1,10 @@
-import { useState ,useEffect , useRef} from "react";
+import { useState , useRef} from "react";
 import GraphControlX from "./GraphControlX";
 import GraphControlR from "./GraphControlR";
 import CountingGraph from "./CountingGraph";
 import {CloudUploadIcon , UploadCheckIcon} from "../Icons/SVG"
 import HistogramX from "./HistoGram";
-export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,currentModel,handleKeyDown,cghTools,setCghTools,edit,histogram,setHistogram,handlePartUpdate,perpenCghlThickness}){
+export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,currentModel,handleKeyDown,cghTools,setCghTools,edit,histogram,setHistogram,handlePartUpdate,perpenCghlThickness,om_specs}){
     console.log('MEASURING CGH: ', cghlDetails,cghlPoint, ' Current Model: ',currentModel);
     /**
      *
@@ -26,35 +26,31 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
     const XAverage = [];
     const allRaverage = []
     const SPCControlls = {};
-    const [model,setModel] = useState(false);
-
+    const [currentModelState,setCurrentModelState] = useState(currentModel?JSON.parse(currentModel.cghl_om_specs):null);
+    const [model,setModel] = useState(currentModel?currentModel:null);
+      
+    const toDisabled = ['prepared', 'measured', 'approved']
+    const status = cghlDetails.status
+    const allowed = toDisabled.includes(status) ? true : false
+    console.log('STATUS CGH' , allowed, status )
+     const [currentStatus, setCurrentStatus] = useState(allowed);
     //CountCurrentMagnet
     const magnet = useRef(0)
     magnet.current = 0
-    useEffect(()=>{
-        if(!currentModel) return
-        setModel(currentModel);
-    },[currentModel])
+    
 
-    const [currentStatus, setCurrentStatus] = useState(null);
-    const toDisabled = ['prepared', 'measured', 'approved']
-    useEffect(() => {
-        const status = cghlDetails.status
-        const allowed = toDisabled.includes(status) ? true : false
-        console.log('STATUS CGH' , allowed, status )
-        setCurrentStatus(allowed);
 
-    }, [cghlDetails]);
     const refereceValues=(u=0)=>{
+        if(!currentModelState) return
         const currentCell = u
         const values = {
-            AA90:Number(currentModel.cghl_target) - 0.001,
-            AA87:Number(currentModel.cghl_min),
-            AA94:Number(currentModel.cghl_max),
+            AA90:Number(currentModelState && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):null) - 0.001,
+            AA87:Number(currentModelState && currentModelState.min?.[om_specs]  ?Number(currentModelState.min?.[om_specs]):null),
+            AA94:Number(currentModelState && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):null),
             AA95:currentCell+0.001,
-            AA91:Number(currentModel.cghl_max) - 0.005,
-            AA96:(Number(currentModel.cghl_max) - 0.005) - 0.001,
-            OK_DIM_MIN:Number(currentModel.cghl_target),
+            AA91:Number(currentModelState && currentModelState.max?.[om_specs]  ? Number(currentModelState.max?.[om_specs]):null) - 0.005,
+            AA96:(Number(currentModelState && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):null) - 0.005) - 0.001,
+            OK_DIM_MIN:Number(currentModelState && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):null),
             OK_DIM_MAX:currentCell - 0.001
         }
         return values
@@ -66,12 +62,17 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
        // return  point > refValueNew.AA90 && point < refValueNew.AA91? 'ACCEPT' :point >= refValueNew.AA87 && point <= refValueNew.AA94 ?'FOR ADJUSTMENT' :point ? 'REJECT':null
         if(!point || point === 0) return
-       return  point  < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT':point < refValueNew.AA87 + 0.01 || point > refValueNew.AA96?'FOR ADJUSTMENT':'ACCEPT'
+
+        const diffMinTolerance = refValueNew.AA87 + Number(currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):null)
+        const diffMaxTolerance = refValueNew.AA94 - Number(currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):null)
+
+        console.log('TOL DIFF:',point  ,diffMinTolerance);
+        return  point  < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT':point < diffMinTolerance  || point > diffMaxTolerance?'FOR ADJUSTMENT':'ACCEPT'
     }
 
 
     const resultStatusJudgement=()=>{
-        const max = Number(currentModel.cghl_max)
+        const max = Number(currentModelState && currentModelState.target?.[om_specs]  ? currentModelState.target?.[om_specs]:null)
         const min = Number(currentModel.cghl_min)
 
         const TOL = max - min
@@ -390,14 +391,15 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
             console.log("Copied using fallback!");
         }
     };
+    console.log('CGHHL OM SPECS:' , currentModelState);
     return(
         <>
             <div>
-                <h1>{cghlDetails.model ?? '404 error'}&nbsp;CGH (L) DIMENSION MONITORING</h1>
+                <h1>{cghlDetails.model ?? '404 error'}&nbsp;{currentModelState && currentModelState.specs?.[om_specs]  ?currentModelState.specs?.[om_specs]:null}&nbsp;DIMENSION MONITORING</h1>
                 <div className="details-container-white">
                     <div>
-                        <h1>CGH (L) Specification</h1>
-                        <p><strong style={{ fontWeight:'bold' }}>Maximum:</strong>&nbsp;{model && model.cghl_max}&nbsp;<strong style={{ fontWeight:'bold' }}>Target:</strong>&nbsp;{model && model.cghl_target}&nbsp;<strong style={{ fontWeight:'bold' }}>Minimum:</strong>&nbsp;{model && model.cghl_min}</p>
+                        <h1>CGH {currentModelState && currentModelState.specs?.[om_specs]  ?currentModelState.specs?.[om_specs]:null}&nbsp;Specification</h1>
+                        <p><strong style={{ fontWeight:'bold' }}>Maximum:</strong>&nbsp;{currentModelState && currentModelState.max?.[om_specs]  ?currentModelState.max?.[om_specs]:null}&nbsp;&nbsp;<strong style={{ fontWeight:'bold' }}>Target:</strong>&nbsp;{currentModelState && currentModelState.target?.[om_specs]  ?currentModelState.target?.[om_specs]:null}&nbsp;<strong style={{ fontWeight:'bold' }}>Minimum:</strong>&nbsp;{currentModelState && currentModelState.min?.[om_specs]  ?currentModelState.min?.[om_specs]:null}</p>
                        
                     </div>
                     <table className="measuring-table">
@@ -408,8 +410,8 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                                 <th colSpan={3}>JUDGEMENT</th>
                                 <th rowSpan={2}>JUDEMENT per PIECE</th>
                                 <th rowSpan={2}>STATUS</th>
-                                <th rowSpan={2}>MIN</th>
-                                <th rowSpan={2}>MAX</th>
+                                <th rowSpan={2} style={{ width:'5rem' }}>MIN</th>
+                                <th rowSpan={2} style={{ width:'5rem' }}>MAX</th>
                                 <th rowSpan={2}>REMARKS</th>
                                 <th rowSpan={2}>WORST <button class="copy-btn" onClick={(e)=>copyPaste(judgement["all_worst"])}>Copy</button></th>
                             </tr>
@@ -438,7 +440,7 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                                                         <td rowSpan={3} >
                                                             <h1 style={{ color:'#3b4e68' }}>{title[mainItems-1]}</h1>
                                                             <div className="histogram-btn">
-                                                                <button onClick={()=>handlePartUpdate({points:cghlPoint, perpendicularity:{}},'cghl')} className="status-btn" disabled={(currentStatus && !edit)}>Save</button>
+                                                                <button onClick={()=>handlePartUpdate({points:cghlPoint, om_specs:currentModelState && currentModelState.specs?.[om_specs]  ?currentModelState.specs?.[om_specs]:null ,process_number:om_specs ,perpendicularity:{}},'cghl')} className="status-btn" disabled={(currentStatus && !edit)}>Save</button>
                                                                 <button onClick={()=>setHistogram({title:'(T~L)PERPENDICULARITY MONITORING',timing:title[mainItems-1],point:2,hfp:'p',status:(currentStatus && !edit)})} className="status-btn" >Histogram</button>
                                                             </div>
                                                         </td>
@@ -666,9 +668,9 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                         <div>
                             <GraphControlX 
                                 XAverage={XAverage} 
-                                max={currentModel.cghl_max ?? 0}  
-                                min={currentModel.cghl_min ?? 0}
-                                target={currentModel.cghl_target ?? 0}/>
+                                max={currentModelState && currentModelState.max?.[om_specs]  ?currentModelState.max?.[om_specs]:null} 
+                                min={currentModelState && currentModelState.min?.[om_specs]  ?currentModelState.min?.[om_specs]:null} 
+                                target={currentModelState && currentModelState.target?.[om_specs]  ?currentModelState.target?.[om_specs]:null} />
                         </div>
                         <div>
                             <GraphControlR data={allRaverage} min={SPCControlls.r_ucl} max={SPCControlls.average_UCL}/>
@@ -678,7 +680,14 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
                         currentModel.perpendicularity && Number (currentModel.perpendicularity) > 0 && 
                         <div className="container-row" style={{  margin:'0rem'}}>
                             <div>
-                                <CountingGraph process={'cghl'} specification={'Perpendicularity'} max={currentModel.cghl_max??0} min={currentModel.cghl_min??0} perpendicularity={perpenCghlThickness} maxperpen={currentModel.perpendicularity??0}/>
+                                <CountingGraph 
+                                    process={'cghl'} 
+                                    specification={'Perpendicularity'} 
+                                    max={currentModelState && currentModelState.max?.[om_specs] ? currentModelState.max?.[om_specs]:null} 
+                                    min={currentModelState && currentModelState.min?.[om_specs] ? currentModelState.min?.[om_specs]:null} 
+                                    perpendicularity={currentModelState && currentModelState.perpen?.[om_specs] ? currentModelState.perpen?.[om_specs]:null} 
+                                    maxperpen={currentModelState && currentModelState.perpen?.[om_specs] ? currentModelState.perpen?.[om_specs]:null} 
+                                />
                             </div>
                         </div>
                     }

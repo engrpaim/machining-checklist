@@ -89,7 +89,7 @@ export default function SlicingParallelism({jigs = 1 , row = 3,layers = 3,max,mi
             <div className="details-white">
                 <div className="container-column">
                     <div className='container-theme-black'>
-                        <h1>Parallelism</h1>
+                        <h1>Parallelism&nbsp;{side}</h1>
                         <div className='container-row'>
                              <p>Max:&nbsp;{perpenTarget}</p>
                              <p><strong style={{ fontWeight:'bold' }}>Height</strong> Max:&nbsp;{max}&nbsp;Min:&nbsp;{min}</p>

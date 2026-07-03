@@ -3,7 +3,7 @@ import MassProRow from "./MassProRow";
 import SlicingHFP from "./SlicingPerpenD";
 import SlicingParallelism from "./SlicingParallelism";
 import CountingGraph from "./CountingGraph";
-export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,min,points,statusNow,edit,processing,perpenD,setPerpenD,parallelism,setParallelism,jig,row,layer}){
+export default function SlicingMeasuring({data,setdata,handleKeyDown,points,statusNow,edit,processing,perpenD,setPerpenD,parallelism,setParallelism,jig,row,layer,slicing_om_specs,om_specs}){
     const [tableOption,setTableOption] = useState('masspro');
     const [currentStatus, setCurrentStatus] = useState(null);
             const toDisabled = ['prepared', 'measured', 'approved']
@@ -13,6 +13,8 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,
                 setCurrentStatus(allowed);
             }, [statusNow]);
             console.log(statusNow);
+    const [slicingState, setSlicingState] = useState(slicing_om_specs ? JSON.parse(slicing_om_specs):null)
+    console.log('SLICING: ',slicingState ,om_specs);
     return(
         <div>
             <div className="container-row">
@@ -30,10 +32,12 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,
                                 data={data} 
                                 set={setdata} 
                                 handleKeyDown={handleKeyDown} 
-                                target={target} 
-                                max={max} 
-                                min={min}
+                                target={slicingState && slicingState.target ?slicingState.target?.[om_specs]:null} 
+                                max={slicingState && slicingState.max ?slicingState.max?.[om_specs]:null} 
+                                min={slicingState && slicingState.min ?slicingState.min?.[om_specs]:null} 
                                 status ={(currentStatus || processing) && !(edit)}
+                                side={slicingState && slicingState.specs ?slicingState.specs?.[om_specs]:null}
+                                tolerance={slicingState && slicingState.tol && slicingState.tol?.[om_specs] ?slicingState.tol?.[om_specs]:null}
                     />
                 : tableOption === 'perpen' ?
                     <SlicingHFP 
@@ -42,9 +46,10 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,
                         jigs={jig}
                         layers={layer}
                         row={row}
+                        side={slicingState && slicingState.specs ?slicingState.specs?.[om_specs]:null}
                         status ={(currentStatus || processing) && !(edit)}
                         handleKeyDown={handleKeyDown} 
-                        perpen={0.05}
+                        perpenTarget={slicingState && slicingState.perpen ?Number(slicingState.perpen?.[om_specs]):null} 
                     />
                         
                 :tableOption === 'parallelism' ?
@@ -56,9 +61,10 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,target,max,
                         row={row}
                         status ={(currentStatus || processing) && !(edit)}
                         handleKeyDown={handleKeyDown} 
-                        perpen={0.05}
-                        max={max}
-                        min={min}
+                        side={slicingState && slicingState.specs ? Number(slicingState.specs?.[om_specs]):null} 
+                        perpenTarget={slicingState && slicingState.para ?Number(slicingState.para?.[om_specs]):null} 
+                        max={slicingState && slicingState.max ?Number(slicingState.max?.[om_specs]):null} 
+                        min={slicingState && slicingState.min ?Number(slicingState.min?.[om_specs]):null}
                     />
                         
                 :null
