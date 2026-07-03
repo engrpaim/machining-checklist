@@ -58,7 +58,8 @@ export default function AllProcess({data , clientIp , model}){
         router.post('/machining-checklist/home/delete',
                 {
                     id:id,
-                    page:page
+                    page:page,
+                    ip:clientIp
                 },
                 {
                     preserveScroll:true
