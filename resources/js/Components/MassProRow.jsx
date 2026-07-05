@@ -50,11 +50,11 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                         let diffMin = targetValue - currentMin
 
                         //lower limit
-                        console.log('lower limit:' , Number(min)+ 0.1);
+                        console.log('lower limit:' , value, Number(min));
                         value > 0 && value <= Number(min) ?lw = value
-                            :value >= Number(min) && value <= Number(min)  + 0.005 && crit100lw  < value? crit100lw = value
-                                :value >= Number(min)  + 0.005 && value < Number(min)  + 0.01 && critlw  < value? critlw  =value
-                                    :value >= Number(target)  - 0.001 && value <= Number(target)  && goodPoint  < value ? goodPoint  =value
+                            :value >= Number(min) && value <= Number(min)  + 0.01 && crit100lw  < value? crit100lw = value
+                                :value >= Number(min)  + 0.01 && value <= Number(target)  - 0.01 && critlw  < value? critlw  =value
+                                    :value >= Number(target)  - 0.01 && value < Number(target)  && goodPoint  < value ? goodPoint  = value
                                         :null;
 
                         // higher limit
