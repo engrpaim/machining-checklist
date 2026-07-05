@@ -4,6 +4,7 @@ import { handleKeyDown } from "../utils/UtilityFunctions";
 import GraphControlX from "./GraphControlX"
 import GraphControlR from "./GraphControlR"
 import HFPDisplay from "./HFPDisplay";
+import AdjustmentForm from "./AdjustmentForm";
 export default function LappingData({currentModel,numberOfPoints = 10, massProForm ,setMassProForm,MassproProcessing, statusNow,edit,hfpData,setHfpData,process,om_specs}){
     console.log('Lapping Model: ',currentModel,massProForm,statusNow);
     const status = statusNow
@@ -52,7 +53,7 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
             <div className="container-row">
                 <button onClick={()=>setTableOption('masspro')} className="view-button" >Masspro</button>
                 <button onClick={()=>setTableOption('hfp')}  className="view-button" >H-F-P</button>
-
+                <button onClick={()=>setTableOption('adjustment')}  className="view-button" >Adjustment</button>
             </div>
             <div>
                 <h1>{tableOption.toUpperCase()} - view</h1>
@@ -169,6 +170,8 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
                         </div>
                     </div>
                 </>
+                :tableOption === 'adjustment'?
+                <AdjustmentForm/>
                 :null
             }
             
