@@ -46,6 +46,7 @@
     border-radius: 1.2rem;
     color: #2b2e2e;
     animation: fadeIn 0.3s ease-in-out;
+    overflow-x: auto;
 }
 
 .details-container-inner {

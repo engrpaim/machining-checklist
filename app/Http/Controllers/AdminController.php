@@ -42,7 +42,7 @@ class AdminController extends Controller
             return true;
         } catch (Exception $e) {
             $duplicated = $e->getMessage();
-            return redirect()->back()->with('error',  str_contains($duplicated, 'Duplicate entry!') ? 'Duplicate Entry Error!' : 'Updated Unsuccessfull!');
+            return redirect()->back()->with('error', 'Error duplicate '.$duplicated.' saving!,');
         }
     }
 
@@ -104,7 +104,7 @@ class AdminController extends Controller
 
     public function create(Request $request)
     {
-
+        
         $model = $request->input('model') ?? null;
         $allData = $request->all();
         $page = $allData["page"];
@@ -115,7 +115,7 @@ class AdminController extends Controller
 
         $isExist =  $allData["id"] ? $this->getDetails($allData["id"], $page) : null;
 
-        $db = $this->bankDataBase($page);
+      
         if ($page === 'model') {
             $point1 = $request->file('chamfer_point1_data') ?? null;
             $point2 = $request->file('chamfer_point2_data') ?? null;
@@ -127,8 +127,8 @@ class AdminController extends Controller
             if ($files['point1']) unset($allData["chamfer_point1_data"]);
             if ($files['point2']) unset($allData["chamfer_point2_data"]);
 
-            $files['point1'] && array_key_exists('point1', $createdFiles)  ? $allData["chamfer_point1_data"] = $createdFiles['point1'] : null;
-            $files['point2'] && array_key_exists('point2', $createdFiles)  ? $allData["chamfer_point2_data"] = $createdFiles['point2'] : null;
+            $allData["chamfer_point1_data"] =  $files['point1'] && array_key_exists('point1', $createdFiles)  ?$createdFiles['point1'] : null;
+            $allData["chamfer_point2_data"] = $files['point2'] && array_key_exists('point2', $createdFiles)  ?  $createdFiles['point2'] : null;
         }
 
         switch ($crud) {
@@ -144,9 +144,15 @@ class AdminController extends Controller
 
                     return redirect()->back()->with('error', "$isExist->model already exist!");
                 };
+               
+                foreach ($allData as $key => $value) {
+                    if (is_array($value)) {
+                        $allData[$key] = !empty($value) ? json_encode($value) : null;
+                    }
+                }
 
                 $dataSaved = $this->save($allData, $page);
-
+ 
                 if ($dataSaved) return redirect()->back()->with([
                     'currentUpdate' =>  $dataSaved,
                     'success' => "Successfully " . $allData['model'] . " added!"

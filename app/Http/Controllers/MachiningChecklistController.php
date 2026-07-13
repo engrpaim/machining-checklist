@@ -21,7 +21,9 @@ use App\Models\Barelling;
 use App\Models\lappingModel;
 use App\Models\slicingModel;
 use App\Models\logs;
+use App\Models\AdjustmentModels;
 use GuzzleHttp\Handler\Proxy;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Process;
 
 class MachiningChecklistController  extends ProcessController
@@ -35,7 +37,8 @@ class MachiningChecklistController  extends ProcessController
             'models' => ModelDetails::class,
             'cghl' => cghModel::class,
             'lapping' => lappingModel::class,
-            'slicing' => slicingModel::class
+            'slicing' => slicingModel::class,
+            'adjustment' => AdjustmentModels::class
         ];
 
         return $bank[$process];
@@ -98,8 +101,10 @@ class MachiningChecklistController  extends ProcessController
 
         $dbUse = $this->dataBaseBank($process);
         $processGet = new ProcessController;
+        $dbAdjust = $this->dataBaseBank('adjustment');
 
         $getData = $processGet->checkBatch1($id, $lot, $dbUse)->toArray();
+        $getAdjust = $processGet->checkBatch3($id, $dbAdjust,$process)->toArray();
         if (!$getData) return redirect()->back()->with('error', 'Cannot find data!');
 
         $getModelDetails = ModelDetails::where('model', $model)->first()->toArray();
@@ -111,7 +116,8 @@ class MachiningChecklistController  extends ProcessController
             'GoToProcess' => $process,
             'model' => $getModelDetails,
             'GoToModel' => $model,
-            'current_lot' => $getData
+            'current_lot' => $getData,
+            'adjustment' => $getAdjust
         ]);
 
         dd($getData, $request->all());
@@ -545,6 +551,7 @@ class MachiningChecklistController  extends ProcessController
 
         if (!$bank) return redirect()->back()->with('error', '[Updating]Failed: Process database not found!');
         // dd($process_number,$om_specs);
+        /* get details of all pages */
         $isGetDetails = $bank::where('datalist_id', $id)->where('batch_number', $batch)->where('process_number',$process_number)->where('om_specs',$om_specs)->first();
 
         $processQuery = new ProcessController;
@@ -554,6 +561,8 @@ class MachiningChecklistController  extends ProcessController
         $models = $processQuery->getModel($modelDb, $model);
         if (!$models) return redirect()->back()->with('error', 'Model database not found!');
         $convertModel = $models->toArray();
+
+
         if ($isGetDetails) {
             $convertedDetails = json_encode($isGetDetails->toArray());
             return redirect()->back()->with([
@@ -634,6 +643,149 @@ class MachiningChecklistController  extends ProcessController
 
         return redirect()->back()->with('error', '[Part Updating]Error 404!');
     }
+
+    public function adjustmentForm(Request $request)
+    {
+       
+        $data = $request->all();
+        $adjustment = $data['adjustment'] ? $data['adjustment']:null;
+        $details = $data['details'] ? $data['details']:null;
+        $specs = $data['specs'] ? $data['specs']:[];
+
+        $batch_number = $details["batch_number"] ?? null;
+        $process_number = $details["process_number"] ?? null;
+        $process = $details["process"] ?? null;
+        $model_name = $details["model_name"] ?? null;
+        $lot_number = $details["lot_number"] ?? null;
+        $datalist_id = $details["id"] ?? null;
+
+        $machine = $adjustment["machine"] ?? null;
+        $operator = $adjustment["operator"] ?? null;
+        $checked_by = $adjustment["checked_by"] ?? null;
+        $deffect = $adjustment["deffect"] ?? null;
+        $adjustment_made = $adjustment["adjustment_made"] ?? null;
+        $tb_no = $adjustment["tb_no"] ?? null;
+        $pt_1 = $adjustment["pt_1"] ?? null;
+        $pt_2 = $adjustment["pt_2"] ?? null;
+        $pt_3 = $adjustment["pt_3"] ?? null;
+        $pt_4 = $adjustment["pt_4"] ?? null;
+        $pt_5 = $adjustment["pt_5"] ?? null;
+        $appearance_checking = $adjustment["appearance_checking"] ?? null;
+        $final_result = $adjustment["final_result"] ?? null;
+     
+        //details
+        $date = $details['date'] ?? null;
+        $width = key_exists("width" , $specs) && $specs["width"] &&  key_exists("width" , $adjustment) ? $adjustment["width"] : null;
+        $length = key_exists("length" , $specs) && $specs["length"] && key_exists("length" , $adjustment) ? $adjustment["length"] : null;
+        $thickness = key_exists("thickness" , $specs) && $specs["thickness"] && key_exists("thickness" , $adjustment) ? $adjustment["thickness"] : null;
+        $height = key_exists("height" , $specs) && $specs["height"] &&  key_exists("height" , $adjustment) ? $adjustment["height"] : null;
+        $chamfer = key_exists("chamfer" , $specs) && $specs["chamfer"] &&  key_exists("chamfer" , $adjustment) ? $adjustment["chamfer"] : null;
+        $center_off = key_exists("center_off" , $specs) && $specs["center_off"]  &&  key_exists("center_off" , $adjustment) ? $adjustment["center_off"] : null;
+        $angularity = key_exists("angularity" , $specs) && $specs["angularity"] &&  key_exists("angularity" , $adjustment) ? $adjustment["angularity"] : null;
+        $perpen = key_exists("perpen" , $specs) && $specs["perpen"] &&  key_exists("perpen" , $adjustment) ? $adjustment["perpen"] : null;
+        $flatness = key_exists("flatness" , $specs) && $specs["flatness"] &&  key_exists("flatness" , $adjustment) ? $adjustment["flatness"] : null;
+        $chamfer_point = $adjustment["chamfer_point"] ?? null;
+        $center_off_point = $adjustment["center_off_point"] ?? null;
+        $angularity_point = $adjustment["angularity_point"] ?? null;
+        $perpen_point = $adjustment["perpen_point"] ?? null;
+        $flatness_point = $adjustment["flatness_point"] ?? null;
+        
+        $bank = $this->dataBaseBank($process);
+        $isGetDetails = $bank::where('datalist_id', $datalist_id)->where('batch_number', $batch_number)->where('process_number',$process_number)->first();
+        $convertedDetails = json_encode($isGetDetails->toArray());
+        $processQuery = new ProcessController;
+
+        //Get model data
+        $modelDb = $this->dataBaseBank('models');
+        $models = $processQuery->getModel($modelDb, $model_name);
+        if (!$models) return redirect()->back()->with('error', 'Model database not found!');
+        $convertModel = $models->toArray();
+
+        if
+        (
+            !$batch_number || !$lot_number || !$process_number || !$process || !$model_name || !$machine || !$operator  || 
+            !$checked_by || !$deffect || !$adjustment_made || ! $appearance_checking || !$final_result || !$tb_no || 
+            !$pt_1 || !$pt_2 || !$pt_3 || ! $pt_4 || !$pt_5 || !$datalist_id
+        ) return redirect()->back()->with([
+                'error' => 'Incomplete data!',
+                'existing' => $convertedDetails,
+                'model' => $convertModel
+            ]);
+
+        $checkAdjustmentNumber = AdjustmentModels::where('datalist_id',$datalist_id)
+                                                   ->where('process_number',$process_number)
+                                                   ->where('batch_number',$batch_number)
+                                                   ->where('process',$process)
+                                                   ->orderBy('adjustment','desc')->first();
+      
+
+        $adjustment_number = $checkAdjustmentNumber && $checkAdjustmentNumber->adjustment ? intval($checkAdjustmentNumber->adjustment)  + 1 : 1;
+        
+        try{
+            $result = AdjustmentModels::create([
+                                                    'datalist_id' => $datalist_id ,
+                                                    'adjustment' => $adjustment_number,
+                                                    'date' => $date,
+                                                    'batch_number' => $batch_number,
+                                                    'process_number' =>$process_number ,
+                                                    'process' => $process,
+                                                    'machine' => $machine,
+                                                    'model_name' => $model_name,
+                                                    'lot_number' => $lot_number,
+                                                    'operator'=>$operator ,
+                                                    'checked_by' =>$checked_by,
+                                                    'width' => $width,
+                                                    'length'=> $length,
+                                                    'thickness'=> $thickness,
+                                                    'height'=> $height,
+                                                    'chamfer'=> $chamfer,
+                                                    'center_off'=> $center_off,
+                                                    'angularity'=> $angularity,
+                                                    'perpen'=> $perpen,
+                                                    'flatness'=> $flatness,
+                                                    'deffect'=> $deffect,
+                                                    'adjustment_made' => $adjustment_made,
+                                                    'tb_no'=>$tb_no,
+                                                    'pt_1'=>$pt_1,
+                                                    'pt_2'=>$pt_2,
+                                                    'pt_3'=>$pt_3,
+                                                    'pt_4'=>$pt_5,
+                                                    'pt_5'=>$pt_1,
+                                                    'chamfer_point'=>$chamfer_point,
+                                                    'center_off_point'=>$center_off_point,
+                                                    'angularity_point'=>$angularity_point,
+                                                    'perpen_point'=>$perpen_point,
+                                                    'flatness_point'=>$flatness_point,
+                                                    'appearance_checking'=>$appearance_checking,
+                                                    'final_result'=>$final_result,
+                                                    'created_at' => Carbon::now(),
+                                                    'updated_at' => Carbon::now(),
+                                            ]);
+            
+                                            
+            if($result){
+                
+                $getallDetails = AdjustmentModels::where('datalist_id', $datalist_id)
+                                                    ->where('process_number',$process_number)
+                                                    ->where('batch_number',$batch_number)
+                                                    ->where('process',$process)
+                                                    ->orderBy('adjustment','desc')->paginate(15);
+                                                   
+                return redirect()->back()->with([
+                    'success' => 'Adjustment added!.',
+                    'adjustment' => $getallDetails ? $getallDetails->toArray():null,
+                    'existing' => $convertedDetails,
+                    'model' => $convertModel
+                ]);
+                
+            }
+        }catch(Exception $e){
+            dd($e);
+            return redirect()->back()->with('error','Error saving adjustment!.');
+        }
+        
+        dd($request->all());
+    }   
 //     ///oldd stufffffffffffffffff
 //     public function loadModels()
 //     {

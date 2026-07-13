@@ -1,11 +1,12 @@
-import { useState , useRef} from "react";
+import { useState, useRef } from "react";
 import GraphControlX from "./GraphControlX";
 import GraphControlR from "./GraphControlR";
 import CountingGraph from "./CountingGraph";
-import {CloudUploadIcon , UploadCheckIcon} from "../Icons/SVG"
+import { CloudUploadIcon, UploadCheckIcon } from "../Icons/SVG"
 import HistogramX from "./HistoGram";
-export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,currentModel,handleKeyDown,cghTools,setCghTools,edit,histogram,setHistogram,handlePartUpdate,perpenCghlThickness,om_specs}){
-    console.log('MEASURING CGH: ', cghlDetails,cghlPoint, ' Current Model: ',currentModel);
+import AdjustmentForm from "./AdjustmentForm";
+export default function CghMeasuring({ cghlDetails, cghlPoint, setCghlPoint, currentModel, handleKeyDown, cghTools, setCghTools, edit, histogram, setHistogram, handlePartUpdate, perpenCghlThickness, om_specs,adjustmentDetails,setAdjustmentDetails,details,batch_number,id,adjustmentReset,adjustmentSubmit,adjustment }) {
+    console.log('MEASURING CGH: ', cghlDetails, cghlPoint, ' Current Model: ', currentModel);
     /**
      *
      * Excel Based formula
@@ -14,92 +15,93 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
      *
      *
      */
-    const numberThree = [1,2,3]
+    const numberThree = [1, 2, 3]
     const title = [
-        'Start' , 'Middle','End'
+        'Start', 'Middle', 'End'
     ]
     const judgement = {
-        all_worst:[]
+        all_worst: []
     };
     const spcAverage = [];
     const RAverage = [];
     const XAverage = [];
     const allRaverage = []
     const SPCControlls = {};
-    const [currentModelState,setCurrentModelState] = useState(currentModel?JSON.parse(currentModel.cghl_om_specs):null);
-    const [model,setModel] = useState(currentModel?currentModel:null);
-      
+    const [currentModelState, setCurrentModelState] = useState(currentModel ? JSON.parse(currentModel.cghl_om_specs) : null);
+    const [model, setModel] = useState(currentModel ? currentModel : null);
+
     const toDisabled = ['prepared', 'measured', 'approved']
     const status = cghlDetails.status
     const allowed = toDisabled.includes(status) ? true : false
-    console.log('STATUS CGH' , allowed, status )
-     const [currentStatus, setCurrentStatus] = useState(allowed);
+    console.log('STATUS CGH', allowed, status)
+    const [currentStatus, setCurrentStatus] = useState(allowed);
     //CountCurrentMagnet
     const magnet = useRef(0)
     magnet.current = 0
-    
+
+    const [tableOption, setTableOption] = useState('masspro');
 
 
-    const refereceValues=(u=0)=>{
-        if(!currentModelState) return
+    const refereceValues = (u = 0) => {
+        if (!currentModelState) return
         const currentCell = u
         const values = {
-            AA90:currentModelState && currentModelState.target && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):null - 0.001,
-            AA87:currentModelState && currentModelState.min && currentModelState.min?.[om_specs]  ?Number(currentModelState.min?.[om_specs]):null,
-            AA94:currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):null,
-            AA95:currentCell+0.001,
-            AA91:currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ? Number(currentModelState.max?.[om_specs]):null - 0.005,
-            AA96:(currentModelState && currentModelState.max && currentModelState.max?.[om_specs]  ?Number(currentModelState.max?.[om_specs]):null- 0.005) - 0.001,
-            OK_DIM_MIN:currentModelState && currentModelState.target && currentModelState.target?.[om_specs]  ?Number(currentModelState.target?.[om_specs]):null,
-            OK_DIM_MAX:currentCell - 0.001
+            AA90: currentModelState && currentModelState.target && currentModelState.target?.[om_specs] ? Number(currentModelState.target?.[om_specs]) : null - 0.001,
+            AA87: currentModelState && currentModelState.min && currentModelState.min?.[om_specs] ? Number(currentModelState.min?.[om_specs]) : null,
+            AA94: currentModelState && currentModelState.max && currentModelState.max?.[om_specs] ? Number(currentModelState.max?.[om_specs]) : null,
+            AA95: currentCell + 0.001,
+            AA91: currentModelState && currentModelState.max && currentModelState.max?.[om_specs] ? Number(currentModelState.max?.[om_specs]) : null - 0.005,
+            AA96: (currentModelState && currentModelState.max && currentModelState.max?.[om_specs] ? Number(currentModelState.max?.[om_specs]) : null - 0.005) - 0.001,
+            OK_DIM_MIN: currentModelState && currentModelState.target && currentModelState.target?.[om_specs] ? Number(currentModelState.target?.[om_specs]) : null,
+            OK_DIM_MAX: currentCell - 0.001
         }
         return values
     }
-    const resultJudgementPoint=(point)=>{
+    const resultJudgementPoint = (point) => {
         //return judgement status
         const refValueNew = refereceValues()
         // currentMin3points  < refValues.AA87 || currentMax3points > refValues.AA94 ? 'REJECT':currentMin3points < reultAA95.AA95 || currentMax3points > refValues.AA96?'FOR ADJUSTMENT':'ACCEPT'
 
-       // return  point > refValueNew.AA90 && point < refValueNew.AA91? 'ACCEPT' :point >= refValueNew.AA87 && point <= refValueNew.AA94 ?'FOR ADJUSTMENT' :point ? 'REJECT':null
-        if(!point || point === 0) return
+        // return  point > refValueNew.AA90 && point < refValueNew.AA91? 'ACCEPT' :point >= refValueNew.AA87 && point <= refValueNew.AA94 ?'FOR ADJUSTMENT' :point ? 'REJECT':null
+        if (!point || point === 0) return
 
-        const tol = currentModelState && currentModelState.tol?.[om_specs]  ?Number(currentModelState.tol?.[om_specs]):0.01
+        const tol = currentModelState && currentModelState.tol?.[om_specs] ? Number(currentModelState.tol?.[om_specs]) : 0.01
         const diffMinTolerance = refValueNew.AA87 + tol
         const diffMaxTolerance = refValueNew.AA94 - tol
 
-        console.log('TOL DIFF:',point  ,diffMinTolerance,refValueNew.AA94,diffMaxTolerance);
-        return  point  < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT':point < diffMinTolerance  || point > diffMaxTolerance?'FOR ADJUSTMENT':point ?'ACCEPT':null
+        console.log('TOL DIFF:', point, diffMinTolerance, refValueNew.AA94, diffMaxTolerance);
+        return point < refValueNew.AA87 || point > refValueNew.AA94 ? 'REJECT' : point < diffMinTolerance || point > diffMaxTolerance ? 'FOR ADJUSTMENT' : point ? 'ACCEPT' : null
     }
 
 
-    const resultStatusJudgement=()=>{
-        const max = Number(currentModelState && currentModelState.target?.[om_specs]  ? currentModelState.target?.[om_specs]:null)
+    const resultStatusJudgement = () => {
+        const max = Number(currentModelState && currentModelState.target?.[om_specs] ? currentModelState.target?.[om_specs] : null)
         const min = Number(currentModel.cghl_min)
 
         const TOL = max - min
-        const STEP = Number((TOL/10) - 0.001)
-        console.log('Tolerance: ',TOL,'STEP: ',STEP);
+        const STEP = Number((TOL / 10) - 0.001)
+        console.log('Tolerance: ', TOL, 'STEP: ', STEP);
         const range = []
 
         let currentStart = Number(min)
 
-        for(let i=0 ;i < 10;i++){
+        for (let i = 0; i < 10; i++) {
             const currentEnd = currentStart + STEP
             const End = Number(currentEnd)
-            console.log(currentStart ," --- " ,End);
+            console.log(currentStart, " --- ", End);
             const newStart = End + 0.001
 
-            range.push( i === 9 ? max:End)
+            range.push(i === 9 ? max : End)
             currentStart = Number(newStart)
         }
 
         return range
     }
 
-    const resultTheme =(value)=>{
+    const resultTheme = (value) => {
         //return theme color
-        console.log( 'hello' ,value);
-        switch(value){
+        console.log('hello', value);
+        switch (value) {
             case "GOOD":
                 return 'success-theme'
                 break;
@@ -119,41 +121,41 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
     }
 
-    const handleAverage=(array,container,suffix)=>{
+    const handleAverage = (array, container, suffix) => {
         //return average ,max ,min of the dataset
         let count = 0;
         let runningAverage = 0;
         let maxAverage = 0;
         let minAverage = 0;
 
-        for( let i = 0 ; i < array.length ; i++  ){
-            if(array[i]){
+        for (let i = 0; i < array.length; i++) {
+            if (array[i]) {
                 //compute average , set maximum and minimum
                 count += 1
                 runningAverage += array[i]
-                maxAverage = array[i] > maxAverage ? array[i]: maxAverage
-                minAverage = array[i] < minAverage || minAverage  === 0? array[i] : minAverage
+                maxAverage = array[i] > maxAverage ? array[i] : maxAverage
+                minAverage = array[i] < minAverage || minAverage === 0 ? array[i] : minAverage
 
             }
         }
         // finalAverage = sum of average / number of average
-        const finalAverage = runningAverage ? runningAverage/count:0
-        container['average'+suffix] = finalAverage > 0  ?Number(finalAverage):null
-        container['max'+suffix] = maxAverage > 0  ?maxAverage:null
-        container['min'+suffix] = minAverage > 0  ?minAverage:null
+        const finalAverage = runningAverage ? runningAverage / count : 0
+        container['average' + suffix] = finalAverage > 0 ? Number(finalAverage) : null
+        container['max' + suffix] = maxAverage > 0 ? maxAverage : null
+        container['min' + suffix] = minAverage > 0 ? minAverage : null
     }
 
-    const handleStandardDev=(array,container ,average)=>{
-        console.log('Standard Dev: ' ,array , container,average);
+    const handleStandardDev = (array, container, average) => {
+        console.log('Standard Dev: ', array, container, average);
         let summation = 0;
         let count = 0;
 
         //∑ (xi−xˉ)^2
-        for (let i = 0 ; i < array.length; i++ ){
-            if(array[i] > 0){
-                console.log('xi: ' , array[i], ' xˉ: ',average , ' mean: ',(array[i] - average) ** 2);
+        for (let i = 0; i < array.length; i++) {
+            if (array[i] > 0) {
+                console.log('xi: ', array[i], ' xˉ: ', average, ' mean: ', (array[i] - average) ** 2);
                 summation += (array[i] - average) ** 2
-                count +=1
+                count += 1
             }
         }
 
@@ -165,51 +167,51 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
         container["stdev"] = Number(stdev)
 
-        console.log('summation: ',summation , ' count: ', count , ' stdev: ',stdev)
+        console.log('summation: ', summation, ' count: ', count, ' stdev: ', stdev)
     }
 
-    const handleProcessCapabilityIndex =(array,container,min,max)=>{
-        console.log('Process Capability Index: ',array,container,min,max,container.stdev);
-        if(!container.stdev) return
+    const handleProcessCapabilityIndex = (array, container, min, max) => {
+        console.log('Process Capability Index: ', array, container, min, max, container.stdev);
+        if (!container.stdev) return
         const tol = max - min
         const stdev = container.stdev
-        const cp = Number(tol)/(6 * stdev)
+        const cp = Number(tol) / (6 * stdev)
         container['cp'] = Number(cp)
     }
 
-    const handleCPLLowerCapabilityIndex =(array,container,min,average)=> {
-        console.log('LOWER CAPABILITY INDEX: ',array,container,min);
+    const handleCPLLowerCapabilityIndex = (array, container, min, average) => {
+        console.log('LOWER CAPABILITY INDEX: ', array, container, min);
         const currentAverage = average
         const currentMin = min
         const stdev = container.stdev
 
-        const cpl = (currentAverage - currentMin)/(3*stdev)
+        const cpl = (currentAverage - currentMin) / (3 * stdev)
         container["cpl"] = Number(cpl)
     }
 
-    const handleCPUUpperCapability =(array,container,max,average)=> {
-        console.log('LOWER CAPABILITY INDEX: ',array,container,max);
+    const handleCPUUpperCapability = (array, container, max, average) => {
+        console.log('LOWER CAPABILITY INDEX: ', array, container, max);
         const currentAverage = average
-        const currentMax= max
+        const currentMax = max
         const stdev = container.stdev
 
-        const cpu = (currentMax - currentAverage)/(3*stdev)
+        const cpu = (currentMax - currentAverage) / (3 * stdev)
         container["cpu"] = Number(cpu)
     }
 
-    const handleUCL =(array,container,Average,cl)=>{
+    const handleUCL = (array, container, Average, cl) => {
         const averageCurrent = Average
         const averageR = cl
         container['ucl'] = averageCurrent + 0.34 * averageR
         container['lcl'] = averageCurrent - 0.34 * averageR
         container['cl'] = Average
-        console.log('UCLz: ',array,container,Average);
+        console.log('UCLz: ', array, container, Average);
     }
 
-    numberThree.map(magnetNumber =>{
-        numberThree.map(items =>{
-            console.log('CGH Model: ',currentModel);
-            const currentMagnet = cghlPoint[`magnet_`+magnetNumber];
+    numberThree.map(magnetNumber => {
+        numberThree.map(items => {
+            console.log('CGH Model: ', currentModel);
+            const currentMagnet = cghlPoint[`magnet_` + magnetNumber];
 
 
             const point1 = Number(currentMagnet[`p${items}_1`]);
@@ -219,22 +221,22 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
 
 
-            let currentMax3points = point1 >= point2 && point1 >= point3? point1:point1 <= point2 && point2 >= point3? point2:point3;
-            let currentMin3points = point1 <= point2 && point1 <= point3? point1:point2 <= point1 && point2 <= point3? point2:point3;
+            let currentMax3points = point1 >= point2 && point1 >= point3 ? point1 : point1 <= point2 && point2 >= point3 ? point2 : point3;
+            let currentMin3points = point1 <= point2 && point1 <= point3 ? point1 : point2 <= point1 && point2 <= point3 ? point2 : point3;
 
-            console.log('Magnet Number: ',magnetNumber , items , 1 , items,2,items,3);
+            console.log('Magnet Number: ', magnetNumber, items, 1, items, 2, items, 3);
 
-            if(!judgement[magnetNumber]){
+            if (!judgement[magnetNumber]) {
                 judgement[magnetNumber] = {};
             }
 
-            if(!judgement[magnetNumber][items]){
+            if (!judgement[magnetNumber][items]) {
                 judgement[magnetNumber][items] = {};
             }
 
             let result1 = resultJudgementPoint(point1)
-            let result2 =  resultJudgementPoint(point2)
-            let result3 =  resultJudgementPoint(point3)
+            let result2 = resultJudgementPoint(point2)
+            let result3 = resultJudgementPoint(point3)
 
 
 
@@ -258,16 +260,16 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
             const refValues = refereceValues()
             // worst theme
 
-            const worstValue = currentMax3points - refValues.OK_DIM_MIN  > refValues.OK_DIM_MIN - currentMin3points ? currentMax3points : currentMin3points
-            const rValueCurrent = (currentMax3points -  currentMin3points)
+            const worstValue = currentMax3points - refValues.OK_DIM_MIN > refValues.OK_DIM_MIN - currentMin3points ? currentMax3points : currentMin3points
+            const rValueCurrent = (currentMax3points - currentMin3points)
 
             //R value
-            rValueCurrent && currentMax3points > 0 && currentMin3points > 0  ? RAverage.push(Number(rValueCurrent)):null
+            rValueCurrent && currentMax3points > 0 && currentMin3points > 0 ? RAverage.push(Number(rValueCurrent)) : null
 
             allRaverage.push(Number(rValueCurrent.toFixed(3)))
 
-            const RAverageValues = handleAverage(RAverage ,SPCControlls , '_UCL');
-              console.log('finding: ',allRaverage);
+            const RAverageValues = handleAverage(RAverage, SPCControlls, '_UCL');
+            console.log('finding: ', allRaverage);
             const worstJudgement = resultJudgementPoint(worstValue)
             const worstTheme = resultTheme(worstJudgement);
             judgement[magnetNumber][items]["worst"] = worstValue
@@ -275,25 +277,25 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
             judgement[magnetNumber][items]["worst_color"] = worstTheme
 
             //Judgement per Piece
-            const divisionStep =   resultStatusJudgement()
+            const divisionStep = resultStatusJudgement()
             const U91 = divisionStep[4]
             const reultAA95 = refereceValues(U91)
-            console.log('ref:',currentMin3points,refValues.AA87 ,  currentMax3points , refValues.AA94,currentMin3points  < refValues.AA87 , currentMax3points > refValues.AA94,reultAA95.AA95);
-            const SPCAverage =  point1 > 0 && point2 > 0 && point3 > 0 ? (point1 + point2 + point3)/3:null
+            console.log('ref:', currentMin3points, refValues.AA87, currentMax3points, refValues.AA94, currentMin3points < refValues.AA87, currentMax3points > refValues.AA94, reultAA95.AA95);
+            const SPCAverage = point1 > 0 && point2 > 0 && point3 > 0 ? (point1 + point2 + point3) / 3 : null
 
             judgement[magnetNumber][items]["piece"] = worstJudgement
-            judgement[magnetNumber][items]["piece_color"] =worstTheme
+            judgement[magnetNumber][items]["piece_color"] = worstTheme
 
 
             //status
-            const status = worstJudgement === 'ACCEPT'? "Magnet within specs"
-                            :currentMax3points > refValues.AA91 && currentMax3points !== 0 && currentMin3points < reultAA95.OK_DIM_MIN && currentMin3points !== 0  ? "For Adjustment, Magnet minimum & maximum range"
-                            :currentMin3points < reultAA95.OK_DIM_MIN && currentMin3points !== 0 ?"For Adjustment, Magnet minimum range "
-                            :currentMax3points >= refValues.AA96 && currentMax3points !== 0 ?"For Adjustment, Magnet maximum range"
-                            :'Specs Condition is not yet teach!'
+            const status = worstJudgement === 'ACCEPT' ? "Magnet within specs"
+                : currentMax3points > refValues.AA91 && currentMax3points !== 0 && currentMin3points < reultAA95.OK_DIM_MIN && currentMin3points !== 0 ? "For Adjustment, Magnet minimum & maximum range"
+                    : currentMin3points < reultAA95.OK_DIM_MIN && currentMin3points !== 0 ? "For Adjustment, Magnet minimum range "
+                        : currentMax3points >= refValues.AA96 && currentMax3points !== 0 ? "For Adjustment, Magnet maximum range"
+                            : 'Specs Condition is not yet teach!'
             //status theme
             judgement[magnetNumber][items]["status"] = status
-            judgement[magnetNumber][items]["status_color"] = currentMin3points <= 0 && currentMax3points <= 0? null: resultTheme(worstJudgement)
+            judgement[magnetNumber][items]["status_color"] = currentMin3points <= 0 && currentMax3points <= 0 ? null : resultTheme(worstJudgement)
 
             //min & max theme
             const minResult = resultJudgementPoint(currentMin3points)
@@ -301,58 +303,57 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
             const minTheme = resultTheme(minResult)
             const maxTheme = resultTheme(maxResult)
 
-            console.log('MIN MAX',minTheme,maxResult ,currentMin3points);
+            console.log('MIN MAX', minTheme, maxResult, currentMin3points);
             judgement[magnetNumber][items]["min_color"] = minTheme
             judgement[magnetNumber][items]["max_color"] = maxTheme
 
             //remarks
-            judgement[magnetNumber][items]["remarks"] = status === "Magnet within specs" ? "Good dimension, Proceed":null
-            console.log(divisionStep,refValues,)
+            judgement[magnetNumber][items]["remarks"] = status === "Magnet within specs" ? "Good dimension, Proceed" : null
+            console.log(divisionStep, refValues,)
 
 
             //SPC Control
 
-            SPCAverage && SPCAverage > 0 ? XAverage.push(Number(SPCAverage.toFixed(3))):null
-            const ConvertedAverage = SPCAverage ? Number(SPCAverage):null
+            SPCAverage && SPCAverage > 0 ? XAverage.push(Number(SPCAverage.toFixed(3))) : null
+            const ConvertedAverage = SPCAverage ? Number(SPCAverage) : null
             judgement[magnetNumber][items]["average"] = ConvertedAverage
 
             //Average over all
-            SPCAverage > 0 ? spcAverage.push(ConvertedAverage):null
-            const resultAverage =  spcAverage ? handleAverage(spcAverage,SPCControlls,''):null
+            SPCAverage > 0 ? spcAverage.push(ConvertedAverage) : null
+            const resultAverage = spcAverage ? handleAverage(spcAverage, SPCControlls, '') : null
 
             //Standard Dev
-            SPCControlls && SPCControlls.average ? handleStandardDev(spcAverage,SPCControlls,SPCControlls.average):null
+            SPCControlls && SPCControlls.average ? handleStandardDev(spcAverage, SPCControlls, SPCControlls.average) : null
 
             //Process Capability index
-            SPCControlls && SPCControlls.stdev ? handleProcessCapabilityIndex(spcAverage,SPCControlls,refValues.AA87 , refValues.AA94):null
-            SPCControlls && SPCControlls.stdev ? handleCPUUpperCapability(spcAverage,SPCControlls,refValues.AA94,SPCControlls.average):null
+            SPCControlls && SPCControlls.stdev ? handleProcessCapabilityIndex(spcAverage, SPCControlls, refValues.AA87, refValues.AA94) : null
+            SPCControlls && SPCControlls.stdev ? handleCPUUpperCapability(spcAverage, SPCControlls, refValues.AA94, SPCControlls.average) : null
 
             //Process Capability lower index
-            SPCControlls && SPCControlls.stdev ? handleCPLLowerCapabilityIndex(spcAverage,SPCControlls,refValues.AA87,SPCControlls.average):null
+            SPCControlls && SPCControlls.stdev ? handleCPLLowerCapabilityIndex(spcAverage, SPCControlls, refValues.AA87, SPCControlls.average) : null
 
             //Process Capability index CPK
             const cpk = SPCControlls && SPCControlls.cpu && SPCControlls.cpl ?
-                            SPCControlls.cpu < SPCControlls.cpl ?
-                                SPCControlls.cpu : SPCControlls.cpl
-                            :null
+                SPCControlls.cpu < SPCControlls.cpl ?
+                    SPCControlls.cpu : SPCControlls.cpl
+                : null
 
-            cpk ? SPCControlls["cpk"] = cpk:null
+            cpk ? SPCControlls["cpk"] = cpk : null
 
             //x control ucl
-            SPCControlls && SPCControlls.average ? handleUCL(RAverage,SPCControlls,SPCControlls.average,SPCControlls.average_UCL):null
-            console.log('R average: ',RAverage,RAverageValues);
+            SPCControlls && SPCControlls.average ? handleUCL(RAverage, SPCControlls, SPCControlls.average, SPCControlls.average_UCL) : null
+            console.log('R average: ', RAverage, RAverageValues);
             //r control
-            if(SPCControlls &&  SPCControlls.average_UCL )
-            {
-                    //All
-                    const all_stdv =  SPCControlls.average_UCL/2.33
-                    SPCControlls["r_ucl"] = 1.82  * SPCControlls.average_UCL
-                    SPCControlls["all_ucl"] = all_stdv
-                    SPCControlls["all_cl"] = (refValues.AA94 - refValues.AA87)/(6 * all_stdv)
+            if (SPCControlls && SPCControlls.average_UCL) {
+                //All
+                const all_stdv = SPCControlls.average_UCL / 2.33
+                SPCControlls["r_ucl"] = 1.82 * SPCControlls.average_UCL
+                SPCControlls["all_ucl"] = all_stdv
+                SPCControlls["all_cl"] = (refValues.AA94 - refValues.AA87) / (6 * all_stdv)
 
-                    const allCPKMax = (refValues.AA94 - SPCControlls.cl)/(3 * all_stdv)
-                    const allCPKMin = (SPCControlls.cl - refValues.AA87 )/(3 * all_stdv)
-                    SPCControlls["all_cpk"] = allCPKMax < allCPKMin ? allCPKMax : allCPKMin
+                const allCPKMax = (refValues.AA94 - SPCControlls.cl) / (3 * all_stdv)
+                const allCPKMin = (SPCControlls.cl - refValues.AA87) / (3 * all_stdv)
+                SPCControlls["all_cpk"] = allCPKMax < allCPKMin ? allCPKMax : allCPKMin
 
             }
 
@@ -363,18 +364,18 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
 
 
 
-   const copyPaste = (data) => {
-        console.log('DATAAAAA',data);
+    const copyPaste = (data) => {
+        console.log('DATAAAAA', data);
         const text = data.join("\n");
         // Modern clipboard API
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text)
-            .then(() => {
-                console.log("Copied!");
-            })
-            .catch(err => {
-                console.error("Clipboard error:", err);
-            });
+                .then(() => {
+                    console.log("Copied!");
+                })
+                .catch(err => {
+                    console.error("Clipboard error:", err);
+                });
         } else {
             // Fallback
             const textarea = document.createElement("textarea");
@@ -390,308 +391,337 @@ export default function CghMeasuring({cghlDetails,cghlPoint ,setCghlPoint,curren
             console.log("Copied using fallback!");
         }
     };
-    console.log('CGHHL OM SPECS:' , currentModelState);
-    return(
+    console.log('CGHHL OM SPECS:', currentModelState);
+    return (
         <>
-            <div>
-                <h1>{cghlDetails.model ?? '404 error'}&nbsp;{currentModelState && currentModelState.specs?.[om_specs]  ?currentModelState.specs?.[om_specs]:null}&nbsp;DIMENSION MONITORING</h1>
-                <div className="details-container-white">
-                    <div>
-                        <h1>CGH {currentModelState && currentModelState.specs?.[om_specs]  ?currentModelState.specs?.[om_specs]:null}&nbsp;Specification</h1>
-                        <p><strong style={{ fontWeight:'bold' }}>Maximum:</strong>&nbsp;{currentModelState && currentModelState.max?.[om_specs]  ?currentModelState.max?.[om_specs]:null}&nbsp;&nbsp;<strong style={{ fontWeight:'bold' }}>Target:</strong>&nbsp;{currentModelState && currentModelState.target?.[om_specs]  ?currentModelState.target?.[om_specs]:null}&nbsp;<strong style={{ fontWeight:'bold' }}>Minimum:</strong>&nbsp;{currentModelState && currentModelState.min?.[om_specs]  ?currentModelState.min?.[om_specs]:null}</p>
-                       
-                    </div>
-                    <table className="measuring-table">
-                        <thead>
-                            <tr>
-                                <th colSpan={2} rowSpan={2}>S/N</th>
-                                <th colSpan={3}>DATA</th>
-                                <th colSpan={3}>JUDGEMENT</th>
-                                <th rowSpan={2}>JUDEMENT per PIECE</th>
-                                <th rowSpan={2}>STATUS</th>
-                                <th rowSpan={2} style={{ width:'5rem' }}>MIN</th>
-                                <th rowSpan={2} style={{ width:'5rem' }}>MAX</th>
-                                <th rowSpan={2}>REMARKS</th>
-                                <th rowSpan={2}>WORST <button class="copy-btn" onClick={(e)=>copyPaste(judgement["all_worst"])}>Copy</button></th>
-                            </tr>
-                            <tr>
-                                <th>Pt.1</th>
-                                <th>Pt.2</th>
-                                <th>Pt.3</th>
-                                <th style={{ width:'4rem' }}>Pt.1</th>
-                                <th style={{ width:'4rem' }}>Pt.2</th>
-                                <th style={{ width:'4rem' }}>Pt.3</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            {
-                                 numberThree.map(mainItems =>{
-
-                                    return(
-                                        numberThree.map(items =>{
-                                            console.log('ITEMSS: ',mainItems,items , judgement);
-                                                 magnet.current += 1
-                                            return(
-                                                <tr style={{ background: mainItems ===1 ?'#EFF6FF' : mainItems ===2?'#FEFCE8':'#FFF3E6'  ,height:'3rem'}}>
-                                                    {
-                                                        items === 1 &&
-                                                        <td rowSpan={3} >
-                                                            <h1 style={{ color:'#3b4e68' }}>{title[mainItems-1]}</h1>
-                                                            <div className="histogram-btn">
-                                                                <button onClick={()=>handlePartUpdate({points:cghlPoint, om_specs:currentModelState && currentModelState.specs?.[om_specs]  ?currentModelState.specs?.[om_specs]:null ,process_number:om_specs ,perpendicularity:{}},'cghl')} className="status-btn" disabled={(currentStatus && !edit)}>Save</button>
-                                                                <button onClick={()=>setHistogram({title:'(T~L)PERPENDICULARITY MONITORING',timing:title[mainItems-1],point:2,hfp:'p',status:(currentStatus && !edit)})} className="status-btn" >Histogram</button>
-                                                            </div>
-                                                        </td>
-                                                    }
-                                                    <td>{magnet.current}</td>
-                                                    <td><input
-                                                                value ={cghlPoint[`magnet_${mainItems}`][`p${items}_1`] ? cghlPoint[`magnet_${mainItems}`][`p${items}_1`]:''}
-                                                                type='number'
-                                                                onChange={(e)=>{setCghlPoint(`magnet_${mainItems}`,{
-                                                                    ...cghlPoint[`magnet_${mainItems}`],[`p${items}_1`]:e.target.value
-                                                                })}}
-                                                                onKeyDown={(e)=>handleKeyDown(e)}
-                                                                disabled={(currentStatus && !edit)}
-                                                                /></td>
-                                                    <td><input
-                                                                value ={cghlPoint[`magnet_${mainItems}`][`p${items}_1`] ? cghlPoint[`magnet_${mainItems}`][`p${items}_2`]:''}
-                                                                type='number'
-                                                                onChange={(e)=>{setCghlPoint(`magnet_${mainItems}`,{
-                                                                    ...cghlPoint[`magnet_${mainItems}`],[`p${items}_2`]:e.target.value
-                                                                })}}
-                                                                onKeyDown={(e)=>handleKeyDown(e)}
-                                                                disabled={(currentStatus && !edit)}
-                                                                /></td>
-                                                    <td><input
-                                                                value ={cghlPoint[`magnet_${mainItems}`][`p${items}_1`] ? cghlPoint[`magnet_${mainItems}`][`p${items}_3`]:''}
-                                                                type='number'
-                                                                onChange={(e)=>{setCghlPoint(`magnet_${mainItems}`,{
-                                                                    ...cghlPoint[`magnet_${mainItems}`],[`p${items}_3`]:e.target.value
-                                                                })}}
-                                                                onKeyDown={(e)=>handleKeyDown(e)}
-                                                                disabled={(currentStatus && !edit)}
-                                                                /></td>
-
-                                                    <td
-                                                        className={judgement[mainItems] && judgement[mainItems][items][`p${items}_1_color`] ?  judgement[mainItems][items][`p${items}_1_color`]:''}
-                                                        >
-                                                        {judgement[mainItems] && judgement[mainItems][items][`p${items}_1`] ?  judgement[mainItems][items][`p${items}_1`]:''}
-                                                    </td>
-
-                                                    <td className={judgement[mainItems] && judgement[mainItems][items][`p${items}_2_color`] ?  judgement[mainItems][items][`p${items}_2_color`]:''}
-                                                        >
-                                                        {judgement[mainItems] && judgement[mainItems][items][`p${items}_2`] ?  judgement[mainItems][items][`p${items}_2`]:''}
-                                                    </td>
-
-                                                    <td className={judgement[mainItems] && judgement[mainItems][items][`p${items}_3_color`] ?  judgement[mainItems][items][`p${items}_3_color`]:''}
-                                                        >
-                                                        {judgement[mainItems] && judgement[mainItems][items][`p${items}_3`] ?  judgement[mainItems][items][`p${items}_3`]:''}
-                                                    </td>
-
-                                                    <td className={judgement[mainItems] && judgement[mainItems][items][`piece_color`] ?  judgement[mainItems][items][`piece_color`]:''}>
-                                                        {judgement[mainItems] && judgement[mainItems][items][`piece`] ?  judgement[mainItems][items][`piece`]:''}
-                                                    </td>
-
-                                                    <td style={{ width:'10rem'}} className={judgement[mainItems] && judgement[mainItems][items][`status_color`] && judgement[mainItems][items][`status`]?  judgement[mainItems][items][`status_color`]:''}>
-                                                        {judgement[mainItems] && judgement[mainItems][items][`status`] ?  judgement[mainItems][items][`status`]:''}
-                                                    </td>
-
-                                                    <td  className={judgement[mainItems] && judgement[mainItems][items]['min'] ? judgement[mainItems] && judgement[mainItems][items]['min_color']:null}
-                                                    >{judgement[mainItems] && judgement[mainItems][items]['min'] ?  judgement[mainItems][items][`min`]:''}</td>
-
-                                                    <td  className={judgement[mainItems] && judgement[mainItems][items]['max_color'] ? judgement[mainItems][items]['max_color']:null}
-                                                    >{judgement[mainItems] && judgement[mainItems][items]['max'] ?  judgement[mainItems][items][`max`]:''}</td>
-
-                                                    <td style={{ fontWeight:'bold', fontStyle:'italic' ,width:'10rem', textDecoration: 'underline'}} className={judgement[mainItems] && judgement[mainItems][items]['remarks'] ? "success-theme":null }>
-                                                        {
-                                                            judgement[mainItems] && judgement[mainItems][items]['remarks'] ?  judgement[mainItems][items][`remarks`]:
-                                                            <input
-                                                                value={cghlPoint[`magnet_${mainItems}`][`remarks`]?cghlPoint[`magnet_${mainItems}`][`remarks`]:null}
-                                                                onChange={(e)=>{setCghlPoint(`magnet_${mainItems}`,{
-                                                                    ...cghlPoint[`magnet_${mainItems}`],[`remarks`]:e.target.value
-                                                                })}}
-                                                                onKeyDown={(e)=>handleKeyDown(e)}
-                                                                disabled={(currentStatus && !edit)}
-                                                                style={{ width:'10rem' }}/>
-                                                        }
-                                                    </td>
-
-                                                    <td className={judgement[mainItems] && judgement[mainItems][items][`worst_color`] ?  judgement[mainItems][items][`worst_color`]:''}
-                                                    >{judgement[mainItems] && judgement[mainItems][items]['worst'] ?  judgement[mainItems][items][`worst`]:''}</td>
-                                                </tr>
-                                            )
-                                        })
-                                    )
-
-                                 })
-
-                            }
-
-                        </tbody>
-                    </table>
-                </div>
-
-                <div>
-                    <h1>Measuring Tools</h1>
-                    <div className="container-row" style={{  margin:'0rem' , marginBottom:'1rem'}}>
-                        <div className="details-container-white-row">
-                            <div className="container-column">
-                                <div className="container-row-between">
-                                    <label>Form Gauge Serial No.</label>
-                                    <input value={cghTools.form_gauge?cghTools.form_gauge:''} style={{ width:'10rem' }} onChange={(e)=>setCghTools('form_gauge',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus && !edit)}/>
-                                </div>
-                                <div className="container-row-between">
-                                    <label>n=9</label>
-                                    <input value={cghTools.form_n9?cghTools.form_n9:''}  style={{ width:'10rem' }} onChange={(e)=>setCghTools('form_n9',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus && !edit)}/>
-                                </div>
-                                <div className="container-row-between">
-                                    <label>Sorted By:</label>
-                                    <input value={cghTools.form_sorted?cghTools.form_sorted:''}  style={{ width:'10rem' }} onChange={(e)=>setCghTools('form_sorted',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus && !edit)}/>
-                                </div>
-                                <div className="container-row-between">
-                                    <label>Remarks:</label>
-                                    <input value={cghTools.form_remarks?cghTools.form_remarks:''}  style={{ width:'10rem' }} onChange={(e)=>setCghTools('form_remarks',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus && !edit)}/>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="details-container-white-row">
-                            <div className="container-column">
-                                <div className="container-row-between">
-                                    <label>Go/No Go Jig Serial No.:</label>
-                                    <input value={cghTools.go_serial?cghTools.go_serial:''}  style={{ width:'10rem' }} onChange={(e)=>setCghTools('go_serial',e.target.value)}  onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus && !edit)}/>
-                                </div>
-                                <div className="container-row-between">
-                                    <label>Go/No Go Jig Validation:</label>
-                                    <input value={cghTools.go_validation?cghTools.go_validation:''}  style={{ width:'10rem' }} onChange={(e)=>setCghTools('go_validation',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus && !edit)}/>
-                                </div>
-                                <div className="container-row-between">
-                                    <label>n=9</label>
-                                    <input value={cghTools.go_n9?cghTools.go_n9:''}  style={{ width:'10rem' }} onChange={(e)=>setCghTools('go_n9',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus && !edit)}/>
-                                </div>
-                                <div className="container-row-between">
-                                    <label>Sorted By:</label>
-                                    <input value={cghTools.go_sorted?cghTools.go_sorted:''}  style={{ width:'10rem' }} onChange={(e)=>setCghTools('go_sorted',e.target.value)} onKeyDown={(e)=>handleKeyDown(e)} disabled={(currentStatus && !edit)}/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <h1>SPC Control</h1>
-                    <div className="details-container-white-row">
-                        <div className="container-column">
-                            <div className="container-row-between">
-                                <label>Average</label>
-                                <input value={SPCControlls.average ? SPCControlls.average.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div className="container-row-between">
-                                <label>Maximum</label>
-                                <input value={SPCControlls.max ? SPCControlls.max.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div style={{ width:'10rem'}} className="container-row-between">
-                                <label>Minimum</label>
-                                <input value={SPCControlls.min ? SPCControlls.min.toFixed(3):null} disabled={true}/>
-                            </div>
-                        </div>
-                        <div className="container-column">
-                            <div style={{ width:'10rem'}} className="container-row-between">
-                                <label>Stdev</label>
-                                <input  value={SPCControlls.stdev ? SPCControlls.stdev.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div className="container-row-between">
-                                <label>Cp</label>
-                                <input value={SPCControlls.cp ? SPCControlls.cp.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div className="container-row-between">
-                                <label>Cpl</label>
-                                <input value={SPCControlls.cpl ? SPCControlls.cpl.toFixed(3):null} disabled={true}/>
-                            </div>
-                        </div>
-                        <div className="container-column">
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>Cpu</label>
-                                <input value={SPCControlls.cpu ? SPCControlls.cpu.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div className="container-row-between">
-                                <label>Cpk</label>
-                                <input value={SPCControlls.cpk ? SPCControlls.cpk.toFixed(3):null} disabled={true}/>
-                            </div>
-                        </div>
-                        <div className="container-column">
-                            <div className="container-row-between" style={{ fontWeight:'bold' }}>X Control</div>
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>UCL</label>
-                                <input value={SPCControlls.ucl ? SPCControlls.ucl.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>CL</label>
-                                <input value={SPCControlls.cl ? SPCControlls.cl.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>LCL</label>
-                                <input value={SPCControlls.lcl ? SPCControlls.lcl.toFixed(3):null} disabled={true}/>
-                            </div>
-                        </div>
-                        <div className="container-column">
-                            <div className="container-row-between" style={{ fontWeight:'bold' }}>R Control</div>
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>UCL</label>
-                                <input value={SPCControlls.r_ucl ? SPCControlls.r_ucl.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>CL</label>
-                                <input value={SPCControlls.average_UCL ? SPCControlls.average_UCL.toFixed(3):null} disabled={true}/>
-                            </div>
-                        </div>
-                        <div className="container-column">
-                            <div className="container-row-between" style={{ fontWeight:'bold' }}>SPC Control</div>
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>σ</label>
-                                 <input value={SPCControlls.all_ucl ? SPCControlls.all_ucl.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>CL</label>
-                                <input value={SPCControlls.all_cl ? SPCControlls.all_cl.toFixed(3):null} disabled={true}/>
-                            </div>
-                            <div  style={{ width:'10rem'}} className="container-row-between">
-                                <label>CPK</label>
-                                <input value={SPCControlls.all_cpk ? SPCControlls.all_cpk.toFixed(3):null} disabled={true}/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="container-column">
-                    <h1>Dimension Graph</h1>
-                    <div className="container-row" style={{  margin:'0rem'}}>
-                        <div>
-                            <GraphControlX 
-                                XAverage={XAverage} 
-                                max={currentModelState && currentModelState.max?.[om_specs]  ?currentModelState.max?.[om_specs]:null} 
-                                min={currentModelState && currentModelState.min?.[om_specs]  ?currentModelState.min?.[om_specs]:null} 
-                                target={currentModelState && currentModelState.target?.[om_specs]  ?currentModelState.target?.[om_specs]:null} />
-                        </div>
-                        <div>
-                            <GraphControlR data={allRaverage} min={SPCControlls.r_ucl} max={SPCControlls.average_UCL}/>
-                        </div>
-                    </div>
-                    {
-                        currentModel.perpendicularity && Number (currentModel.perpendicularity) > 0 && 
-                        <div className="container-row" style={{  margin:'0rem'}}>
-                            <div>
-                                <CountingGraph 
-                                    process={'cghl'} 
-                                    specification={'Perpendicularity'} 
-                                    max={currentModelState && currentModelState.max?.[om_specs] ? currentModelState.max?.[om_specs]:null} 
-                                    min={currentModelState && currentModelState.min?.[om_specs] ? currentModelState.min?.[om_specs]:null} 
-                                    perpendicularity={currentModelState && currentModelState.perpen?.[om_specs] ? currentModelState.perpen?.[om_specs]:null} 
-                                    maxperpen={currentModelState && currentModelState.perpen?.[om_specs] ? currentModelState.perpen?.[om_specs]:null} 
-                                />
-                            </div>
-                        </div>
-                    }
-                </div>
+            <div className="container-row">
+                <button onClick={() => setTableOption('masspro')} className="view-button" >Masspro</button>
+                <button onClick={() => setTableOption('adjust')} className="view-button" >Adjust</button>
             </div>
+            {
+                tableOption === 'masspro' ?
+                    <div>
+                        <h1>{cghlDetails.model ?? '404 error'}&nbsp;{currentModelState && currentModelState.specs?.[om_specs] ? currentModelState.specs?.[om_specs] : null}&nbsp;DIMENSION MONITORING</h1>
+                        <div className="details-container-white">
+                            <div>
+                                <h1>CGH {currentModelState && currentModelState.specs?.[om_specs] ? currentModelState.specs?.[om_specs] : null}&nbsp;Specification</h1>
+                                <p><strong style={{ fontWeight: 'bold' }}>Maximum:</strong>&nbsp;{currentModelState && currentModelState.max?.[om_specs] ? currentModelState.max?.[om_specs] : null}&nbsp;&nbsp;<strong style={{ fontWeight: 'bold' }}>Target:</strong>&nbsp;{currentModelState && currentModelState.target?.[om_specs] ? currentModelState.target?.[om_specs] : null}&nbsp;<strong style={{ fontWeight: 'bold' }}>Minimum:</strong>&nbsp;{currentModelState && currentModelState.min?.[om_specs] ? currentModelState.min?.[om_specs] : null}</p>
+
+                            </div>
+                            <table className="measuring-table">
+                                <thead>
+                                    <tr>
+                                        <th colSpan={2} rowSpan={2}>S/N</th>
+                                        <th colSpan={3}>DATA</th>
+                                        <th colSpan={3}>JUDGEMENT</th>
+                                        <th rowSpan={2}>JUDEMENT per PIECE</th>
+                                        <th rowSpan={2}>STATUS</th>
+                                        <th rowSpan={2} style={{ width: '5rem' }}>MIN</th>
+                                        <th rowSpan={2} style={{ width: '5rem' }}>MAX</th>
+                                        <th rowSpan={2}>REMARKS</th>
+                                        <th rowSpan={2}>WORST <button class="copy-btn" onClick={(e) => copyPaste(judgement["all_worst"])}>Copy</button></th>
+                                    </tr>
+                                    <tr>
+                                        <th>Pt.1</th>
+                                        <th>Pt.2</th>
+                                        <th>Pt.3</th>
+                                        <th style={{ width: '4rem' }}>Pt.1</th>
+                                        <th style={{ width: '4rem' }}>Pt.2</th>
+                                        <th style={{ width: '4rem' }}>Pt.3</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    {
+                                        numberThree.map(mainItems => {
+
+                                            return (
+                                                numberThree.map(items => {
+                                                    console.log('ITEMSS: ', mainItems, items, judgement);
+                                                    magnet.current += 1
+                                                    return (
+                                                        <tr style={{ background: mainItems === 1 ? '#EFF6FF' : mainItems === 2 ? '#FEFCE8' : '#FFF3E6', height: '3rem' }}>
+                                                            {
+                                                                items === 1 &&
+                                                                <td rowSpan={3} >
+                                                                    <h1 style={{ color: '#3b4e68' }}>{title[mainItems - 1]}</h1>
+                                                                    <div className="histogram-btn">
+                                                                        <button onClick={() => handlePartUpdate({ points: cghlPoint, om_specs: currentModelState && currentModelState.specs?.[om_specs] ? currentModelState.specs?.[om_specs] : null, process_number: om_specs, perpendicularity: {} }, 'cghl')} className="status-btn" disabled={(currentStatus && !edit)}>Save</button>
+                                                                        <button onClick={() => setHistogram({ title: '(T~L)PERPENDICULARITY MONITORING', timing: title[mainItems - 1], point: 2, hfp: 'p', status: (currentStatus && !edit) })} className="status-btn" >Histogram</button>
+                                                                    </div>
+                                                                </td>
+                                                            }
+                                                            <td>{magnet.current}</td>
+                                                            <td><input
+                                                                value={cghlPoint[`magnet_${mainItems}`][`p${items}_1`] ? cghlPoint[`magnet_${mainItems}`][`p${items}_1`] : ''}
+                                                                type='number'
+                                                                onChange={(e) => {
+                                                                    setCghlPoint(`magnet_${mainItems}`, {
+                                                                        ...cghlPoint[`magnet_${mainItems}`], [`p${items}_1`]: e.target.value
+                                                                    })
+                                                                }}
+                                                                onKeyDown={(e) => handleKeyDown(e)}
+                                                                disabled={(currentStatus && !edit)}
+                                                            /></td>
+                                                            <td><input
+                                                                value={cghlPoint[`magnet_${mainItems}`][`p${items}_1`] ? cghlPoint[`magnet_${mainItems}`][`p${items}_2`] : ''}
+                                                                type='number'
+                                                                onChange={(e) => {
+                                                                    setCghlPoint(`magnet_${mainItems}`, {
+                                                                        ...cghlPoint[`magnet_${mainItems}`], [`p${items}_2`]: e.target.value
+                                                                    })
+                                                                }}
+                                                                onKeyDown={(e) => handleKeyDown(e)}
+                                                                disabled={(currentStatus && !edit)}
+                                                            /></td>
+                                                            <td><input
+                                                                value={cghlPoint[`magnet_${mainItems}`][`p${items}_1`] ? cghlPoint[`magnet_${mainItems}`][`p${items}_3`] : ''}
+                                                                type='number'
+                                                                onChange={(e) => {
+                                                                    setCghlPoint(`magnet_${mainItems}`, {
+                                                                        ...cghlPoint[`magnet_${mainItems}`], [`p${items}_3`]: e.target.value
+                                                                    })
+                                                                }}
+                                                                onKeyDown={(e) => handleKeyDown(e)}
+                                                                disabled={(currentStatus && !edit)}
+                                                            /></td>
+
+                                                            <td
+                                                                className={judgement[mainItems] && judgement[mainItems][items][`p${items}_1_color`] ? judgement[mainItems][items][`p${items}_1_color`] : ''}
+                                                            >
+                                                                {judgement[mainItems] && judgement[mainItems][items][`p${items}_1`] ? judgement[mainItems][items][`p${items}_1`] : ''}
+                                                            </td>
+
+                                                            <td className={judgement[mainItems] && judgement[mainItems][items][`p${items}_2_color`] ? judgement[mainItems][items][`p${items}_2_color`] : ''}
+                                                            >
+                                                                {judgement[mainItems] && judgement[mainItems][items][`p${items}_2`] ? judgement[mainItems][items][`p${items}_2`] : ''}
+                                                            </td>
+
+                                                            <td className={judgement[mainItems] && judgement[mainItems][items][`p${items}_3_color`] ? judgement[mainItems][items][`p${items}_3_color`] : ''}
+                                                            >
+                                                                {judgement[mainItems] && judgement[mainItems][items][`p${items}_3`] ? judgement[mainItems][items][`p${items}_3`] : ''}
+                                                            </td>
+
+                                                            <td className={judgement[mainItems] && judgement[mainItems][items][`piece_color`] ? judgement[mainItems][items][`piece_color`] : ''}>
+                                                                {judgement[mainItems] && judgement[mainItems][items][`piece`] ? judgement[mainItems][items][`piece`] : ''}
+                                                            </td>
+
+                                                            <td style={{ width: '10rem' }} className={judgement[mainItems] && judgement[mainItems][items][`status_color`] && judgement[mainItems][items][`status`] ? judgement[mainItems][items][`status_color`] : ''}>
+                                                                {judgement[mainItems] && judgement[mainItems][items][`status`] ? judgement[mainItems][items][`status`] : ''}
+                                                            </td>
+
+                                                            <td className={judgement[mainItems] && judgement[mainItems][items]['min'] ? judgement[mainItems] && judgement[mainItems][items]['min_color'] : null}
+                                                            >{judgement[mainItems] && judgement[mainItems][items]['min'] ? judgement[mainItems][items][`min`] : ''}</td>
+
+                                                            <td className={judgement[mainItems] && judgement[mainItems][items]['max_color'] ? judgement[mainItems][items]['max_color'] : null}
+                                                            >{judgement[mainItems] && judgement[mainItems][items]['max'] ? judgement[mainItems][items][`max`] : ''}</td>
+
+                                                            <td style={{ fontWeight: 'bold', fontStyle: 'italic', width: '10rem', textDecoration: 'underline' }} className={judgement[mainItems] && judgement[mainItems][items]['remarks'] ? "success-theme" : null}>
+                                                                {
+                                                                    judgement[mainItems] && judgement[mainItems][items]['remarks'] ? judgement[mainItems][items][`remarks`] :
+                                                                        <input
+                                                                            value={cghlPoint[`magnet_${mainItems}`][`remarks`] ? cghlPoint[`magnet_${mainItems}`][`remarks`] : null}
+                                                                            onChange={(e) => {
+                                                                                setCghlPoint(`magnet_${mainItems}`, {
+                                                                                    ...cghlPoint[`magnet_${mainItems}`], [`remarks`]: e.target.value
+                                                                                })
+                                                                            }}
+                                                                            onKeyDown={(e) => handleKeyDown(e)}
+                                                                            disabled={(currentStatus && !edit)}
+                                                                            style={{ width: '10rem' }} />
+                                                                }
+                                                            </td>
+
+                                                            <td className={judgement[mainItems] && judgement[mainItems][items][`worst_color`] ? judgement[mainItems][items][`worst_color`] : ''}
+                                                            >{judgement[mainItems] && judgement[mainItems][items]['worst'] ? judgement[mainItems][items][`worst`] : ''}</td>
+                                                        </tr>
+                                                    )
+                                                })
+                                            )
+
+                                        })
+
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <h1>Measuring Tools</h1>
+                            <div className="container-row" style={{ margin: '0rem', marginBottom: '1rem' }}>
+                                <div className="details-container-white-row">
+                                    <div className="container-column">
+                                        <div className="container-row-between">
+                                            <label>Form Gauge Serial No.</label>
+                                            <input value={cghTools.form_gauge ? cghTools.form_gauge : ''} style={{ width: '10rem' }} onChange={(e) => setCghTools('form_gauge', e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={(currentStatus && !edit)} />
+                                        </div>
+                                        <div className="container-row-between">
+                                            <label>n=9</label>
+                                            <input value={cghTools.form_n9 ? cghTools.form_n9 : ''} style={{ width: '10rem' }} onChange={(e) => setCghTools('form_n9', e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={(currentStatus && !edit)} />
+                                        </div>
+                                        <div className="container-row-between">
+                                            <label>Sorted By:</label>
+                                            <input value={cghTools.form_sorted ? cghTools.form_sorted : ''} style={{ width: '10rem' }} onChange={(e) => setCghTools('form_sorted', e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={(currentStatus && !edit)} />
+                                        </div>
+                                        <div className="container-row-between">
+                                            <label>Remarks:</label>
+                                            <input value={cghTools.form_remarks ? cghTools.form_remarks : ''} style={{ width: '10rem' }} onChange={(e) => setCghTools('form_remarks', e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={(currentStatus && !edit)} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="details-container-white-row">
+                                    <div className="container-column">
+                                        <div className="container-row-between">
+                                            <label>Go/No Go Jig Serial No.:</label>
+                                            <input value={cghTools.go_serial ? cghTools.go_serial : ''} style={{ width: '10rem' }} onChange={(e) => setCghTools('go_serial', e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={(currentStatus && !edit)} />
+                                        </div>
+                                        <div className="container-row-between">
+                                            <label>Go/No Go Jig Validation:</label>
+                                            <input value={cghTools.go_validation ? cghTools.go_validation : ''} style={{ width: '10rem' }} onChange={(e) => setCghTools('go_validation', e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={(currentStatus && !edit)} />
+                                        </div>
+                                        <div className="container-row-between">
+                                            <label>n=9</label>
+                                            <input value={cghTools.go_n9 ? cghTools.go_n9 : ''} style={{ width: '10rem' }} onChange={(e) => setCghTools('go_n9', e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={(currentStatus && !edit)} />
+                                        </div>
+                                        <div className="container-row-between">
+                                            <label>Sorted By:</label>
+                                            <input value={cghTools.go_sorted ? cghTools.go_sorted : ''} style={{ width: '10rem' }} onChange={(e) => setCghTools('go_sorted', e.target.value)} onKeyDown={(e) => handleKeyDown(e)} disabled={(currentStatus && !edit)} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h1>SPC Control</h1>
+                            <div className="details-container-white-row">
+                                <div className="container-column">
+                                    <div className="container-row-between">
+                                        <label>Average</label>
+                                        <input value={SPCControlls.average ? SPCControlls.average.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div className="container-row-between">
+                                        <label>Maximum</label>
+                                        <input value={SPCControlls.max ? SPCControlls.max.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>Minimum</label>
+                                        <input value={SPCControlls.min ? SPCControlls.min.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                </div>
+                                <div className="container-column">
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>Stdev</label>
+                                        <input value={SPCControlls.stdev ? SPCControlls.stdev.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div className="container-row-between">
+                                        <label>Cp</label>
+                                        <input value={SPCControlls.cp ? SPCControlls.cp.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div className="container-row-between">
+                                        <label>Cpl</label>
+                                        <input value={SPCControlls.cpl ? SPCControlls.cpl.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                </div>
+                                <div className="container-column">
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>Cpu</label>
+                                        <input value={SPCControlls.cpu ? SPCControlls.cpu.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div className="container-row-between">
+                                        <label>Cpk</label>
+                                        <input value={SPCControlls.cpk ? SPCControlls.cpk.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                </div>
+                                <div className="container-column">
+                                    <div className="container-row-between" style={{ fontWeight: 'bold' }}>X Control</div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>UCL</label>
+                                        <input value={SPCControlls.ucl ? SPCControlls.ucl.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>CL</label>
+                                        <input value={SPCControlls.cl ? SPCControlls.cl.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>LCL</label>
+                                        <input value={SPCControlls.lcl ? SPCControlls.lcl.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                </div>
+                                <div className="container-column">
+                                    <div className="container-row-between" style={{ fontWeight: 'bold' }}>R Control</div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>UCL</label>
+                                        <input value={SPCControlls.r_ucl ? SPCControlls.r_ucl.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>CL</label>
+                                        <input value={SPCControlls.average_UCL ? SPCControlls.average_UCL.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                </div>
+                                <div className="container-column">
+                                    <div className="container-row-between" style={{ fontWeight: 'bold' }}>SPC Control</div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>σ</label>
+                                        <input value={SPCControlls.all_ucl ? SPCControlls.all_ucl.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>CL</label>
+                                        <input value={SPCControlls.all_cl ? SPCControlls.all_cl.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                    <div style={{ width: '10rem' }} className="container-row-between">
+                                        <label>CPK</label>
+                                        <input value={SPCControlls.all_cpk ? SPCControlls.all_cpk.toFixed(3) : null} disabled={true} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="container-column">
+                            <h1>Dimension Graph</h1>
+                            <div className="container-row" style={{ margin: '0rem' }}>
+                                <div>
+                                    <GraphControlX
+                                        XAverage={XAverage}
+                                        max={currentModelState && currentModelState.max?.[om_specs] ? currentModelState.max?.[om_specs] : null}
+                                        min={currentModelState && currentModelState.min?.[om_specs] ? currentModelState.min?.[om_specs] : null}
+                                        target={currentModelState && currentModelState.target?.[om_specs] ? currentModelState.target?.[om_specs] : null} />
+                                </div>
+                                <div>
+                                    <GraphControlR data={allRaverage} min={SPCControlls.r_ucl} max={SPCControlls.average_UCL} />
+                                </div>
+                            </div>
+                            {
+                                currentModel.perpendicularity && Number(currentModel.perpendicularity) > 0 &&
+                                <div className="container-row" style={{ margin: '0rem' }}>
+                                    <div>
+                                        <CountingGraph
+                                            process={'cghl'}
+                                            specification={'Perpendicularity'}
+                                            max={currentModelState && currentModelState.max?.[om_specs] ? currentModelState.max?.[om_specs] : null}
+                                            min={currentModelState && currentModelState.min?.[om_specs] ? currentModelState.min?.[om_specs] : null}
+                                            perpendicularity={currentModelState && currentModelState.perpen?.[om_specs] ? currentModelState.perpen?.[om_specs] : null}
+                                            maxperpen={currentModelState && currentModelState.perpen?.[om_specs] ? currentModelState.perpen?.[om_specs] : null}
+                                        />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                :tableOption === 'adjust' ?
+                    <AdjustmentForm 
+                        adjustmentDetails={adjustmentDetails}
+                        setAdjustmentDetails={setAdjustmentDetails}
+                        handleKeyDown={handleKeyDown}
+                        details={details}
+                        batch_number={batch_number}
+                        id={id}
+                        adjustmentReset={adjustmentReset}
+                        adjustmentSubmit={adjustmentSubmit}
+                        adjustment={adjustment}
+                    />   
+                : null
+            }
+
         </>
     )
 }

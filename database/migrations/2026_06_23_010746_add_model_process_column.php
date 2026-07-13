@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('logs', function (Blueprint $table) {
             $table->string('action')->nullable();
+            $table->string('model')->nullable();
+            $table->string('process')->nullable();
         });
     }
 

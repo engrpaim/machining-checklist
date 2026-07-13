@@ -29,8 +29,8 @@ export default function Measure() {
      *
      *
      * **/
-    const { modelsList, flash, modal, current_lot, batches, existing, model , copy_batch , GoToProcess, GoToModel ,omList} = usePage().props;
-    console.log('Props', flash, modal, current_lot, existing, 'Models: ', model,'Details: ',copy_batch , ' Go to:',GoToProcess, GoToModel,'OM LIST:',omList );
+    const { modelsList, flash, modal, current_lot, batches, existing, model , copy_batch , GoToProcess, GoToModel ,omList,adjustment} = usePage().props;
+    console.log('Props', flash, modal, current_lot, existing, 'Models: ', model,'Details: ',copy_batch , ' Go to:',GoToProcess, GoToModel,'OM LIST:',omList ,'adjustmentxx' , adjustment);
 
     const [modelState, setModelState] = useState(null);
     const [processState, setProcessState] = useState(null);
@@ -51,7 +51,7 @@ export default function Measure() {
     const [copyBatchDetails ,setCopyBatchDetails] = useState(false);
     const [histogram,setHistogram] = useState(false);
     const [omListState , setOmListState] = useState(omList ? JSON.parse(omList):null);
-
+    
     console.log('OM STATE:' , omListState);
     //Notification
     const [flashNotification , setFlashNotification] = useState(false);
@@ -59,8 +59,8 @@ export default function Measure() {
     console.log('type chamfer: ', currentModel.chamfer_type);
 
     const alloweAble = {
-        barelling: { preparing: 4,om:'barelling_om_specs'},
-        cghl:{preparing:4,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
+        barelling: {preparing:1,om:'barelling_om_specs'},
+        cghl:{preparing:2,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
         lapping:{preparing:0,om:'lapping_om_specs'},
         slicing:{preparing:8,om:'slicing_om_specs'},
     }
@@ -176,7 +176,7 @@ export default function Measure() {
     })
 
     const {data:perpenCghlThickness, setData:setPerpenCghlThickness , reset:resetPerpenCghlThickness}=useForm({
-        1:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
+        1:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_boadjustmentDetailsttom:'',pt5_bottom:''},
         2:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
         3:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
         4:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
@@ -240,11 +240,12 @@ export default function Measure() {
     const {data:slicingMassPro , setData:setSlicingMassPro , processing: slicingMassproProcessing, reset:slicingMassProReset}=useForm({})
     const {data:slicingPerpenD , setData:setSlicingPerpenD , processing: slicingPerpenDProcessing, reset:slicingPerpenDReset}=useForm({})
     const {data:slicingParallelism , setData:setSlicingParallelism , processing: slicingParallelismProcessing, reset:slicingParallelismReset}=useForm({})
+    const {data:adjustmentDetails , setData:setAdjustmentDetails , processing: AdjustmentDetailsProcessing, reset:adjustmentReset }=useForm({ operator:'',machine:''})
 
     const handleCloseModal = () => {
         setTriModal(false);
     }
-
+   
     const handleCheck = () => {
         setLoading(true);
         setStatusCheck(processState.process);
@@ -759,10 +760,12 @@ export default function Measure() {
         slicingMassProReset();
         slicingParallelismReset();
         slicingPerpenDReset();
+        adjustmentReset();
     }
 
     const handleClear = () => {
         reset()
+        adjustmentReset();
         processForm?.reset()
         processForm?.subreset()
         processForm?.resetPoints()
@@ -783,8 +786,28 @@ export default function Measure() {
         slicingPerpenDReset();
     }
 
+     const adjustmentSubmit =async(adjustmentDetails ,addAdjustment , currentSpecs,setAddAdjustmentButton)=>{
+
+        if(adjustmentDetails && Object.keys(adjustmentDetails).length <= 0) return;
+
+        try{
+            await router.post('/machining-checklist/measure/adjustment' ,{ adjustment:adjustmentDetails ,details:addAdjustment, specs:currentSpecs } ,
+                                 { 
+                                    preserveScroll:true ,
+                                  
+                                   onSuccess:()=>{
+                                        adjustmentReset()
+                                       console.log('must be reset')
+                                    }
+                                 })
+        }catch(err){
+            console.error(err)
+        }
+    }
+
     useEffect(() => {
         //return data for update
+     
         setProcessFromCount(false)
         setTimeout(() => {
             setLoading(false)
@@ -858,6 +881,7 @@ export default function Measure() {
            convertedData.parallelism && Object.entries(convertedData.parallelism).map(([key, values]) => {
                setSlicingParallelism(key,values);
             })
+       
         } 
 
     }, [existing])
@@ -1168,6 +1192,15 @@ export default function Measure() {
                                         handlePartUpdate={handlePartUpdate}
                                         perpenCghlThickness={perpenCghlThickness}
                                         om_specs={data && data.process_number ? data.process_number:null}
+                                        adjustmentDetails={adjustmentDetails}
+                                        setAdjustmentDetails={setAdjustmentDetails}
+                                        details={data}
+                                        batch_number={cghlDetails["batch_number"] ?? null}
+                                        id={cghlDetails["datalist_id"] ?? null}
+                                        adjustmentReset={adjustmentReset}
+                                        adjustmentSubmit={adjustmentSubmit}
+                                        adjustment={adjustment}
+                                        
                                     />
                             : statusCheck && modelState && processState && processState.process === 'lapping' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
                                     <LappingData  
@@ -1181,6 +1214,14 @@ export default function Measure() {
                                         setHfpData={setHfpData}
                                         process={processState.process??processState.process}
                                         om_specs={data && data.process_number ? data.process_number:null}
+                                        adjustmentReset={adjustmentReset}
+                                        adjustmentSubmit={adjustmentSubmit}
+                                        adjustment={adjustment}
+                                        batch_number={lappingForm["batch_number"] ?? null}
+                                        id={lappingForm["datalist_id"] ?? null}
+                                        details={data}
+                                        setAdjustmentDetails={setAdjustmentDetails}
+                                        adjustmentDetails={adjustmentDetails}
                                     />
                         :statusCheck &&  modelState && processState && processState.process === 'slicing' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
                             <SlicingMeasuring 
@@ -1200,6 +1241,14 @@ export default function Measure() {
                                 processing={slicingProcessing}
                                 slicing_om_specs={currentModel && currentModel.slicing_om_specs ?currentModel.slicing_om_specs:null}
                                 om_specs={data && data.process_number ? data.process_number:null}
+                                adjustmentDetails={adjustmentDetails}
+                                setAdjustmentDetails={setAdjustmentDetails}
+                                details={data}
+                                batch_number={slicingDetails["batch_number"] ?? null}
+                                id={slicingDetails["datalist_id"] ?? null}
+                                adjustmentReset={adjustmentReset}
+                                adjustmentSubmit={adjustmentSubmit}
+                                adjustment={adjustment}
                             />
                         :null
                     }
@@ -1279,6 +1328,14 @@ export default function Measure() {
                                         handlePartUpdate={handlePartUpdate}
                                         perpenCghlThickness={perpenCghlThickness}
                                         om_specs={data && data.process_number ? data.process_number:null}
+                                        adjustmentDetails={adjustmentDetails}
+                                        setAdjustmentDetails={setAdjustmentDetails}
+                                        details={data}
+                                        batch_number={cghlDetails["batch_number"] ?? null}
+                                        id={cghlDetails["datalist_id"] ?? null}
+                                        adjustmentReset={adjustmentReset}
+                                        adjustmentSubmit={adjustmentSubmit}
+                                        adjustment={adjustment}
                                     />
                                 </>
                             : statusCheck && modelState && processState && processState.process === 'lapping' && processForm?.details["status"] === 'approved' ?
@@ -1301,6 +1358,16 @@ export default function Measure() {
                                         setHfpData={setHfpData}
                                         process={processState.process??processState.process}
                                         om_specs={data && data.process_number ? data.process_number:null}
+                                        adjustmentReset={adjustmentReset}
+                                        adjustmentSubmit={adjustmentSubmit}
+                                        adjustment={adjustment}
+                                        batch_number={lappingForm["batch_number"] ?? null}
+                                        id={lappingForm["datalist_id"] ?? null}
+                                        details={data}
+                                        adjustmentDetails={adjustmentDetails}
+                                        setAdjustmentDetails={setAdjustmentDetails}
+                                   
+                                        
                                     />
                                 </div>
                             :statusCheck &&  modelState && processState && processState.process === 'slicing' && processForm?.details["status"] === 'approved'  ?
@@ -1330,6 +1397,14 @@ export default function Measure() {
                                         processing={slicingProcessing}
                                         slicing_om_specs={currentModel && currentModel.slicing_om_specs ?currentModel.slicing_om_specs:null}
                                         om_specs={data && data.process_number ? data.process_number:null}
+                                        adjustmentDetails={adjustmentDetails}
+                                        setAdjustmentDetails={setAdjustmentDetails}
+                                        batch_number={slicingDetails["batch_number"] ?? null}
+                                        id={slicingDetails["datalist_id"] ?? null}
+                                        adjustmentReset={adjustmentReset}
+                                        adjustmentSubmit={adjustmentSubmit}
+                                        adjustment={adjustment}
+                                        details={data}
                                     />
                                 </div>
                             :null

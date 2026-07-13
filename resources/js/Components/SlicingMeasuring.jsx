@@ -3,24 +3,26 @@ import MassProRow from "./MassProRow";
 import SlicingHFP from "./SlicingPerpenD";
 import SlicingParallelism from "./SlicingParallelism";
 import CountingGraph from "./CountingGraph";
-export default function SlicingMeasuring({data,setdata,handleKeyDown,points,statusNow,edit,processing,perpenD,setPerpenD,parallelism,setParallelism,jig,row,layer,slicing_om_specs,om_specs}){
+import AdjustmentForm from "./AdjustmentForm";
+export default function SlicingMeasuring({data,setdata,handleKeyDown,points,statusNow,edit,processing,perpenD,setPerpenD,parallelism,setParallelism,jig,row,layer,slicing_om_specs,om_specs,adjustmentDetails,setAdjustmentDetails,details,batch_number,id,adjustmentReset,adjustmentSubmit,adjustment}){
     const [tableOption,setTableOption] = useState('masspro');
     const [currentStatus, setCurrentStatus] = useState(null);
-            const toDisabled = ['prepared', 'measured', 'approved']
-            useEffect(() => {
-                const status = statusNow
-                const allowed = toDisabled.includes(status) ? true : false
-                setCurrentStatus(allowed);
-            }, [statusNow]);
-            console.log(statusNow);
+    const toDisabled = ['prepared', 'measured', 'approved']
+    useEffect(() => {
+        const status = statusNow
+        const allowed = toDisabled.includes(status) ? true : false
+        setCurrentStatus(allowed);
+    }, [statusNow]);
+    console.log(statusNow);
     const [slicingState, setSlicingState] = useState(slicing_om_specs ? JSON.parse(slicing_om_specs):null)
-    console.log('SLICING: ',slicingState ,om_specs);
+    console.log('SLICING: ',slicingState ,om_specs,data,details);
     return(
         <div>
             <div className="container-row">
                 <button onClick={()=>setTableOption('masspro')} className="view-button" >Masspro</button>
                 <button onClick={()=>setTableOption('perpen')}  className="view-button" >Perpendicularity</button>
                 <button onClick={()=>setTableOption('parallelism')}  className="view-button" >Parallelism</button>
+                <button onClick={()=>setTableOption('adjust')}  className="view-button" >Adjust</button>
             </div>
             {
                 tableOption === 'masspro' ?
@@ -67,7 +69,19 @@ export default function SlicingMeasuring({data,setdata,handleKeyDown,points,stat
                         min={slicingState && slicingState.min ?Number(slicingState.min?.[om_specs]):null}
                     />
                         
-                :null
+                :tableOption === 'adjust' ?
+                    <AdjustmentForm
+                        adjustmentDetails={adjustmentDetails}
+                        setAdjustmentDetails={setAdjustmentDetails}
+                        handleKeyDown={handleKeyDown}
+                        details={details}
+                        batch_number={batch_number}
+                        id={id}
+                        adjustmentReset={adjustmentReset}
+                        adjustmentSubmit={adjustmentSubmit}
+                        adjustment={adjustment}
+                    />
+                    :null
             }
             
         </div>

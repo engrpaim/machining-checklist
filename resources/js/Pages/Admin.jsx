@@ -79,6 +79,7 @@ export default function Admin(){
         cghl_om_specs:{},
         slicing_om_specs:{},
         lapping_om_specs:{},
+        barelling_om_specs:{},
         histogram_point:"",
         flatness_lapping: "",
         height_lapping: "",

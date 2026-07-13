@@ -183,20 +183,20 @@ export default function AllProcess({data , clientIp , model}){
                 </div>
             </div>
             <div className="page-container">
-                        {data && data.links.map((link, index) => (
-                            <span key={index}>
-                            {link.url ? (
-                                <Link
-                                href={link.url}
-                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                className={link.active ? 'page-button-active' : 'page-button'}
-                                />
-                            ) : (
-                                <span className='page-button'  dangerouslySetInnerHTML={{ __html: link.label }} />
-                            )}
-                            </span>
-                        ))}
-                    </div>
+                {data && data.links.map((link, index) => (
+                    <span key={index}>
+                    {link.url ? (
+                        <Link
+                        href={link.url}
+                        dangerouslySetInnerHTML={{ __html: link.label }}
+                        className={link.active ? 'page-button-active' : 'page-button'}
+                        />
+                    ) : (
+                        <span className='page-button'  dangerouslySetInnerHTML={{ __html: link.label }} />
+                    )}
+                    </span>
+                ))}
+            </div>
         </div>
     )
 }

@@ -163,7 +163,7 @@ Route::get('/machining-checklist/measure', function (Request $request) {
         'ip_client' => $isExistUser ? $isExistUser->toArray():null,
         'message' => 'Hello from Laravel!',
         'modelsList' =>  $finalModel,
-        'omList' => $finalOMModified
+        'omList' => $finalOMModified,
     ]);
 });
 
@@ -201,6 +201,8 @@ Route::post('/machining-checklist/measure/finalize', [MachiningChecklistControll
 Route::post('/machining-checklist/measure/proceed', [MachiningChecklistController::class, 'proceedToNext']);
 Route::post('/machining-checklist/measure/update', [MachiningChecklistController::class, 'updateData']);
 Route::post('/machining-checklist/measure/part-save', [MachiningChecklistController::class, 'partSave']);
+Route::post('/machining-checklist/measure/adjustment', [MachiningChecklistController::class, 'adjustmentForm']);
+
 Route::post('/machining-checklist/home/goto', [MachiningChecklistController::class, 'goTo']);
 
 //Admin

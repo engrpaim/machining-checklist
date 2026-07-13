@@ -1256,8 +1256,11 @@ button:disabled:hover {
     background: white;
     color: #2d3848;
     padding: 0.2rem;
+    animation: fadeIn 1s ease-in-out;
 }
-
+.measuring-table tr {
+    animation: fadeIn 1s ease-in-out;
+}
 .measuring-table thead {
     background: #0070a3;
     color: #e6f7ff;
@@ -2254,4 +2257,36 @@ td {
     display: flex;
     flex-direction: row;
     gap:1rem;
+}
+
+.adjustment-measurement{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+.adjustment-measurement input{
+    text-align: center;
+    padding:0.2rem;
+}
+.container-column-flex{
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    justify-content: start;
+}
+
+
+.add-adjustment{
+    border:none;
+    border-radius: 0.2rem;
+    padding:0.2rem 0.5rem;
+    color:white;
+    background: #175E23;
+    cursor: pointer;
+}
+
+.add-adjustment:hover{
+    background: #2AA63E;
+    transform: translateY(-1px);
 }

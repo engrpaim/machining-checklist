@@ -5,22 +5,32 @@ import GraphControlX from "./GraphControlX"
 import GraphControlR from "./GraphControlR"
 import HFPDisplay from "./HFPDisplay";
 import AdjustmentForm from "./AdjustmentForm";
-export default function LappingData({currentModel,numberOfPoints = 10, massProForm ,setMassProForm,MassproProcessing, statusNow,edit,hfpData,setHfpData,process,om_specs}){
+export default function LappingData({currentModel,numberOfPoints = 10, massProForm ,setMassProForm,MassproProcessing, statusNow,edit,hfpData,setHfpData,process,om_specs, details,
+                                        batch_number,
+                                        id,
+                                        adjustmentDetails,
+                                        setAdjustmentDetails,
+                                        adjustmentReset,
+                                        adjustmentSubmit,
+                                        adjustment}){
     console.log('Lapping Model: ',currentModel,massProForm,statusNow);
     const status = statusNow
     const toDisabled = ['prepared', 'measured', 'approved']
     const allowed = toDisabled.includes(status)
     const [currnetModelState , setCurrentModel] = useState(currentModel?JSON.parse(currentModel.lapping_om_specs):null)
-    const [currentStatus,setCurrentStatus] =useState(allowed);
+    const [currentStatus,setCurrentStatus] = useState(allowed);
     const [tableOption,setTableOption] = useState('masspro');
     console.log('EDIT OR STATUS',currentStatus,edit,toDisabled.includes(status));
     const getAverage =(massProForm)=>{
+
         if(!massProForm) return 
+        
         const averageX = []
         const Rpoint = []
 
         let Rmax = 0
         let Rmin = 0
+
         Object.entries(massProForm).map(([key,value])=>{
             let average = 0;
             let count = 0;
@@ -41,11 +51,14 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
          
             Rmax = currentRpoint > Rmax ?currentRpoint:Rmax
             Rmin =  currentRpoint <= Rmin && currentRpoint !== null ?currentRpoint:Rmin
-               console.log("R MIN MAX",Rmax,Rmin , currentRpoint < Rmin );
+            console.log("R MIN MAX",Rmax,Rmin , currentRpoint < Rmin );
            
         })
-        return {average:averageX , r_point:Rpoint , r_max:Rmax , r_min:Rmin}
+
+        return { average:averageX , r_point:Rpoint , r_max:Rmax , r_min:Rmin }
+
     }
+
     const average = getAverage(massProForm)
     console.log('lapcurrrnet: ',massProForm,average,currnetModelState,om_specs);
     return(
@@ -53,7 +66,7 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
             <div className="container-row">
                 <button onClick={()=>setTableOption('masspro')} className="view-button" >Masspro</button>
                 <button onClick={()=>setTableOption('hfp')}  className="view-button" >H-F-P</button>
-                <button onClick={()=>setTableOption('adjustment')}  className="view-button" >Adjustment</button>
+                <button onClick={()=>setTableOption('adjust')}  className="view-button" >Adjust</button>
             </div>
             <div>
                 <h1>{tableOption.toUpperCase()} - view</h1>
@@ -170,8 +183,19 @@ export default function LappingData({currentModel,numberOfPoints = 10, massProFo
                         </div>
                     </div>
                 </>
-                :tableOption === 'adjustment'?
-                <AdjustmentForm/>
+                :tableOption === 'adjust' ?
+                                    <AdjustmentForm
+                                        adjustmentDetails={adjustmentDetails}
+                                        setAdjustmentDetails={setAdjustmentDetails}
+                                        handleKeyDown={handleKeyDown}
+                                        details={details}
+                                        batch_number={batch_number}
+                                        id={id}
+                                        adjustmentReset={adjustmentReset}
+                                        adjustmentSubmit={adjustmentSubmit}
+                                        adjustment={adjustment}
+                                    />
+                                    
                 :null
             }
             

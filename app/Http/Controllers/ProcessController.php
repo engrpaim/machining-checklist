@@ -43,6 +43,7 @@ class ProcessController extends Controller
 
             $checkIfExist = $dbUse::where('datalist_id', $id)
                 ->where('datalist_lot_number', $lot_number)
+                ->where('process_number', 'first')
                 ->where('batch_number', 1)
                 ->first();
 
@@ -65,6 +66,27 @@ class ProcessController extends Controller
                 ->where('om_specs', $om_specs)
                 ->where('process_number', $process_number)
                 ->first();
+
+            return $checkIfExist;
+
+        } catch (ModelNotFoundException $E) {
+
+            return false;
+            
+        }
+    }
+    public function  checkBatch3(string $id, string $dbUse, string $process)
+    {
+        //return latest data
+        try {
+
+            $checkIfExist = $dbUse::where('datalist_id', $id)
+                ->where('process_number', 'first')
+                ->where('batch_number', 1)
+                ->where('process', $process)
+                ->orderBy('adjustment','desc')
+                ->paginate(15);
+                // ->get();
 
             return $checkIfExist;
 
@@ -127,7 +149,7 @@ class ProcessController extends Controller
      
         if (!$process) return redirect()->back()->with('error', 'Process not exist!');
         if (!$data) return redirect()->back()->with('error', 'Data not exist!');
-       
+        
         $shift = $data['shift'] ?? null;
         $operatorName = $data['operator_name'] ?? null;
         $checker = $data['checker'] ?? null;
