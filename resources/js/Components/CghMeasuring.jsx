@@ -393,11 +393,11 @@ export default function CghMeasuring({ cghlDetails, cghlPoint, setCghlPoint, cur
     };
     console.log('CGHHL OM SPECS:', currentModelState);
     return (
-        <>
+        <div>
             <div className="container-row">
-                <button onClick={() => setTableOption('masspro')} className="view-button" >Masspro</button>
-                <button onClick={() => setTableOption('adjust')} className="view-button" >Adjust</button>
-            </div>
+                            <button onClick={() => setTableOption('masspro')} className="view-button" >Masspro</button>
+                            <button onClick={() => setTableOption('adjust')} className="view-button" >Adjust</button>
+                        </div>
             {
                 tableOption === 'masspro' ?
                     <div>
@@ -722,6 +722,6 @@ export default function CghMeasuring({ cghlDetails, cghlPoint, setCghlPoint, cur
                 : null
             }
 
-        </>
+        </div>
     )
 }
