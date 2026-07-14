@@ -6,7 +6,7 @@ import { CloudUploadIcon, UploadCheckIcon } from "../Icons/SVG"
 import HistogramX from "./HistoGram";
 import AdjustmentForm from "./AdjustmentForm";
 export default function CghMeasuring({ cghlDetails, cghlPoint, setCghlPoint, currentModel, handleKeyDown, cghTools, setCghTools, edit, histogram, setHistogram, handlePartUpdate, perpenCghlThickness, om_specs,adjustmentDetails,setAdjustmentDetails,details,batch_number,id,adjustmentReset,adjustmentSubmit,adjustment }) {
-    console.log('MEASURING CGH: ', cghlDetails, cghlPoint, ' Current Model: ', currentModel);
+    console.log('MEASURING CGH: ', cghlDetails, cghlPoint, ' Current Model: ', currentModel,details);
     /**
      *
      * Excel Based formula
@@ -29,6 +29,7 @@ export default function CghMeasuring({ cghlDetails, cghlPoint, setCghlPoint, cur
     const SPCControlls = {};
     const [currentModelState, setCurrentModelState] = useState(currentModel ? JSON.parse(currentModel.cghl_om_specs) : null);
     const [model, setModel] = useState(currentModel ? currentModel : null);
+    const [currentData , setCurrentData] = useState(details);
 
     const toDisabled = ['prepared', 'measured', 'approved']
     const status = cghlDetails.status
@@ -391,7 +392,7 @@ export default function CghMeasuring({ cghlDetails, cghlPoint, setCghlPoint, cur
             console.log("Copied using fallback!");
         }
     };
-    console.log('CGHHL OM SPECS:', currentModelState);
+    console.log('CGHHL OM SPECS:', currentModelState,currentData);
     return (
         <div>
             <div className="container-row">
@@ -446,8 +447,8 @@ export default function CghMeasuring({ cghlDetails, cghlPoint, setCghlPoint, cur
                                                                 <td rowSpan={3} >
                                                                     <h1 style={{ color: '#3b4e68' }}>{title[mainItems - 1]}</h1>
                                                                     <div className="histogram-btn">
-                                                                        <button onClick={() => handlePartUpdate({ points: cghlPoint, om_specs: currentModelState && currentModelState.specs?.[om_specs] ? currentModelState.specs?.[om_specs] : null, process_number: om_specs, perpendicularity: {} }, 'cghl')} className="status-btn" disabled={(currentStatus && !edit)}>Save</button>
-                                                                        <button onClick={() => setHistogram({ title: '(T~L)PERPENDICULARITY MONITORING', timing: title[mainItems - 1], point: 2, hfp: 'p', status: (currentStatus && !edit) })} className="status-btn" >Histogram</button>
+                                                                        <button onClick={() => handlePartUpdate({ points: cghlPoint, om_specs: currentData && currentData?.om_specs ? currentData?.om_specs : null, process_number: currentData && currentData?.process_number ? currentData?.process_number: null, perpendicularity: {} }, 'cghl')} className="status-btn" disabled={(currentStatus && !edit)}>Save</button>
+                                                                        <button onClick={() => setHistogram({ title: `${currentData && currentData.om_specs} PERPENDICULARITY MONITORING`, timing: title[mainItems - 1], point: 2, hfp: 'p', status: (currentStatus && !edit) })} className="status-btn" >Histogram</button>
                                                                     </div>
                                                                 </td>
                                                             }

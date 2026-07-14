@@ -60,7 +60,7 @@ export default function Measure() {
 
     const alloweAble = {
         barelling: {preparing:1,om:'barelling_om_specs'},
-        cghl:{preparing:2,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
+        cghl:{preparing:4,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
         lapping:{preparing:0,om:'lapping_om_specs'},
         slicing:{preparing:8,om:'slicing_om_specs'},
     }
@@ -788,7 +788,7 @@ export default function Measure() {
 
      const adjustmentSubmit =async(adjustmentDetails ,addAdjustment , currentSpecs,setAddAdjustmentButton)=>{
 
-        if(adjustmentDetails && Object.keys(adjustmentDetails).length <= 0) return;
+        if(adjustmentDetails && Object.keys(adjustmentDetails).length <= 0  || !adjustmentDetails.deffect || !adjustmentDetails.adjustment_made || !adjustmentDetails.final_result ||  !adjustmentDetails.appearance_checking) return;
 
         try{
             await router.post('/machining-checklist/measure/adjustment' ,{ adjustment:adjustmentDetails ,details:addAdjustment, specs:currentSpecs } ,
@@ -1043,7 +1043,7 @@ export default function Measure() {
                 />
             }
             {
-                histogram && (<Histogram  title={histogram.title?modelState +histogram.title:null} timing={histogram.timing??null} setPerpenCghlThickness={setPerpenCghlThickness} perpenCghlThickness={perpenCghlThickness} point={histogram.point??5} hfp={histogram.hfp??'p'} setHistogram={setHistogram} handlePartUpdate={handlePartUpdate} handleKeyDown={handleKeyDown} isDisabled ={histogram.status??true} maxperpen={currentModel.perpendicularity??0}/>)
+                histogram && (<Histogram  title={histogram.title?modelState +histogram.title:null} timing={histogram.timing??null} setPerpenCghlThickness={setPerpenCghlThickness} perpenCghlThickness={perpenCghlThickness} point={histogram.point??5} hfp={histogram.hfp??'p'} setHistogram={setHistogram} handlePartUpdate={handlePartUpdate} handleKeyDown={handleKeyDown} isDisabled ={histogram.status??true} maxperpen={currentModel.perpendicularity??0} data={data}/>)
             }
             {
                 loading && <Loading />

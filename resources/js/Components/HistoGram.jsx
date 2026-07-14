@@ -5,8 +5,8 @@
  * @returns perpendicularity
  */
 
-export default function Histogram({title,timing,perpenCghlThickness,setPerpenCghlThickness,point,hfp = 'hfp',setHistogram,handlePartUpdate, handleKeyDown , isDisabled,maxperpen}){
-    console.log('Histogram perpenCghlThickness: ',perpenCghlThickness,setPerpenCghlThickness);
+export default function Histogram({title,timing,perpenCghlThickness,setPerpenCghlThickness,point,hfp = 'hfp',setHistogram,handlePartUpdate, handleKeyDown , isDisabled,maxperpen,data}){
+    console.log('Histogram perpenCghlThickness: ',perpenCghlThickness,setPerpenCghlThickness ,data);
     const max = maxperpen
     const timingLower = timing.toLowerCase();
     const pointUse = point;
@@ -180,7 +180,7 @@ export default function Histogram({title,timing,perpenCghlThickness,setPerpenCgh
                         </table>
                     </div>
                     <div className="container-row" style={{ gap:'1rem' }}>
-                        <button className="save-btn" onClick={(e)=>handlePartUpdate({perpendicularity:perpenCghlThickness})} disabled={isDisabled}>Save</button>
+                        <button className="save-btn" onClick={(e)=>handlePartUpdate({perpendicularity:perpenCghlThickness , om_specs:data && data?.om_specs ? data?.om_specs :null, process_number:data && data?.process_number ? data?.process_number :null})} disabled={isDisabled}>Save</button>
                         <button onClick={()=>setHistogram(false)} className="cancel2-btn">Cancel</button>
                     </div>
                 </div>

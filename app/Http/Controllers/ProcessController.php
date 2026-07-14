@@ -75,14 +75,14 @@ class ProcessController extends Controller
             
         }
     }
-    public function  checkBatch3(string $id, string $dbUse, string $process)
+    public function  checkBatch3(string $id, string $dbUse, string $process , string $batch ,string $process_number)
     {
         //return latest data
         try {
 
             $checkIfExist = $dbUse::where('datalist_id', $id)
-                ->where('process_number', 'first')
-                ->where('batch_number', 1)
+                ->where('process_number', $process_number)
+                ->where('batch_number', $batch)
                 ->where('process', $process)
                 ->orderBy('adjustment','desc')
                 ->paginate(15);
