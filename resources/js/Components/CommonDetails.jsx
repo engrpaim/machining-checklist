@@ -7,6 +7,7 @@ export default function CommonDetails({ data, setData, handleStore, handleKeyDow
     const secondPart = ['Shift', 'Date', 'Staff/Engineer']
     const convertedList = omList ? JSON.parse(omList):null
     const specsOm = convertedList && convertedList.specs ? convertedList.specs?.[process_number]:null
+    console.log('data process: ',data,process , process === 'barelling');
     return (
         <div className="details-container-gray">
             <h1>Processing Details</h1>
@@ -80,9 +81,9 @@ export default function CommonDetails({ data, setData, handleStore, handleKeyDow
                                                                 }>
                             <option value={''}></option>
                             <option value={'first'}>1st</option>
-                            <option value={'second'} disabled={!(process !== 'barreling')}>2nd</option>
-                            <option value={'third'}  disabled={!(process !== 'barreling')}>3rd</option>
-                            <option value={'fourth'} disabled={!(process !== 'barreling')}>4th</option>
+                            <option value={'second'} disabled={process === 'barelling'}>2nd</option>
+                            <option value={'third'}  disabled={process === 'barelling'}>3rd</option>
+                            <option value={'fourth'} disabled={process === 'barelling'}>4th</option>
                         </select>
                     </div>
                     <div className="details-data">
