@@ -142,7 +142,7 @@ export default function MassPro({ max, min, target, handleKeyDown, numberOfPoint
             console.log("Copied using fallback!");
         }
     };
-    console.log('judgement: ', judegement);
+    console.log('judgementsss: ', judegement);
     return (
         <div className="details-white">
             <div className='container-column'>

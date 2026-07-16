@@ -118,7 +118,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
 
         return pointsIncluded
     }
-     const copyPaste = (data) => {
+    const copyPaste = (data) => {
         console.log('DATAAAAA', data);
         const text = data.join("\n");
         // Modern clipboard API
@@ -145,7 +145,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
             console.log("Copied using fallback!");
         }
     };
-    console.log('Maassprro',status)
+    console.log('Maassprrosss',status)
     return(
        <>
         <div className="container-row">
