@@ -80,9 +80,9 @@ export default function CommonDetails({ data, setData, handleStore, handleKeyDow
                                                                 }>
                             <option value={''}></option>
                             <option value={'first'}>1st</option>
-                            <option value={'second'} disabled={!(process === 'barreling')}>2nd</option>
-                            <option value={'third'}  disabled={!(process === 'barreling')}>3rd</option>
-                            <option value={'fourth'} disabled={!(process === 'barreling')}>4th</option>
+                            <option value={'second'} disabled={!(process !== 'barreling')}>2nd</option>
+                            <option value={'third'}  disabled={!(process !== 'barreling')}>3rd</option>
+                            <option value={'fourth'} disabled={!(process !== 'barreling')}>4th</option>
                         </select>
                     </div>
                     <div className="details-data">
