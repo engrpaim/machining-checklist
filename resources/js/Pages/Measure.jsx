@@ -61,7 +61,7 @@ export default function Measure() {
     const alloweAble = {
         barelling: {preparing:1,om:'barelling_om_specs'},
         cghl:{preparing:4,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
-        lapping:{preparing:0,om:'lapping_om_specs'},
+        lapping:{preparing:3,om:'lapping_om_specs'},
         slicing:{preparing:8,om:'slicing_om_specs'},
     }
 

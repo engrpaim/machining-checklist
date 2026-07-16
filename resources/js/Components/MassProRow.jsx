@@ -2,13 +2,13 @@
 import SlicingGraph from "./SlicingGraph";
 export default function MassProRow({category = 3,point = 3,row,data,set,handleKeyDown,target,max,min,layers = 1,status,tolerance = 0.01,side}){
     const timing = ["Start","Middle","End"]
-
+    const worstData= []
    
     const judgement =(data,point,row,target,category,layers,min,max)=>{
         console.log('Mass pro slicing',data);
         const suffix = layers > 1 ? '_jigs_':false
         let judgementResult={}
-      
+        
         const targetValue = target
         /*
             layers  - return jigs
@@ -118,6 +118,33 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
 
         return pointsIncluded
     }
+     const copyPaste = (data) => {
+        console.log('DATAAAAA', data);
+        const text = data.join("\n");
+        // Modern clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    console.log("Copied!");
+                })
+                .catch(err => {
+                    console.error("Clipboard error:", err);
+                });
+        } else {
+            // Fallback
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            document.execCommand("copy");
+
+            document.body.removeChild(textarea);
+
+            console.log("Copied using fallback!");
+        }
+    };
     console.log('Maassprro',status)
     return(
        <>
@@ -147,18 +174,21 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                 }
                                 <th className="data-color">Max</th>
                                 <th className="data-color">Min</th>
-                                <th className="data-color">Worst</th>
+                                <th className="data-color">Worst <button class="copy-btn" onClick={(e) => copyPaste(worstData)}>Copy</button></th>
                             </tr>
                         </thead>
                         <tbody>
                             {
                                 Array.from({length:layers},(_,x)=>{
+                                    
                                     return Array.from({length:category},(_,j)=>(
                                         <>
                                         {
                                                 Array.from(
-                                                    {length:row},(_,i)=>
-                                                    (
+                                                    {length:row},(_,i)=>{
+                                                    judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? worstData.push(judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].worst): worstData.push('')
+
+                                                    return (
                                                         <tr>
                                                             {(j === 0 && i === 0  && layers > 1)&& <td className="sn-color" rowSpan={row * category}>JIGS {x+1}</td>}
                                                             {i === 0  && <td className="sn-color" rowSpan={row}>ROW {j+1}</td>}
@@ -190,7 +220,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                                             <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].min:null}   </td>
                                                             <td> {judgementResult[j+1] && judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)] ? judgementResult[j+1]?.[i+1+(suffix?`${suffix}${x+1}`:0)].worst:null} </td>
                                                         </tr>  
-                                                    )
+                                                    )}
                                                 )
                                             }
                                         </>
