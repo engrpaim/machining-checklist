@@ -104,6 +104,7 @@ class MachiningChecklistController  extends ProcessController
         $dbAdjust = $this->dataBaseBank('adjustment');
 
         $getData = $processGet->checkBatch1($id, $lot, $dbUse)->toArray();
+    
         $getAdjust = $processGet->checkBatch3($id, $dbAdjust,$process, $getData["batch_number"] ,  $getData["process_number"])->toArray();
 
         if (!$getData) return redirect()->back()->with('error', 'Cannot find data!');
@@ -508,7 +509,7 @@ class MachiningChecklistController  extends ProcessController
         $details = $form["details"] ?? null;
 
         if (!$form || !$details || !$data) return redirect()->back()->with('error', 'Data Missing![Proceed]');
-
+        
         $bankStatus = [
             "prepared" => "measuring",
             "measured" => "approved"
@@ -521,8 +522,8 @@ class MachiningChecklistController  extends ProcessController
         $id =  $details["datalist_id"] ?? null;
         $batch_number = $details["batch_number"] ?? null;
         $lot_number = $details["datalist_lot_number"] ?? null;
-        $process_number = $details["process_number"] ?? null;
-        $om_specs = $details["om_specs"] ?? null;
+        $process_number = $details["process_number"] ?? $data["process_number"] ;
+        $om_specs = $details["om_specs"] ?? $data["om_specs"];
 
         $process = $data["process"] ?? null;
         if (!$dataUpdate || !$id || !$batch_number || !$process || !$lot_number) return redirect()->back()->with('error', 'Incomplete data cannot be updated![Proceed]');
@@ -535,12 +536,12 @@ class MachiningChecklistController  extends ProcessController
         $currentModel =   $form["model"];
         $models = $processQuery->getModel($modelDb, $currentModel);
         //Get adjustment 
-
+        
         $dbAdjust = $this->dataBaseBank('adjustment');
         $getAdjust = $processQuery->checkBatch3($id, $dbAdjust,$process, $batch_number ,$process_number)->toArray();
         if (!$models) return redirect()->back()->with('error', 'Model database not found!');
         $convertModel = $models->toArray();
-       
+      
         $updateData = $processQuery->updateQuery($db, $dataUpdate, $batch_number, $id , $process_number ,$om_specs);
 
         if (!$updateData) return redirect()->back()->with('error', "Failed proceeding to " . $bankStatus[$details["status"]] . "! ");
