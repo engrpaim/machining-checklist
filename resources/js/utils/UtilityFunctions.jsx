@@ -253,20 +253,20 @@ const handleDownloadAll = async (data, process) => {
     console.log(allCells);
 
     worksheet.columns = [
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
-        { width: 25 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
+        { width: 15 },
     ];
 
     dataSave.forEach((rowArray) => {
