@@ -101,7 +101,7 @@ const barellingJudgement =(barelling_data,model)=>{
 }
 const judgementResult = (value ,max, min )=>{
     const minData = min ? Number(min):0;
-    const maxData = min ? Number(max):0;
+    const maxData = max ? Number(max):0;
     const judgement =    value < minData || value > maxData ?  'Reject'
                         :value <= maxData &&  value >= maxData - 0.01  || value >= minData &&  value <= minData + 0.01  ?  'Adjust'
                         :'Good'
