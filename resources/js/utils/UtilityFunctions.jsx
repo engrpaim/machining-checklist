@@ -85,14 +85,21 @@ const barellingJudgement =(barelling_data,model)=>{
 
             allResult = {
                             ...allResult , 
-                            [key]:{ min:min , max:max , worst:Math.round(worstValue * 100)/100 ,max_diff: Math.round(subMax * 100)/100 ,min_diff: Math.round(subMin * 100)/100, average : Math.round(reultAverage * 100)/100 }
+                            [key]: { 
+                                        min: min, 
+                                        max: max, 
+                                        worst: Number((worstValue).toFixed(3)), 
+                                        max_diff: Number((subMax).toFixed(3)), 
+                                        min_diff: Number((subMin).toFixed(3)), 
+                                        average: Number((reultAverage).toFixed(3)) 
+                                    }
                         } 
         })
         console.log('Min Max Result: ',allResult);
     });
     return allResult;
 }
-const judgementResult = (value , min , max)=>{
+const judgementResult = (value ,max, min )=>{
     const minData = min ? Number(min):0;
     const maxData = min ? Number(max):0;
     const judgement =    value < minData || value > maxData ?  'Reject'
