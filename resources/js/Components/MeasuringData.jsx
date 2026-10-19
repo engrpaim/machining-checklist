@@ -48,6 +48,7 @@ export default function MeasuringData({ goToNextInput, setMagnetPoints, magnetPo
         let diffmin = 0;
         let average = 0;
         let countCount = 0;
+        
         Object.entries(pointsValue).map(([key, value]) => {
             console.log('Setting judgement: ',key, value,countCount);
             countCount = value > 0 ? countCount +=1 :countCount
@@ -57,6 +58,7 @@ export default function MeasuringData({ goToNextInput, setMagnetPoints, magnetPo
             diffmax = specsBank[process]["model"].target - maximum;
             diffmin = specsBank[process]["model"].target - minimum;
         })
+
         JudgementPoints[items] = {
             p: items,
             average: Number((average/countCount).toFixed(3)),

@@ -174,7 +174,7 @@ export default function MassProRow({category = 3,point = 3,row,data,set,handleKe
                                 }
                                 <th className="data-color">Max</th>
                                 <th className="data-color">Min</th>
-                                <th className="data-color">Worst <button class="copy-btn" onClick={(e) => copyPaste(worstData)}>Copy</button></th>
+                                <th className="data-color">Worst<button class="copy-btn" onClick={(e) => copyPaste(worstData)}>Copy</button></th>
                             </tr>
                         </thead>
                         <tbody>

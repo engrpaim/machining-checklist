@@ -8,8 +8,8 @@ import BarellingDetails from "../Components/BarellingDetails";
 import TriBlockModal from "../Components/TriBlockModal";
 import Loading from "../Components/Loading";
 import MeasuringData from "../Components/MeasuringData";
-import { emptyCount, handleKeyDown } from "../utils/UtilityFunctions";
-import { all } from "axios";
+import { emptyCount, handleKeyDown , handleDownloadAll} from "../utils/UtilityFunctions";
+
 import Chamfering from "../Components/Chamfering";
 import PasswordModal from "../Components/PasswordModal";
 import Cghl from "../Components/Cghl";
@@ -20,6 +20,7 @@ import LappingDetails from "../Components/LappingDetails";
 import LappingData from "../Components/LappingData";
 import SlicingDetails from "../Components/SlicingDetails";
 import SlicingMeasuring from "../Components/SlicingMeasuring";
+import ExcelJS from 'exceljs';
 export default function Measure() {
     /**
      *
@@ -29,8 +30,8 @@ export default function Measure() {
      *
      *
      * **/
-    const { modelsList, flash, modal, current_lot, batches, existing, model , copy_batch , GoToProcess, GoToModel ,omList,adjustment} = usePage().props;
-    console.log('Props', flash, modal, current_lot, existing, 'Models: ', model,'Details: ',copy_batch , ' Go to:',GoToProcess, GoToModel,'OM LIST:',omList ,'adjustmentxx' , adjustment);
+    const { modelsList, flash, modal, current_lot, batches, existing, model, copy_batch, GoToProcess, GoToModel, omList, adjustment } = usePage().props;
+    console.log('Props', flash, modal, current_lot, existing, 'Models: ', model, 'Details: ', copy_batch, ' Go to:', GoToProcess, GoToModel, 'OM LIST:', omList, 'adjustmentxx', adjustment);
 
     const [modelState, setModelState] = useState(null);
     const [processState, setProcessState] = useState(null);
@@ -48,28 +49,28 @@ export default function Measure() {
     const [currentModel, setCurrentModel] = useState(false);
     const [editBatch, setEditBatch] = useState(false);
     const [passworModal, setPasswordModal] = useState(false);
-    const [copyBatchDetails ,setCopyBatchDetails] = useState(false);
-    const [histogram,setHistogram] = useState(false);
-    const [omListState , setOmListState] = useState(omList ? JSON.parse(omList):null);
-    
-    console.log('OM STATE:' , omListState);
+    const [copyBatchDetails, setCopyBatchDetails] = useState(false);
+    const [histogram, setHistogram] = useState(false);
+    const [omListState, setOmListState] = useState(omList ? JSON.parse(omList) : null);
+
+    console.log('OM STATE:', omListState);
     //Notification
-    const [flashNotification , setFlashNotification] = useState(false);
+    const [flashNotification, setFlashNotification] = useState(false);
     const [Notification, setNotification] = useState(false);
     console.log('type chamfer: ', currentModel.chamfer_type);
 
     const alloweAble = {
-        barelling: {preparing:4,om:'barelling_om_specs'},
-        cghl:{preparing:4,om:'cghl_om_specs'}, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
-        lapping:{preparing:3,om:'lapping_om_specs'},
-        slicing:{preparing:8,om:'slicing_om_specs'},
+        barelling: { preparing: 4, om: 'barelling_om_specs' },
+        cghl: { preparing: 4, om: 'cghl_om_specs' }, // 'cghl_om_specs','barelling_om_specs','lapping_om_specs','slicing_om_specs']
+        lapping: { preparing: 3, om: 'lapping_om_specs' },
+        slicing: { preparing: 8, om: 'slicing_om_specs' },
     }
 
     const sheetTitle = {
-            barelling: 'BARELLING',
-            cghl:`CGH  DIMENSION MONITORING`,
-            lapping:'LAPPING DIMENSION MONITORING',
-            slicing:'SLICING MONITORING'
+        barelling: 'BARELLING',
+        cghl: `CGH  DIMENSION MONITORING`,
+        lapping: 'LAPPING DIMENSION MONITORING',
+        slicing: 'SLICING MONITORING'
     }
 
     const toHide = ["prepared", "measured", "approved"];
@@ -89,9 +90,9 @@ export default function Measure() {
         checker: '',
         staff_engineer: '',
         process: '',
-        model:'',
-        process_number:'',
-        om_specs:'N/A',
+        model: '',
+        process_number: '',
+        om_specs: 'N/A',
         page: 'measure'
     });
     /** Barelling Page **/
@@ -109,12 +110,12 @@ export default function Measure() {
         gc_powder: '',
         magnet_wt_pc_: '',
         chamfertype: '',
-        model:'',
-        total_wt_batch:'',
-        contracer_serial:'',
-        chamfer_jig_serial:'',
-        total_qty_batch:'',
-        micrometer_serial:'',
+        model: '',
+        total_wt_batch: '',
+        contracer_serial: '',
+        chamfer_jig_serial: '',
+        total_qty_batch: '',
+        micrometer_serial: '',
     });
 
     //timer
@@ -144,77 +145,77 @@ export default function Measure() {
     });
 
     /** CGHL Details **/
-    const { data:cghlDetails , setData:setCghlDetails, reset: resetCghlDetails} = useForm({
+    const { data: cghlDetails, setData: setCghlDetails, reset: resetCghlDetails } = useForm({
         datalist_id: '',
         datalist_lot_number: '',
-        model:'',
-        batch_number:'',
-        machine_number:'',
-        upper_conveyor_speed:'',
-        lower_conveyor_speed:'',
-        carrier_speed:'',
-        auto_cylinder_forward_speed:'',
-        auto_cylinder_moving_distance:'',
-        micrometer_serial_number:''
+        model: '',
+        batch_number: '',
+        machine_number: '',
+        upper_conveyor_speed: '',
+        lower_conveyor_speed: '',
+        carrier_speed: '',
+        auto_cylinder_forward_speed: '',
+        auto_cylinder_moving_distance: '',
+        micrometer_serial_number: ''
     });
 
-    const {  data:cghlPoint , setData:setCghlPoint, reset: resetCghlPoint } =useForm({
-        magnet_1: { p1_1:'' ,p1_2:'',p1_3:'',p2_1:'' ,p2_2:'',p2_3:'',p3_1:'' ,p3_2:'',p3_3:'',remarks:''},
-        magnet_2: { p1_1:'' ,p1_2:'',p1_3:'',p2_1:'' ,p2_2:'',p2_3:'',p3_1:'' ,p3_2:'',p3_3:'',remarks:''},
-        magnet_3: { p1_1:'' ,p1_2:'',p1_3:'',p2_1:'' ,p2_2:'',p2_3:'',p3_1:'' ,p3_2:'',p3_3:'',remarks:''},
+    const { data: cghlPoint, setData: setCghlPoint, reset: resetCghlPoint } = useForm({
+        magnet_1: { p1_1: '', p1_2: '', p1_3: '', p2_1: '', p2_2: '', p2_3: '', p3_1: '', p3_2: '', p3_3: '', remarks: '' },
+        magnet_2: { p1_1: '', p1_2: '', p1_3: '', p2_1: '', p2_2: '', p2_3: '', p3_1: '', p3_2: '', p3_3: '', remarks: '' },
+        magnet_3: { p1_1: '', p1_2: '', p1_3: '', p2_1: '', p2_2: '', p2_3: '', p3_1: '', p3_2: '', p3_3: '', remarks: '' },
     });
 
-    const {data:cghTools ,setData:setCghTools, reset: resetCghTools}=useForm({
-        form_gauge:'',
-        form_n9:'',
-        form_sorted:'',
-        form_remarks:'',
-        go_serial:'',
-        go_validation:'',
-        go_n9:'',
-        go_sorted:''
+    const { data: cghTools, setData: setCghTools, reset: resetCghTools } = useForm({
+        form_gauge: '',
+        form_n9: '',
+        form_sorted: '',
+        form_remarks: '',
+        go_serial: '',
+        go_validation: '',
+        go_n9: '',
+        go_sorted: ''
     })
 
-    const {data:perpenCghlThickness, setData:setPerpenCghlThickness , reset:resetPerpenCghlThickness}=useForm({
-        1:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_boadjustmentDetailsttom:'',pt5_bottom:''},
-        2:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
-        3:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
-        4:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
-        5:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
-        6:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
-        7:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
-        8:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
-        9:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
-        10:{pt1_top:'',pt2_top:'',pt3_top:'',pt4_top:'',pt5_top:'',pt1_bottom:'',pt2_bottom:'',pt3_bottom:'',pt4_bottom:'',pt5_bottom:''},
+    const { data: perpenCghlThickness, setData: setPerpenCghlThickness, reset: resetPerpenCghlThickness } = useForm({
+        1: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_boadjustmentDetailsttom: '', pt5_bottom: '' },
+        2: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
+        3: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
+        4: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
+        5: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
+        6: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
+        7: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
+        8: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
+        9: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
+        10: { pt1_top: '', pt2_top: '', pt3_top: '', pt4_top: '', pt5_top: '', pt1_bottom: '', pt2_bottom: '', pt3_bottom: '', pt4_bottom: '', pt5_bottom: '' },
     });
 
 
-    const {data:lappingForm , setData:setLappingForm,processing:LappingProcessing, reset:resetLappingForm } = useForm({
+    const { data: lappingForm, setData: setLappingForm, processing: LappingProcessing, reset: resetLappingForm } = useForm({
         datalist_id: '',
         datalist_lot_number: '',
         batch_number: '',
-        comparator_serial:'',
-        model:'',
+        comparator_serial: '',
+        model: '',
     });
 
-    const {data:massProForm , setData:setMassProForm ,processing:MassproProcessing, reset:resetMassProForm} = useForm({
-        1:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        2:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        3:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        4:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        5:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        6:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        7:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        8:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        9:{p1:'',p2:'',p3:'',p4:'',p5:''},
-        10:{p1:'',p2:'',p3:'',p4:'',p5:''},
+    const { data: massProForm, setData: setMassProForm, processing: MassproProcessing, reset: resetMassProForm } = useForm({
+        1: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        2: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        3: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        4: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        5: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        6: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        7: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        8: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        9: { p1: '', p2: '', p3: '', p4: '', p5: '' },
+        10: { p1: '', p2: '', p3: '', p4: '', p5: '' },
     })
 
-    const {data:hfpData , setData:setHfpData , processing:hfpDataProcessing, reset:hfpReset} = useForm({})
+    const { data: hfpData, setData: setHfpData, processing: hfpDataProcessing, reset: hfpReset } = useForm({})
     //useform for details
     //form for common details
 
-    const {data: slicingDetails, setData: setSlicingDetails, processing: slicingProcessing, reset: slicingReset} = useForm({
+    const { data: slicingDetails, setData: setSlicingDetails, processing: slicingProcessing, reset: slicingReset } = useForm({
         datalist_id: '',
         datalist_lot_number: '',
         batch_number: '',
@@ -237,15 +238,15 @@ export default function Measure() {
         parallelism: '',
     });
 
-    const {data:slicingMassPro , setData:setSlicingMassPro , processing: slicingMassproProcessing, reset:slicingMassProReset}=useForm({})
-    const {data:slicingPerpenD , setData:setSlicingPerpenD , processing: slicingPerpenDProcessing, reset:slicingPerpenDReset}=useForm({})
-    const {data:slicingParallelism , setData:setSlicingParallelism , processing: slicingParallelismProcessing, reset:slicingParallelismReset}=useForm({})
-    const {data:adjustmentDetails , setData:setAdjustmentDetails , processing: AdjustmentDetailsProcessing, reset:adjustmentReset }=useForm({ operator:'',machine:''})
+    const { data: slicingMassPro, setData: setSlicingMassPro, processing: slicingMassproProcessing, reset: slicingMassProReset } = useForm({})
+    const { data: slicingPerpenD, setData: setSlicingPerpenD, processing: slicingPerpenDProcessing, reset: slicingPerpenDReset } = useForm({})
+    const { data: slicingParallelism, setData: setSlicingParallelism, processing: slicingParallelismProcessing, reset: slicingParallelismReset } = useForm({})
+    const { data: adjustmentDetails, setData: setAdjustmentDetails, processing: AdjustmentDetailsProcessing, reset: adjustmentReset } = useForm({ operator: '', machine: '' })
 
     const handleCloseModal = () => {
         setTriModal(false);
     }
-   
+
     const handleCheck = () => {
         setLoading(true);
         setStatusCheck(processState.process);
@@ -254,106 +255,106 @@ export default function Measure() {
 
     const arrayBankNew = {
 
-            barelling: {
-                data: data,
-                details: barellingDetails,
-                time_setting: timerDetails,
-                points: magnetPoints,
-                set_data:setData,
-                set_points:setMagnetPoints,
-                set_time_setting:setTimerDetails,
-                set_magnet:setMagnetPoints,
-                set: setBarellingDetails,
-                reset: resetBarellingDetails,
-                resetPoints: resetMagnetPoints,
-                subreset: resetTimerDetails
-            },
+        barelling: {
+            data: data,
+            details: barellingDetails,
+            time_setting: timerDetails,
+            points: magnetPoints,
+            set_data: setData,
+            set_points: setMagnetPoints,
+            set_time_setting: setTimerDetails,
+            set_magnet: setMagnetPoints,
+            set: setBarellingDetails,
+            reset: resetBarellingDetails,
+            resetPoints: resetMagnetPoints,
+            subreset: resetTimerDetails
+        },
 
-            cghl: {
-                data:data,
-                details:cghlDetails,
-                set:setCghlDetails,
-                mass_pro:cghTools,
-                points:cghlPoint,
-                perpendicularity:perpenCghlThickness,
-                set_perpen:setPerpenCghlThickness,
-                set_data:setData,
-                set_mass_pro:setCghTools,
-                set_points:setCghlPoint,
-                reset:resetCghlDetails,
-                subreset:resetCghTools,
-                resetPoints:resetCghlPoint
+        cghl: {
+            data: data,
+            details: cghlDetails,
+            set: setCghlDetails,
+            mass_pro: cghTools,
+            points: cghlPoint,
+            perpendicularity: perpenCghlThickness,
+            set_perpen: setPerpenCghlThickness,
+            set_data: setData,
+            set_mass_pro: setCghTools,
+            set_points: setCghlPoint,
+            reset: resetCghlDetails,
+            subreset: resetCghTools,
+            resetPoints: resetCghlPoint
 
-            },
-            lapping: {
-                data:data,
-                details:lappingForm,
-                mass_pro:massProForm,
-                histogram_point:hfpData,
-                set_histogram_point:setHfpData,
-                set_mass_pro:setMassProForm,
-                set:setLappingForm,
-                set_data:setData,
-                reset:resetLappingForm,
-                subreset:hfpReset
-            },
-            slicing: {
-                data:data,
-                details:slicingDetails,
-                set:setSlicingDetails,
-                mass_pro:slicingMassPro,
-                perpendicularity: slicingPerpenD,
-                parallelism:slicingParallelism,
-                set_parallelism:setSlicingParallelism,
-                subreset:slicingMassProReset,
-                set_perpen:setPerpenCghlThickness,
-                set_data:setData,
-                reset:slicingReset,
-            },
+        },
+        lapping: {
+            data: data,
+            details: lappingForm,
+            mass_pro: massProForm,
+            histogram_point: hfpData,
+            set_histogram_point: setHfpData,
+            set_mass_pro: setMassProForm,
+            set: setLappingForm,
+            set_data: setData,
+            reset: resetLappingForm,
+            subreset: hfpReset
+        },
+        slicing: {
+            data: data,
+            details: slicingDetails,
+            set: setSlicingDetails,
+            mass_pro: slicingMassPro,
+            perpendicularity: slicingPerpenD,
+            parallelism: slicingParallelism,
+            set_parallelism: setSlicingParallelism,
+            subreset: slicingMassProReset,
+            set_perpen: setPerpenCghlThickness,
+            set_data: setData,
+            reset: slicingReset,
+        },
 
-        }
-    useEffect(()=>{
+    }
+    useEffect(() => {
         //update always when click go to
         // switch case return all object measurment
-        if(!GoToModel || !GoToProcess) return;
-        console.log('GO to effect:',GoToProcess , GoToModel , current_lot);
+        if (!GoToModel || !GoToProcess) return;
+        console.log('GO to effect:', GoToProcess, GoToModel, current_lot);
         setModelState(GoToModel);
-        setProcessState((prev)=>({process:GoToProcess , value:sheetTitle[GoToProcess]}));
+        setProcessState((prev) => ({ process: GoToProcess, value: sheetTitle[GoToProcess] }));
         setStatusCheck(GoToProcess);
 
-        console.log('GO to bank:' , arrayBankNew[GoToProcess]);
+        console.log('GO to bank:', arrayBankNew[GoToProcess]);
 
-        if(!arrayBankNew[GoToProcess]) return
+        if (!arrayBankNew[GoToProcess]) return
 
         const details = arrayBankNew[GoToProcess]?.details
         const data = arrayBankNew[GoToProcess]?.data
         const dateCreated = current_lot.created_at.split("T")[0];
-        
 
-        console.log("Date Createdxx: ",dateCreated);
+
+        console.log("Date Createdxx: ", dateCreated);
         //return common data
-        data && Object.entries(data).map(([key,value])=>{
-            console.log('low: ',key,value);
-            arrayBankNew[GoToProcess]?.set_data(key,current_lot[key])
+        data && Object.entries(data).map(([key, value]) => {
+            console.log('low: ', key, value);
+            arrayBankNew[GoToProcess]?.set_data(key, current_lot[key])
 
-            switch(key){
+            switch (key) {
                 case 'page':
-                    arrayBankNew[GoToProcess]?.set_data(key,'measure')
+                    arrayBankNew[GoToProcess]?.set_data(key, 'measure')
                     break;
                 case 'lot_number':
-                    arrayBankNew[GoToProcess]?.set_data(key,current_lot.datalist_lot_number)
+                    arrayBankNew[GoToProcess]?.set_data(key, current_lot.datalist_lot_number)
                     break;
                 case 'id':
-                    arrayBankNew[GoToProcess]?.set_data(key,current_lot.datalist_id)
+                    arrayBankNew[GoToProcess]?.set_data(key, current_lot.datalist_id)
                     break;
                 case 'om_specs':
-                    arrayBankNew[GoToProcess]?.set_data(key,current_lot.om_specs)
+                    arrayBankNew[GoToProcess]?.set_data(key, current_lot.om_specs)
                     break;
                 case 'date':
-                    arrayBankNew[GoToProcess]?.set_data('date',dateCreated)
+                    arrayBankNew[GoToProcess]?.set_data('date', dateCreated)
                     break;
                 case 'process_number':
-                    arrayBankNew[GoToProcess]?.set_data(key,current_lot.process_number)
+                    arrayBankNew[GoToProcess]?.set_data(key, current_lot.process_number)
                     break;
                 default:
                     break;
@@ -361,80 +362,80 @@ export default function Measure() {
         });
 
         //return details per process
-        details && Object.entries(details).map(([key,value])=>{
-            console.log('low: ',key,value);
-            arrayBankNew[GoToProcess]?.set(key,current_lot[key])
-            arrayBankNew[GoToProcess]?.set('status',current_lot['status'])
+        details && Object.entries(details).map(([key, value]) => {
+            console.log('low: ', key, value);
+            arrayBankNew[GoToProcess]?.set(key, current_lot[key])
+            arrayBankNew[GoToProcess]?.set('status', current_lot['status'])
         });
 
         //return measurements and graphs
-        Object.entries(arrayBankNew[GoToProcess]).map(([key,value])=>{
+        Object.entries(arrayBankNew[GoToProcess]).map(([key, value]) => {
             //return process values
-            if(typeof value === 'object' && key !== 'data' && key !== 'details'){
+            if (typeof value === 'object' && key !== 'data' && key !== 'details') {
                 const setCurrentKey = `set_${key}`
                 const currentArray = current_lot[key];
 
-                console.log('checkk: ',`set_${key}`);
-                console.log(key,value,current_lot[key]);
+                console.log('checkk: ', `set_${key}`);
+                console.log(key, value, current_lot[key]);
 
-                if(!currentArray && !current_lot[key]) return
-                console.log('tagos',key,arrayBankNew[GoToProcess]?.[key]);
-                
-                const dataObjectCurrent = arrayBankNew[GoToProcess]?.[key].length > 0 ? arrayBankNew[GoToProcess]?.[key]:current_lot[key] ?current_lot[key]:false
-                if(!dataObjectCurrent) return
-                 console.log('tagos2',key,dataObjectCurrent);
-                Object.entries(dataObjectCurrent).map(([innerKey,innerValue])=>{
-                    console.log('ypwss: ',key,currentArray[innerKey],innerValue);
+                if (!currentArray && !current_lot[key]) return
+                console.log('tagos', key, arrayBankNew[GoToProcess]?.[key]);
 
-                    if(!currentArray[innerKey] && !current_lot[key]) return
+                const dataObjectCurrent = arrayBankNew[GoToProcess]?.[key].length > 0 ? arrayBankNew[GoToProcess]?.[key] : current_lot[key] ? current_lot[key] : false
+                if (!dataObjectCurrent) return
+                console.log('tagos2', key, dataObjectCurrent);
+                Object.entries(dataObjectCurrent).map(([innerKey, innerValue]) => {
+                    console.log('ypwss: ', key, currentArray[innerKey], innerValue);
+
+                    if (!currentArray[innerKey] && !current_lot[key]) return
                     //populate data from dashboard
-                    switch(GoToProcess){
+                    switch (GoToProcess) {
                         case "barelling":
-                            arrayBankNew[GoToProcess]?.[setCurrentKey](innerKey,currentArray[innerKey]);
+                            arrayBankNew[GoToProcess]?.[setCurrentKey](innerKey, currentArray[innerKey]);
                             break;
                         case "cghl":
-                            if(innerValue){
-                                if(key !== 'perpendicularity' && key !== 'mass_pro'){
-                                    console.log('cghl:x',key , innerKey,innerValue)
-                                    arrayBankNew[GoToProcess]?.[setCurrentKey](innerKey,currentArray[innerKey])
-                                }else if(key === 'perpendicularity' ){
-                                    Object.entries(innerValue).map(([processKey ,processValue])=>{
-                                        console.log('cghl:xxr:' ,processKey ,processValue,setCurrentKey);
-                                        arrayBankNew[GoToProcess]?.set_perpen((prev)=>({
+                            if (innerValue) {
+                                if (key !== 'perpendicularity' && key !== 'mass_pro') {
+                                    console.log('cghl:x', key, innerKey, innerValue)
+                                    arrayBankNew[GoToProcess]?.[setCurrentKey](innerKey, currentArray[innerKey])
+                                } else if (key === 'perpendicularity') {
+                                    Object.entries(innerValue).map(([processKey, processValue]) => {
+                                        console.log('cghl:xxr:', processKey, processValue, setCurrentKey);
+                                        arrayBankNew[GoToProcess]?.set_perpen((prev) => ({
                                             ...prev,
-                                            [innerKey]:{
+                                            [innerKey]: {
                                                 ...prev[innerKey],
-                                                [processKey]:current_lot['perpendicularity'][innerKey][processKey]
+                                                [processKey]: current_lot['perpendicularity'][innerKey][processKey]
                                             }
                                         }))
                                     })
-                                }else if(key === 'mass_pro' ){
-                                    arrayBankNew[GoToProcess]?.set_mass_pro(innerKey ,innerValue);
+                                } else if (key === 'mass_pro') {
+                                    arrayBankNew[GoToProcess]?.set_mass_pro(innerKey, innerValue);
                                 };
                             }
                             break;
                         case "lapping":
-                            
-                            if(key === 'mass_pro'){
-                                console.log('Lapping go to: ',key,value,innerKey,innerValue);
-                                Object.entries(innerValue).map(([processKey ,processValue])=>{
-                                    console.log('Data lappping: ',massProForm[innerKey],Number(currentArray[innerKey]?.[processKey]), processKey , processValue);
+
+                            if (key === 'mass_pro') {
+                                console.log('Lapping go to: ', key, value, innerKey, innerValue);
+                                Object.entries(innerValue).map(([processKey, processValue]) => {
+                                    console.log('Data lappping: ', massProForm[innerKey], Number(currentArray[innerKey]?.[processKey]), processKey, processValue);
                                     const currentPoint = Number(currentArray[innerKey]?.[processKey]);
-                                    arrayBankNew[GoToProcess]?.set_mass_pro((prev)=>({
+                                    arrayBankNew[GoToProcess]?.set_mass_pro((prev) => ({
                                         ...prev,
-                                        [innerKey]:{
+                                        [innerKey]: {
                                             ...prev[innerKey],
-                                            [processKey]:currentPoint > 0 ? currentPoint:''
+                                            [processKey]: currentPoint > 0 ? currentPoint : ''
                                         }
                                     }))
                                 })
-                            }else if(key === 'histogram_point'){
+                            } else if (key === 'histogram_point') {
                                 console.log('histogram pointsssxxx');
-                                Object.entries(dataObjectCurrent).map(([key,values])=>{
-                                    console.log('histogram pointsss' , key ,values);
-                                    setHfpData((prev)=>({
+                                Object.entries(dataObjectCurrent).map(([key, values]) => {
+                                    console.log('histogram pointsss', key, values);
+                                    setHfpData((prev) => ({
                                         ...prev,
-                                        [key]:{
+                                        [key]: {
                                             ...prev[key],
                                             ...values
                                         }
@@ -442,15 +443,15 @@ export default function Measure() {
                                 })
                             };
                         case "slicing":
-                            if(key === 'mass_pro'){
-                                console.log('go to slicing: ',dataObjectCurrent);
-                                setSlicingMassPro({...dataObjectCurrent});
-                            }else if(key === 'perpendicularity'){
-                                console.log('go to slicsing: ',dataObjectCurrent);
-                                setSlicingPerpenD({...dataObjectCurrent});
-                            }else if(key === 'parallelism'){
-                                console.log('go to slicsing: ',dataObjectCurrent);
-                                setSlicingParallelism({...dataObjectCurrent});
+                            if (key === 'mass_pro') {
+                                console.log('go to slicing: ', dataObjectCurrent);
+                                setSlicingMassPro({ ...dataObjectCurrent });
+                            } else if (key === 'perpendicularity') {
+                                console.log('go to slicsing: ', dataObjectCurrent);
+                                setSlicingPerpenD({ ...dataObjectCurrent });
+                            } else if (key === 'parallelism') {
+                                console.log('go to slicsing: ', dataObjectCurrent);
+                                setSlicingParallelism({ ...dataObjectCurrent });
                             }
                             break;
 
@@ -462,14 +463,14 @@ export default function Measure() {
             }
         });
         setMeasureButton(true);
-    },[GoToModel,GoToProcess,current_lot]);
+    }, [GoToModel, GoToProcess, current_lot]);
 
     useEffect(() => {
         // const process = processState && processState.process ? processState.process : null
         // const model = modelState ? modelState : null
         console.log('hesslloxx', processState, modelState)
 
-        if (processState && processState.process === '' && modelState || processState && processState.process !== '' && processState.value && !modelState ) {
+        if (processState && processState.process === '' && modelState || processState && processState.process !== '' && processState.value && !modelState) {
             console.log('hessllo');
             router.visit("/machining-checklist/measure");
         }
@@ -487,11 +488,11 @@ export default function Measure() {
         console.log('Updating data!');
         setArrayBank(arrayBankNew)
         console.log('check if updating: ', cghlDetails);
-    }, 
+    },
         [
-            barellingDetails, timerDetails, magnetPoints,cghlDetails,cghTools,cghlPoint,processState,
-            perpenCghlThickness,lappingForm,massProForm,hfpData,slicingDetails,
-            slicingMassPro,slicingPerpenD,slicingParallelism
+            barellingDetails, timerDetails, magnetPoints, cghlDetails, cghTools, cghlPoint, processState,
+            perpenCghlThickness, lappingForm, massProForm, hfpData, slicingDetails,
+            slicingMassPro, slicingPerpenD, slicingParallelism
         ])
 
 
@@ -505,23 +506,23 @@ export default function Measure() {
             model: modelState ?? null,
         }
     }
-    const countEmpty =(data)=>{
-        if(!data) return
+    const countEmpty = (data) => {
+        if (!data) return
         let emptyNumber = 0
-        Object.entries(data).map(([key,values])=>{
-            if(!values || values === ''){
-                emptyNumber ++
+        Object.entries(data).map(([key, values]) => {
+            if (!values || values === '') {
+                emptyNumber++
             }
         })
 
         return emptyNumber
     }
     const handleStore = async () => {
-        
+
         // Create the payload
         const proceedPost = countEmpty(data);
-        console.log( 'storee:',proceedPost,data);
-        if(proceedPost  > 0 ) return setFlashNotification({theme: 'error-notif-text', message: 'Incomplete data'})
+        console.log('storee:', proceedPost, data);
+        if (proceedPost > 0) return setFlashNotification({ theme: 'error-notif-text', message: 'Incomplete data' })
         setSubmittingForm(false);
         setLoading(true);
         try {
@@ -541,9 +542,9 @@ export default function Measure() {
     const handleCreate = async () => {
 
         setSubmittingForm(false);
-       
 
-        const notIncluded = ["perpendicularity","mass_pro",'points',"parallelism","histogram_point"];
+
+        const notIncluded = ["perpendicularity", "mass_pro", 'points', "parallelism", "histogram_point"];
         //remove all unecessary data 
         if (payload?.page?.measuring) {
             notIncluded.forEach((key) => {
@@ -553,7 +554,7 @@ export default function Measure() {
 
         handleBatchingClear();
 
-         console.log('new xxbatch',payload);
+        console.log('new xxbatch', payload);
         try {
             setLoading(true);
             // Send to Laravel
@@ -571,9 +572,9 @@ export default function Measure() {
         }
 
     }
-    
+
     //reset all measuring 
-    const resetDetailsMeasuring =()=>{
+    const resetDetailsMeasuring = () => {
         hfpReset();
         resetBarellingDetails()
         resetMagnetPoints()
@@ -584,7 +585,7 @@ export default function Measure() {
         resetLappingForm()
         slicingReset()
         slicingMassProReset()
-        resetPerpenCghlThickness(); 
+        resetPerpenCghlThickness();
         resetMassProForm();
         slicingParallelismReset();
         slicingPerpenDReset();
@@ -593,7 +594,7 @@ export default function Measure() {
 
     //handle batching per lot number
     const handleBatch = async (batch_number) => {
-        
+
         setSubmittingForm(false);
         handleBatchingClear();
         setEditBatch(false);
@@ -605,11 +606,11 @@ export default function Measure() {
         const datalist_id = details.datalist_id ?? null
         const process_batch = details.batch_number ?? null
         const process = processState.process ?? null
-        const process_number = details.process_number ?? null 
-        const om_specs = details.om_specs ?? null 
-      
+        const process_number = details.process_number ?? null
+        const om_specs = details.om_specs ?? null
+
         if (!datalist_id || !process_batch || !process) return
-        console.log('Selected: ', process_batch,process_number,om_specs);
+        console.log('Selected: ', process_batch, process_number, om_specs);
 
         const getPayLoad = {
             id: datalist_id,
@@ -617,7 +618,7 @@ export default function Measure() {
             process: process,
             model: modelState ?? null,
             process_number: process_number ?? null,
-            om_specs:om_specs ?? null
+            om_specs: om_specs ?? null
         }
         //add to clear data when batching  
         handleBatchingClear();
@@ -682,7 +683,7 @@ export default function Measure() {
         console.log('Update post: ', processForm);
 
         setLoading(true);
-        
+
         try {
             await router.post('/machining-checklist/measure/update', { processForm, payload }, {
                 preserveScroll: true,
@@ -744,7 +745,7 @@ export default function Measure() {
             inputs[index + 1]?.focus();
         }, 300);
     };
-    
+
     const handleBatchingClear = () => {
         resetBarellingDetails();
         resetCghTools();
@@ -786,28 +787,28 @@ export default function Measure() {
         slicingPerpenDReset();
     }
 
-     const adjustmentSubmit =async(adjustmentDetails ,addAdjustment , currentSpecs,setAddAdjustmentButton)=>{
+    const adjustmentSubmit = async (adjustmentDetails, addAdjustment, currentSpecs, setAddAdjustmentButton) => {
 
-        if(adjustmentDetails && Object.keys(adjustmentDetails).length <= 0  || !adjustmentDetails.deffect || !adjustmentDetails.adjustment_made || !adjustmentDetails.final_result ||  !adjustmentDetails.appearance_checking) return;
+        if (adjustmentDetails && Object.keys(adjustmentDetails).length <= 0 || !adjustmentDetails.deffect || !adjustmentDetails.adjustment_made || !adjustmentDetails.final_result || !adjustmentDetails.appearance_checking) return;
 
-        try{
-            await router.post('/machining-checklist/measure/adjustment' ,{ adjustment:adjustmentDetails ,details:addAdjustment, specs:currentSpecs } ,
-                                 { 
-                                    preserveScroll:true ,
-                                  
-                                   onSuccess:()=>{
-                                        adjustmentReset()
-                                       console.log('must be reset')
-                                    }
-                                 })
-        }catch(err){
+        try {
+            await router.post('/machining-checklist/measure/adjustment', { adjustment: adjustmentDetails, details: addAdjustment, specs: currentSpecs },
+                {
+                    preserveScroll: true,
+
+                    onSuccess: () => {
+                        adjustmentReset()
+                        console.log('must be reset')
+                    }
+                })
+        } catch (err) {
             console.error(err)
         }
     }
 
     useEffect(() => {
         //return data for update
-     
+
         setProcessFromCount(false)
         setTimeout(() => {
             setLoading(false)
@@ -827,62 +828,62 @@ export default function Measure() {
             setData(key, values);
         })
 
-        if(processState.process === 'barelling'){
+        if (processState.process === 'barelling') {
             //time
             convertedData.time_setting &&
-            Object.entries(convertedData.time_setting).map(([key, values]) => {
-                setTimerDetails(key, values);
-            })
+                Object.entries(convertedData.time_setting).map(([key, values]) => {
+                    setTimerDetails(key, values);
+                })
 
             //points
             convertedData.points &&
-            Object.entries(convertedData.points).map(([key, values]) => {
-                setMagnetPoints(key, values);
-            })
+                Object.entries(convertedData.points).map(([key, values]) => {
+                    setMagnetPoints(key, values);
+                })
 
-        } else if(processState.process === 'cghl'){
-             //time
-             console.log('CGGHHL: ',convertedData);
+        } else if (processState.process === 'cghl') {
+            //time
+            console.log('CGGHHL: ', convertedData);
             convertedData.mass_pro &&
-            Object.entries(convertedData.mass_pro).map(([key, values]) => {
-                console.log('cgh tools:', key , values);
-                setCghTools(key, values);
-            })
+                Object.entries(convertedData.mass_pro).map(([key, values]) => {
+                    console.log('cgh tools:', key, values);
+                    setCghTools(key, values);
+                })
 
             //points
             convertedData.points &&
-            Object.entries(convertedData.points).map(([key, values]) => {
-                setCghlPoint(key, values);
-            })
+                Object.entries(convertedData.points).map(([key, values]) => {
+                    setCghlPoint(key, values);
+                })
             //perpendicularity
             convertedData.perpendicularity &&
-            Object.entries(convertedData.perpendicularity).map(([key, values]) => {
-                setPerpenCghlThickness(key, values);
-            })
-        } else if(processState.process === 'lapping'){
-             //time
+                Object.entries(convertedData.perpendicularity).map(([key, values]) => {
+                    setPerpenCghlThickness(key, values);
+                })
+        } else if (processState.process === 'lapping') {
+            //time
             convertedData.mass_pro && Object.entries(convertedData.mass_pro).map(([key, values]) => {
-               setMassProForm(key,values);
+                setMassProForm(key, values);
             })
-            
+
             convertedData.histogram_point && Object.entries(convertedData.histogram_point).map(([key, values]) => {
-               setHfpData(key,values);
+                setHfpData(key, values);
             })
-           
-        }  else if(processState.process === 'slicing'){
-             //time
+
+        } else if (processState.process === 'slicing') {
+            //time
             convertedData.mass_pro && Object.entries(convertedData.mass_pro).map(([key, values]) => {
-               setSlicingMassPro(key,values);
+                setSlicingMassPro(key, values);
             })
 
             convertedData.perpendicularity && Object.entries(convertedData.perpendicularity).map(([key, values]) => {
-               setSlicingPerpenD(key,values);
+                setSlicingPerpenD(key, values);
             })
-           convertedData.parallelism && Object.entries(convertedData.parallelism).map(([key, values]) => {
-               setSlicingParallelism(key,values);
+            convertedData.parallelism && Object.entries(convertedData.parallelism).map(([key, values]) => {
+                setSlicingParallelism(key, values);
             })
-       
-        } 
+
+        }
 
     }, [existing])
 
@@ -894,18 +895,18 @@ export default function Measure() {
 
     useEffect(() => {
         if (!processState && !GoToProcess) return
-        const process = processState && processState.process ? processState.process :GoToProcess
-        setData('process', process );
+        const process = processState && processState.process ? processState.process : GoToProcess
+        setData('process', process);
         setProcessForm(arrayBank[process]);
-        setData('model',modelState);
-        console.log('Current Processform:' ,processForm);
-    }, [processState, arrayBank ,GoToProcess])
+        setData('model', modelState);
+        console.log('Current Processform:', processForm);
+    }, [processState, arrayBank, GoToProcess])
 
     useEffect(() => {
 
-        Object.entries(flash).map(([key,values])=>{
-            console.log(key ,values ,'falsh');
-            values ? setFlashNotification({theme:`${key}-container`,message:values}):null;
+        Object.entries(flash).map(([key, values]) => {
+            console.log(key, values, 'falsh');
+            values ? setFlashNotification({ theme: `${key}-container`, message: values }) : null;
         })
 
         setTimeout(() => {
@@ -923,21 +924,21 @@ export default function Measure() {
     }, [flash])
 
     useEffect(() => {
-        if (!current_lot && !modal || (GoToProcess || GoToModel)  ) return
+        if (!current_lot && !modal || (GoToProcess || GoToModel)) return
 
         if (current_lot) {
             console.log('HHELLOO LOOE', current_lot)
             processForm?.reset()
             typeof processForm?.subreset === 'function' ?? processForm?.subreset()
-            typeof processForm?.resetPoints === 'function' ??  processForm?.resetPoints()
+            typeof processForm?.resetPoints === 'function' ?? processForm?.resetPoints()
             processForm?.set('batch_number', current_lot.batch_number)
             processForm?.set('datalist_id', current_lot.datalist_id ?? null);//'data_lot_number': current_lot.data_lot_number
             processForm?.set('datalist_lot_number', current_lot.datalist_lot_number ?? null);
-            processForm?.set('model',modelState);
+            processForm?.set('model', modelState);
         }
 
-        if(processState && processState.process === "barelling"){
-            processForm?.set('chamfertype' , model.chamfer_type ?? null);
+        if (processState && processState.process === "barelling") {
+            processForm?.set('chamfertype', model.chamfer_type ?? null);
         }
 
         if (modal) {
@@ -957,7 +958,7 @@ export default function Measure() {
 
         Object.entries(processForm).map(([key, value]) => {
             console.log('to count', key)
-            if (typeof value === 'object' && key !== 'data'  && key === 'details') {
+            if (typeof value === 'object' && key !== 'data' && key === 'details') {
                 const countEmpty = emptyCount(value);
                 countCurrentEmpty += countEmpty
                 console.log('Counted Empty: ', countCurrentEmpty, ' Current Empty: ', alloweAble[processState.process].preparing);
@@ -971,49 +972,49 @@ export default function Measure() {
 
     //Handle copy batch details @@handle
 
-    useEffect(()=>{
-        if(!copy_batch) return
+    useEffect(() => {
+        if (!copy_batch) return
         const copyDetails = JSON.parse(copy_batch);
-        console.log('Copy Branch: ',arrayBank,copyDetails,processForm);
-        Object.entries(copyDetails).map(([key,value])=>{
-            
-            if( key !== 'created_at' && key !== 'updated_at' && key !== 'shift' && key !== 'status') {
+        console.log('Copy Branch: ', arrayBank, copyDetails, processForm);
+        Object.entries(copyDetails).map(([key, value]) => {
 
-                if( typeof value === 'object'){
-                    console.log('OBJECT: ',processForm?.[key]);
-                    switch(key){
+            if (key !== 'created_at' && key !== 'updated_at' && key !== 'shift' && key !== 'status') {
+
+                if (typeof value === 'object') {
+                    console.log('OBJECT: ', processForm?.[key]);
+                    switch (key) {
                         case 'time_setting':
-                            Object.entries(value).map(([keyInner , valueInner])=>{
-                                processForm?.set_time_setting(keyInner,valueInner)
+                            Object.entries(value).map(([keyInner, valueInner]) => {
+                                processForm?.set_time_setting(keyInner, valueInner)
                             })
                         default:
                             break;
                     }
-                }else{
-                    console.log('KEY EXIST: ' ,processForm?.details[key])
+                } else {
+                    console.log('KEY EXIST: ', processForm?.details[key])
 
-                    if(processForm?.data[key] !== undefined){
-                        processForm?.set_data(key,value);
+                    if (processForm?.data[key] !== undefined) {
+                        processForm?.set_data(key, value);
                     }
 
-                    if(processForm?.details[key] !== undefined && key !== 'batch_number' && key !== 'status' ){
-                        console.log('cc: ',key , value)
-                        processForm?.set(key,value)
+                    if (processForm?.details[key] !== undefined && key !== 'batch_number' && key !== 'status') {
+                        console.log('cc: ', key, value)
+                        processForm?.set(key, value)
                     }
                 }
             }
         })
-    },[copy_batch])
+    }, [copy_batch])
 
-    const handlePartUpdate =async(data,identifier)=>{
+    const handlePartUpdate = async (data, identifier) => {
         setLoading(true);
-        const  process =  processState.process
-        const currentData = {points:data,process:process,identifier:identifier,details:processForm?.details, om_specs:data.om_specs,process_number:data.process_number}
-        console.log('PART UPDATE XX:',currentData);
+        const process = processState.process
+        const currentData = { points: data, process: process, identifier: identifier, details: processForm?.details, om_specs: data.om_specs, process_number: data.process_number }
+        console.log('PART UPDATE XX:', currentData);
         try {
             console.log('Update Part: ', data);
             // Send to Laravel
-            await router.post("/machining-checklist/measure/part-save",{data:currentData}, {
+            await router.post("/machining-checklist/measure/part-save", { data: currentData }, {
                 preserveState: true,
                 preserveScroll: true,
             });
@@ -1022,11 +1023,14 @@ export default function Measure() {
             console.error("Error submitting form:", err);
         }
     }
-    console.log("Processx:x ", processForm,model);
+    console.log("Processx:x ", processForm, model);
+
+
+
     return (
         <>
             {
-                flashNotification && (<NotificationDisplay message={flashNotification.message ??null} theme={flashNotification.theme??null}  />)
+                flashNotification && (<NotificationDisplay message={flashNotification.message ?? null} theme={flashNotification.theme ?? null} />)
             }
             {
                 passworModal && <PasswordModal setPasswordModal={setPasswordModal} passworModal={passworModal} handlePassword={handlePassword} Notification={Notification} />
@@ -1039,11 +1043,11 @@ export default function Measure() {
                     handleCreate={handleCreate}
                     allBatches={allBatches}
                     handleBatch={handleBatch}
-                    
+
                 />
             }
             {
-                histogram && (<Histogram  title={histogram.title?modelState +histogram.title:null} timing={histogram.timing??null} setPerpenCghlThickness={setPerpenCghlThickness} perpenCghlThickness={perpenCghlThickness} point={histogram.point??5} hfp={histogram.hfp??'p'} setHistogram={setHistogram} handlePartUpdate={handlePartUpdate} handleKeyDown={handleKeyDown} isDisabled ={histogram.status??true} maxperpen={currentModel.perpendicularity??0} data={data}/>)
+                histogram && (<Histogram title={histogram.title ? modelState + histogram.title : null} timing={histogram.timing ?? null} setPerpenCghlThickness={setPerpenCghlThickness} perpenCghlThickness={perpenCghlThickness} point={histogram.point ?? 5} hfp={histogram.hfp ?? 'p'} setHistogram={setHistogram} handlePartUpdate={handlePartUpdate} handleKeyDown={handleKeyDown} isDisabled={histogram.status ?? true} maxperpen={currentModel.perpendicularity ?? 0} data={data} />)
             }
             {
                 loading && <Loading />
@@ -1088,12 +1092,12 @@ export default function Measure() {
                             loading={loading}
                             handleClear={handleClear}
                             statusCheck={statusCheck}
-                            omList = {modelState && processState ? omListState[modelState][alloweAble[processState.process].om]:null}
-                            batch_number={ processForm && processForm.details && processForm.details.batch_number ? processForm.details.batch_number : 'Finding.....'}
-                            process_number={data && data.process_number ? data.process_number:null }
+                            omList={modelState && processState ? omListState[modelState][alloweAble[processState.process].om] : null}
+                            batch_number={processForm && processForm.details && processForm.details.batch_number ? processForm.details.batch_number : 'Finding.....'}
+                            process_number={data && data.process_number ? data.process_number : null}
                             resetDetailsMeasuring={resetDetailsMeasuring}
                             process={processState.process}
-                           
+
                         />
                     }
                 </div>
@@ -1113,24 +1117,24 @@ export default function Measure() {
                                 chamfertype={currentModel.chamfer_type ?? null}
                                 edit={editBatch}
                             />
-                        :statusCheck &&  modelState && processState && processState.process === 'cghl' && (processForm?.details["status"] === 'preparing' || processForm?.details["status"] === 'prepared' || !processForm?.details["status"]) ?
-                            <Cghl
-                                handleKeyDown={handleKeyDown}
-                                cghlDetails={cghlDetails}
-                                setCghlDetails={setCghlDetails}
-                                edit={editBatch}
-                            />
-                        :statusCheck &&  modelState && processState && processState.process === 'lapping' && (processForm?.details["status"] === 'preparing' || processForm?.details["status"] === 'prepared' || !processForm?.details["status"]) ?
-                            <LappingDetails
+                            : statusCheck && modelState && processState && processState.process === 'cghl' && (processForm?.details["status"] === 'preparing' || processForm?.details["status"] === 'prepared' || !processForm?.details["status"]) ?
+                                <Cghl
+                                    handleKeyDown={handleKeyDown}
+                                    cghlDetails={cghlDetails}
+                                    setCghlDetails={setCghlDetails}
+                                    edit={editBatch}
+                                />
+                                : statusCheck && modelState && processState && processState.process === 'lapping' && (processForm?.details["status"] === 'preparing' || processForm?.details["status"] === 'prepared' || !processForm?.details["status"]) ?
+                                    <LappingDetails
                                         lappingForm={lappingForm}
                                         setLappingForm={setLappingForm}
                                         handleKeyDown={handleKeyDown}
                                         LappingProcessing={LappingProcessing}
                                         edit={editBatch}
-                            />
-                        :statusCheck &&  modelState && processState && processState.process === 'slicing' && (processForm?.details["status"] === 'preparing' || processForm?.details["status"] === 'prepared' || !processForm?.details["status"]) ?
-                            <SlicingDetails setSlicingDetails={setSlicingDetails} slicingDetails={slicingDetails} handleKeyDown={handleKeyDown}/>
-                        :null
+                                    />
+                                    : statusCheck && modelState && processState && processState.process === 'slicing' && (processForm?.details["status"] === 'preparing' || processForm?.details["status"] === 'prepared' || !processForm?.details["status"]) ?
+                                        <SlicingDetails setSlicingDetails={setSlicingDetails} slicingDetails={slicingDetails} handleKeyDown={handleKeyDown} />
+                                        : null
                     }
 
                     {
@@ -1144,17 +1148,17 @@ export default function Measure() {
                                             (
                                                 <div className="point-measurement" >
                                                     <p>Chamfer point 1</p>
-                                                    <img className="point-picture" src={`/storage/${model.chamfer_point1_data}`}/>
+                                                    <img className="point-picture" src={`/storage/${model.chamfer_point1_data}`} />
                                                 </div>
                                             )
                                         }
 
-                                         {
+                                        {
                                             model && model.chamfer_point2_data &&
                                             (
                                                 <div className="point-measurement" >
                                                     <p>Chamfer point 2</p>
-                                                    <img className="point-picture" src={`/storage/${model.chamfer_point2_data}`}/>
+                                                    <img className="point-picture" src={`/storage/${model.chamfer_point2_data}`} />
                                                 </div>
                                             )
                                         }
@@ -1164,13 +1168,13 @@ export default function Measure() {
                                     <h1>Measuring</h1>
                                 </div>
                                 <div className="inner-container-row">
-                                {
-                                    currentModel && currentModel.chamfer_points  &&  currentModel.chamfer_points === 2  ?
+                                    {
+                                        currentModel && currentModel.chamfer_points && currentModel.chamfer_points === 2 ?
 
-                                        <Chamfering pointIdentifier={2} goToNextInput={goToNextInput} setMagnetPoints={setMagnetPoints} magnetPoints={magnetPoints} model={currentModel} process={processState.process} chamfertype={barellingDetails.chamfertype ?? null} handleKeyDown={handleKeyDown} status={processForm.details["status"]} edit={editBatch} />
-                                    :
-                                        <Chamfering goToNextInput={goToNextInput} setMagnetPoints={setMagnetPoints} magnetPoints={magnetPoints} model={currentModel} process={processState.process} chamfertype={barellingDetails.chamfertype ?? null} handleKeyDown={handleKeyDown} status={processForm.details["status"]} edit={editBatch} />
-                                }
+                                            <Chamfering pointIdentifier={2} goToNextInput={goToNextInput} setMagnetPoints={setMagnetPoints} magnetPoints={magnetPoints} model={currentModel} process={processState.process} chamfertype={barellingDetails.chamfertype ?? null} handleKeyDown={handleKeyDown} status={processForm.details["status"]} edit={editBatch} />
+                                            :
+                                            <Chamfering goToNextInput={goToNextInput} setMagnetPoints={setMagnetPoints} magnetPoints={magnetPoints} model={currentModel} process={processState.process} chamfertype={barellingDetails.chamfertype ?? null} handleKeyDown={handleKeyDown} status={processForm.details["status"]} edit={editBatch} />
+                                    }
                                     <div>
                                         <h1></h1>
                                     </div>
@@ -1178,32 +1182,32 @@ export default function Measure() {
                                 <MeasuringData goToNextInput={goToNextInput} setMagnetPoints={setMagnetPoints} magnetPoints={magnetPoints} model={currentModel} process={processState.process} status={processForm.details["status"]} edit={editBatch} />
                             </div>
                             : statusCheck && modelState && processState && processState.process === 'cghl' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
-                                    <CghMeasuring
-                                        cghlDetails={cghlDetails}
-                                        cghlPoint={cghlPoint}
-                                        setCghlPoint={setCghlPoint}
-                                        currentModel={currentModel}
-                                        handleKeyDown={handleKeyDown}
-                                        cghTools={cghTools}
-                                        setCghTools={setCghTools}
-                                        edit={editBatch}
-                                        setHistogram={setHistogram}
-                                        histogram={histogram}
-                                        handlePartUpdate={handlePartUpdate}
-                                        perpenCghlThickness={perpenCghlThickness}
-                                        om_specs={data && data.process_number ? data.process_number:null}
-                                        adjustmentDetails={adjustmentDetails}
-                                        setAdjustmentDetails={setAdjustmentDetails}
-                                        details={data}
-                                        batch_number={cghlDetails["batch_number"] ?? null}
-                                        id={cghlDetails["datalist_id"] ?? null}
-                                        adjustmentReset={adjustmentReset}
-                                        adjustmentSubmit={adjustmentSubmit}
-                                        adjustment={adjustment}
-                                        
-                                    />
-                            : statusCheck && modelState && processState && processState.process === 'lapping' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
-                                    <LappingData  
+                                <CghMeasuring
+                                    cghlDetails={cghlDetails}
+                                    cghlPoint={cghlPoint}
+                                    setCghlPoint={setCghlPoint}
+                                    currentModel={currentModel}
+                                    handleKeyDown={handleKeyDown}
+                                    cghTools={cghTools}
+                                    setCghTools={setCghTools}
+                                    edit={editBatch}
+                                    setHistogram={setHistogram}
+                                    histogram={histogram}
+                                    handlePartUpdate={handlePartUpdate}
+                                    perpenCghlThickness={perpenCghlThickness}
+                                    om_specs={data && data.process_number ? data.process_number : null}
+                                    adjustmentDetails={adjustmentDetails}
+                                    setAdjustmentDetails={setAdjustmentDetails}
+                                    details={data}
+                                    batch_number={cghlDetails["batch_number"] ?? null}
+                                    id={cghlDetails["datalist_id"] ?? null}
+                                    adjustmentReset={adjustmentReset}
+                                    adjustmentSubmit={adjustmentSubmit}
+                                    adjustment={adjustment}
+
+                                />
+                                : statusCheck && modelState && processState && processState.process === 'lapping' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
+                                    <LappingData
                                         currentModel={currentModel}
                                         massProForm={massProForm}
                                         setMassProForm={setMassProForm}
@@ -1212,8 +1216,8 @@ export default function Measure() {
                                         statusNow={processForm?.details["status"]}
                                         hfpData={hfpData}
                                         setHfpData={setHfpData}
-                                        process={processState.process??processState.process}
-                                        om_specs={data && data.process_number ? data.process_number:null}
+                                        process={processState.process ?? processState.process}
+                                        om_specs={data && data.process_number ? data.process_number : null}
                                         adjustmentReset={adjustmentReset}
                                         adjustmentSubmit={adjustmentSubmit}
                                         adjustment={adjustment}
@@ -1223,39 +1227,42 @@ export default function Measure() {
                                         setAdjustmentDetails={setAdjustmentDetails}
                                         adjustmentDetails={adjustmentDetails}
                                     />
-                        :statusCheck &&  modelState && processState && processState.process === 'slicing' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
-                            <SlicingMeasuring 
-                                data={slicingMassPro} 
-                                setdata={setSlicingMassPro}
-                                perpenD={slicingPerpenD}
-                                setPerpenD={setSlicingPerpenD}
-                                handleKeyDown={handleKeyDown}
-                                parallelism={slicingParallelism}
-                                setParallelism={setSlicingParallelism}
-                                jig={model && model.slicing_jigs ? model.slicing_jigs:null}
-                                row={model && model.slicing_row ? model.slicing_row:null}
-                                layer={model && model.slicing_layer ? model.slicing_layer:null}
-                                edit={editBatch}
-                                points={model && model.slicing_points ? model.slicing_points:null}
-                                statusNow={processForm?.details["status"]}
-                                processing={slicingProcessing}
-                                slicing_om_specs={currentModel && currentModel.slicing_om_specs ?currentModel.slicing_om_specs:null}
-                                om_specs={data && data.process_number ? data.process_number:null}
-                                adjustmentDetails={adjustmentDetails}
-                                setAdjustmentDetails={setAdjustmentDetails}
-                                details={data}
-                                batch_number={slicingDetails["batch_number"] ?? null}
-                                id={slicingDetails["datalist_id"] ?? null}
-                                adjustmentReset={adjustmentReset}
-                                adjustmentSubmit={adjustmentSubmit}
-                                adjustment={adjustment}
-                            />
-                        :null
+                                    : statusCheck && modelState && processState && processState.process === 'slicing' && (processForm?.details["status"] === 'measuring' || processForm?.details["status"] === 'measured') ?
+                                        <SlicingMeasuring
+                                            data={slicingMassPro}
+                                            setdata={setSlicingMassPro}
+                                            perpenD={slicingPerpenD}
+                                            setPerpenD={setSlicingPerpenD}
+                                            handleKeyDown={handleKeyDown}
+                                            parallelism={slicingParallelism}
+                                            setParallelism={setSlicingParallelism}
+                                            jig={model && model.slicing_jigs ? model.slicing_jigs : null}
+                                            row={model && model.slicing_row ? model.slicing_row : null}
+                                            layer={model && model.slicing_layer ? model.slicing_layer : null}
+                                            edit={editBatch}
+                                            points={model && model.slicing_points ? model.slicing_points : null}
+                                            statusNow={processForm?.details["status"]}
+                                            processing={slicingProcessing}
+                                            slicing_om_specs={currentModel && currentModel.slicing_om_specs ? currentModel.slicing_om_specs : null}
+                                            om_specs={data && data.process_number ? data.process_number : null}
+                                            adjustmentDetails={adjustmentDetails}
+                                            setAdjustmentDetails={setAdjustmentDetails}
+                                            details={data}
+                                            batch_number={slicingDetails["batch_number"] ?? null}
+                                            id={slicingDetails["datalist_id"] ?? null}
+                                            adjustmentReset={adjustmentReset}
+                                            adjustmentSubmit={adjustmentSubmit}
+                                            adjustment={adjustment}
+                                        />
+                                        : null
                     }
 
                     {
                         statusCheck && modelState && processState && processState.process === 'barelling' && processForm?.details["status"] === 'approved' ?
                             <div className="container-column">
+                                <div className="container-row">
+                                    <button onClick={(e) => handleDownloadAll({barelling:barellingDetails, timer:timerDetails, magnet:magnetPoints , common:data , model:currentModel},'barelling')} className="view-button">Download</button>
+                                </div>
                                 <div className="inner-container-row">
                                     <BarellingDetails
                                         handleKeyDown={handleKeyDown}
@@ -1270,6 +1277,7 @@ export default function Measure() {
                                     />
                                 </div>
                                 <div>
+
                                     <h1>Point of Measurements</h1>
                                     <div className="point-main">
                                         {
@@ -1277,17 +1285,17 @@ export default function Measure() {
                                             (
                                                 <div className="point-measurement" >
                                                     <p>Chamfer Point A</p>
-                                                    <img className="point-picture" src={`/storage/${model.chamfer_point1_data}`}/>
+                                                    <img className="point-picture" src={`/storage/${model.chamfer_point1_data}`} />
                                                 </div>
                                             )
                                         }
 
-                                         {
+                                        {
                                             model && model.chamfer_point2_data &&
                                             (
                                                 <div className="point-measurement" >
                                                     <p>Chamfer Point B</p>
-                                                    <img className="point-picture" src={`/storage/${model.chamfer_point2_data}`}/>
+                                                    <img className="point-picture" src={`/storage/${model.chamfer_point2_data}`} />
                                                 </div>
                                             )
                                         }
@@ -1296,11 +1304,11 @@ export default function Measure() {
                                 <div>
                                     <h1>Measuring</h1>
                                 </div>
-                                 {
-                                    currentModel && currentModel.chamfer_points  &&  currentModel.chamfer_points === 2  ?
+                                {
+                                    currentModel && currentModel.chamfer_points && currentModel.chamfer_points === 2 ?
 
                                         <Chamfering pointIdentifier={2} goToNextInput={goToNextInput} setMagnetPoints={setMagnetPoints} magnetPoints={magnetPoints} model={currentModel} process={processState.process} chamfertype={barellingDetails.chamfertype ?? null} handleKeyDown={handleKeyDown} status={processForm.details["status"]} edit={editBatch} />
-                                    :
+                                        :
                                         <Chamfering goToNextInput={goToNextInput} setMagnetPoints={setMagnetPoints} magnetPoints={magnetPoints} model={currentModel} process={processState.process} chamfertype={barellingDetails.chamfertype ?? null} handleKeyDown={handleKeyDown} status={processForm.details["status"]} edit={editBatch} />
                                 }
                                 <MeasuringData goToNextInput={goToNextInput} setMagnetPoints={setMagnetPoints} magnetPoints={magnetPoints} model={currentModel} process={processState.process} status={processForm.details["status"]} edit={editBatch} />
@@ -1327,7 +1335,7 @@ export default function Measure() {
                                         histogram={histogram}
                                         handlePartUpdate={handlePartUpdate}
                                         perpenCghlThickness={perpenCghlThickness}
-                                        om_specs={data && data.process_number ? data.process_number:null}
+                                        om_specs={data && data.process_number ? data.process_number : null}
                                         adjustmentDetails={adjustmentDetails}
                                         setAdjustmentDetails={setAdjustmentDetails}
                                         details={data}
@@ -1338,76 +1346,76 @@ export default function Measure() {
                                         adjustment={adjustment}
                                     />
                                 </>
-                            : statusCheck && modelState && processState && processState.process === 'lapping' && processForm?.details["status"] === 'approved' ?
-                                <div>
-                                    <LappingDetails
-                                        lappingForm={lappingForm}
-                                        setLappingForm={setLappingForm}
-                                        handleKeyDown={handleKeyDown}
-                                        LappingProcessing={LappingProcessing}
-                                        edit={editBatch}
-                                    />
-                                    <LappingData  
-                                        currentModel={currentModel}
-                                        massProForm={massProForm}
-                                        setMassProForm={setMassProForm}
-                                        MassproProcessing={MassproProcessing}
-                                        edit={editBatch}
-                                        statusNow={processForm?.details["status"]}
-                                        hfpData={hfpData}
-                                        setHfpData={setHfpData}
-                                        process={processState.process??processState.process}
-                                        om_specs={data && data.process_number ? data.process_number:null}
-                                        adjustmentReset={adjustmentReset}
-                                        adjustmentSubmit={adjustmentSubmit}
-                                        adjustment={adjustment}
-                                        batch_number={lappingForm["batch_number"] ?? null}
-                                        id={lappingForm["datalist_id"] ?? null}
-                                        details={data}
-                                        adjustmentDetails={adjustmentDetails}
-                                        setAdjustmentDetails={setAdjustmentDetails}
-                                   
-                                        
-                                    />
-                                </div>
-                            :statusCheck &&  modelState && processState && processState.process === 'slicing' && processForm?.details["status"] === 'approved'  ?
-                                <div className="container-column">
-                                    <SlicingDetails 
-                                        setSlicingDetails={setSlicingDetails} 
-                                        slicingDetails={slicingDetails} 
-                                        handleKeyDown={handleKeyDown}
-                                        edit={editBatch}
-                                        statusNow={processForm?.details["status"]}
-                                        processing={slicingProcessing}
-                                    />
-                                    <SlicingMeasuring 
-                                        data={slicingMassPro} 
-                                        setdata={setSlicingMassPro}
-                                        perpenD={slicingPerpenD}
-                                        setPerpenD={setSlicingPerpenD}
-                                        handleKeyDown={handleKeyDown}
-                                        parallelism={slicingParallelism}
-                                        setParallelism={setSlicingParallelism}
-                                        jig={model && model.slicing_jigs ? model.slicing_jigs:null}
-                                        row={model && model.slicing_row ? model.slicing_row:null}
-                                        layer={model && model.slicing_layer ? model.slicing_layer:null}
-                                        edit={editBatch}
-                                        points={model && model.slicing_points ? model.slicing_points:null}
-                                        statusNow={processForm?.details["status"]}
-                                        processing={slicingProcessing}
-                                        slicing_om_specs={currentModel && currentModel.slicing_om_specs ?currentModel.slicing_om_specs:null}
-                                        om_specs={data && data.process_number ? data.process_number:null}
-                                        adjustmentDetails={adjustmentDetails}
-                                        setAdjustmentDetails={setAdjustmentDetails}
-                                        batch_number={slicingDetails["batch_number"] ?? null}
-                                        id={slicingDetails["datalist_id"] ?? null}
-                                        adjustmentReset={adjustmentReset}
-                                        adjustmentSubmit={adjustmentSubmit}
-                                        adjustment={adjustment}
-                                        details={data}
-                                    />
-                                </div>
-                            :null
+                                : statusCheck && modelState && processState && processState.process === 'lapping' && processForm?.details["status"] === 'approved' ?
+                                    <div>
+                                        <LappingDetails
+                                            lappingForm={lappingForm}
+                                            setLappingForm={setLappingForm}
+                                            handleKeyDown={handleKeyDown}
+                                            LappingProcessing={LappingProcessing}
+                                            edit={editBatch}
+                                        />
+                                        <LappingData
+                                            currentModel={currentModel}
+                                            massProForm={massProForm}
+                                            setMassProForm={setMassProForm}
+                                            MassproProcessing={MassproProcessing}
+                                            edit={editBatch}
+                                            statusNow={processForm?.details["status"]}
+                                            hfpData={hfpData}
+                                            setHfpData={setHfpData}
+                                            process={processState.process ?? processState.process}
+                                            om_specs={data && data.process_number ? data.process_number : null}
+                                            adjustmentReset={adjustmentReset}
+                                            adjustmentSubmit={adjustmentSubmit}
+                                            adjustment={adjustment}
+                                            batch_number={lappingForm["batch_number"] ?? null}
+                                            id={lappingForm["datalist_id"] ?? null}
+                                            details={data}
+                                            adjustmentDetails={adjustmentDetails}
+                                            setAdjustmentDetails={setAdjustmentDetails}
+
+
+                                        />
+                                    </div>
+                                    : statusCheck && modelState && processState && processState.process === 'slicing' && processForm?.details["status"] === 'approved' ?
+                                        <div className="container-column">
+                                            <SlicingDetails
+                                                setSlicingDetails={setSlicingDetails}
+                                                slicingDetails={slicingDetails}
+                                                handleKeyDown={handleKeyDown}
+                                                edit={editBatch}
+                                                statusNow={processForm?.details["status"]}
+                                                processing={slicingProcessing}
+                                            />
+                                            <SlicingMeasuring
+                                                data={slicingMassPro}
+                                                setdata={setSlicingMassPro}
+                                                perpenD={slicingPerpenD}
+                                                setPerpenD={setSlicingPerpenD}
+                                                handleKeyDown={handleKeyDown}
+                                                parallelism={slicingParallelism}
+                                                setParallelism={setSlicingParallelism}
+                                                jig={model && model.slicing_jigs ? model.slicing_jigs : null}
+                                                row={model && model.slicing_row ? model.slicing_row : null}
+                                                layer={model && model.slicing_layer ? model.slicing_layer : null}
+                                                edit={editBatch}
+                                                points={model && model.slicing_points ? model.slicing_points : null}
+                                                statusNow={processForm?.details["status"]}
+                                                processing={slicingProcessing}
+                                                slicing_om_specs={currentModel && currentModel.slicing_om_specs ? currentModel.slicing_om_specs : null}
+                                                om_specs={data && data.process_number ? data.process_number : null}
+                                                adjustmentDetails={adjustmentDetails}
+                                                setAdjustmentDetails={setAdjustmentDetails}
+                                                batch_number={slicingDetails["batch_number"] ?? null}
+                                                id={slicingDetails["datalist_id"] ?? null}
+                                                adjustmentReset={adjustmentReset}
+                                                adjustmentSubmit={adjustmentSubmit}
+                                                adjustment={adjustment}
+                                                details={data}
+                                            />
+                                        </div>
+                                        : null
                     }
 
 

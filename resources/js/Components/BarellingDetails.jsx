@@ -3,6 +3,7 @@ import { InfoIcon, AddBoxIcon, CrossIcon } from "../Icons/SVG"
 export default function BarellingDetails({ handleKeyDown, barellingDetails, setBarellingDetails, setTimerDetails, timerDetails, handleAutoSave, barellProcessing, chamfertype, edit }) {
     const firstPart = ['Total Batch/Lot', 'Total Qty/Lot', 'Total Wt./Lot', 'Media Size']
     const timeRotation = [1, 2, 3];
+      const [tableOption, setTableOption] = useState('masspro');
     console.log('BARELLLIINNG PAGEE', barellingDetails, timerDetails,);
 
     const [addButton, setAddButton] = useState(null);
@@ -10,7 +11,7 @@ export default function BarellingDetails({ handleKeyDown, barellingDetails, setB
     const toDisabled = ['prepared', 'measured', 'approved']
     useEffect(() => {
         const status = barellingDetails.status
-        const allowed = toDisabled.includes(status) ? true : false
+        const allowed = toDisabled.includes(status) ? true : false;
         setCurrentStatus(allowed);
 
     }, [barellingDetails]);
