@@ -396,9 +396,9 @@ export default function CghMeasuring({ cghlDetails, cghlPoint, setCghlPoint, cur
     return (
         <div>
             <div className="container-row">
-                            <button onClick={() => setTableOption('masspro')} className="view-button" >Masspro</button>
-                            <button onClick={() => setTableOption('adjust')} className="view-button" >Adjust</button>
-                        </div>
+                <button onClick={() => setTableOption('masspro')} className="view-button" >Masspro</button>
+                <button onClick={() => setTableOption('adjust')} className="view-button" >Adjust</button>
+            </div>
             {
                 tableOption === 'masspro' ?
                     <div>

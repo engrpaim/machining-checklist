@@ -7,6 +7,7 @@ export default function Chamfering({ goToNextInput, setMagnetPoints, magnetPoint
         'C - Chamfer': 1.414,
         'REF. VAL.': 0.207
     }
+
     const specsBank = {
         barelling: {
             chamfer1: {
@@ -17,12 +18,13 @@ export default function Chamfering({ goToNextInput, setMagnetPoints, magnetPoint
             }
         },
     };
+
     const chamferValues = magnetPoints.chamfer
     console.log('CHAMFER VALUE: ', specsBank);
     const judegment = { }
     const pointsJudgement = { chamfer1:{},chamfer2:{}}
     points.map((count)=>{
-         number.map((items) => {
+        number.map((items) => {
             const magnet = magnetPoints['chamfer'+count]['m' + items] !== 0 ? Number(((chamferValue['REF. VAL.'] - magnetPoints['chamfer'+count]['m' + items]) * chamferValue[chamfertype]).toFixed(3)) : 0
             console.log('Minimummm' ,process, specsBank[process]["chamfer"+count].min);
             const lowerReject =Number(Number(specsBank[process]["chamfer"+count].min) + 0.001)
@@ -40,14 +42,12 @@ export default function Chamfering({ goToNextInput, setMagnetPoints, magnetPoint
         <div className="details-container-white">
             <div>
                 <h1>Chamfering</h1>
-
-                               <p>
-                                <strong style={{ fontWeight:'Bold' }}>Point A:</strong>  Minimum:&nbsp;{Number(specsBank[process]["chamfer1"].min).toFixed(3)}&nbsp;Target:&nbsp;{ Number(specsBank[process]["chamfer1"].target).toFixed(3)}&nbsp;Maximum:&nbsp;{Number(specsBank[process]["chamfer1"].max).toFixed(3) }
-                                {pointIdentifier === 2 ? <><br/>  <strong style={{ fontWeight:'Bold' }}>Point B:</strong> Minimum:&nbsp;{Number(specsBank[process]["chamfer2"].min).toFixed(3)}&nbsp;Target:&nbsp;{ Number(specsBank[process]["chamfer2"].target).toFixed(3)}&nbsp;Maximum:&nbsp;{Number(specsBank[process]["chamfer2"].max).toFixed(3) }</>:null}&nbsp;&nbsp;
-                                <br/>
-                                <strong style={{ fontWeight:'Bold' }}>Chamfer Type:</strong>&nbsp;{chamfertype}
-                               </p>
-
+                <p>
+                    <strong style={{ fontWeight:'Bold' }}>Point A:</strong>  Minimum:&nbsp;{Number(specsBank[process]["chamfer1"].min).toFixed(3)}&nbsp;Target:&nbsp;{ Number(specsBank[process]["chamfer1"].target).toFixed(3)}&nbsp;Maximum:&nbsp;{Number(specsBank[process]["chamfer1"].max).toFixed(3) }
+                    {pointIdentifier === 2 ? <><br/>  <strong style={{ fontWeight:'Bold' }}>Point B:</strong> Minimum:&nbsp;{Number(specsBank[process]["chamfer2"].min).toFixed(3)}&nbsp;Target:&nbsp;{ Number(specsBank[process]["chamfer2"].target).toFixed(3)}&nbsp;Maximum:&nbsp;{Number(specsBank[process]["chamfer2"].max).toFixed(3) }</>:null}&nbsp;&nbsp;
+                    <br/>
+                    <strong style={{ fontWeight:'Bold' }}>Chamfer Type:</strong>&nbsp;{chamfertype}
+                </p>
             </div>
             <div>
                 <table className="measuring-table" >

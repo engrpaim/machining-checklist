@@ -88,10 +88,10 @@ const barellingJudgement =(barelling_data,model)=>{
                             [key]: { 
                                         min: min, 
                                         max: max, 
-                                        worst: Number((worstValue).toFixed(3)), 
-                                        max_diff: Number((subMax).toFixed(3)), 
-                                        min_diff: Number((subMin).toFixed(3)), 
-                                        average: Number((reultAverage).toFixed(3)) 
+                                        worst:worstValue, 
+                                        max_diff:subMax >0 ? Number((subMax).toFixed(3)):subMax, 
+                                        min_diff:subMin >0? Number((subMin).toFixed(3)):subMin, 
+                                        average: reultAverage >0 ? Number((reultAverage).toFixed(3)) :reultAverage
                                     }
                         } 
         })
@@ -102,17 +102,32 @@ const barellingJudgement =(barelling_data,model)=>{
 const judgementResult = (value ,max, min )=>{
     const minData = min ? Number(min):0;
     const maxData = max ? Number(max):0;
-    const judgement =    value < minData || value > maxData ?  'Reject'
+    const judgement =   value < minData || value > maxData ?  'Reject'
                         :value <= maxData &&  value >= maxData - 0.01  || value >= minData &&  value <= minData + 0.01  ?  'Adjust'
                         :'Good'
         console.log('judgenment average: ' , value , minData ,maxData , judgement);
     return judgement;
 
 }
+const chamferValueComputed =(type ,value , details , number)=>{
+    const cahmferType = type ?? 0;
+    const dataValue = value ?Number(value) :0;
+    const chamfermax = details['chamfer_barelling_max' + number === '2'? number:null];
+    const chamfermin = details['chamfer_barelling_min' + number === '2'? number:null];
+    const chamferResult = (cahmferType - dataValue) * cahmferType
+    console.log('Result chamfer: ',chamferResult,dataValue , details);
+
+    if(dataValue <= 0) return '?';
+    if(chamferResult > chamfermin  ||  chamferResult > chamfermax  ) return 'REJECT'
+    if(chamferResult >= chamfermin + 0.001 &&  chamferResult <= chamfermax - + 0.001  ) return 'GOOD'
+    return 'ADJUST'
+}
+
 const checkFormat = (data, process) => {
-    console.log('checekk', process, data);
+    console.log('checekk:', process, data);
     switch (process) {
         case 'barelling':
+            
             const time1 = (data['timer'].timer_1 ? Number(data['timer'].timer_1) : 0) + (data['timer'].addition_timer_1 ? Number(data['timer'].addition_timer_1) : 0);
             const time2 = (data['timer'].timer_2 ? Number(data['timer'].timer_2) : 0) + (data['timer'].addition_timer_2 ? Number(data['timer'].addition_timer_2) : 0);
             const time3 = (data['timer'].timer_3 ? Number(data['timer'].timer_3) : 0) + (data['timer'].addition_timer_3 ? Number(data['timer'].addition_timer_3) : 0);
@@ -122,13 +137,22 @@ const checkFormat = (data, process) => {
             const rotation_3 = data['timer'].rotation_3 ? Number(data['timer'].rotation_3) : 0 + data['timer'].addition_rotation_3 ? Number(data['timer'].addition_rotation_3) : 0;
 
             const machine = data['magnet']['chamfer1']['machine'] ? data['magnet']['chamfer1']['machine'] : data['magnet']['chamfer2']['machine'] ? data['magnet']['chamfer2']['machine'] : 'Not Found'
-            const chamfer1 = data['magnet']['chamfer1'] ? ['Point A:', data['magnet']['chamfer1']['m1'], data['magnet']['chamfer1']['m2'], data['magnet']['chamfer1']['m3'], data['magnet']['chamfer1']['m4'], data['magnet']['chamfer1']['m5']] : null
-            const chamfer2 = data['magnet']['chamfer2'] ? ['Point B:', data['magnet']['chamfer2']['m1'], data['magnet']['chamfer2']['m2'], data['magnet']['chamfer2']['m3'], data['magnet']['chamfer2']['m4'], data['magnet']['chamfer2']['m5']] : null
+            const chamferValue = {
+                                        'R- CHAMFER': 2.415,
+                                        'C - Chamfer': 1.414,
+                                        'REF. VAL.': 0.207
+                                    }
+            
+            const chamferType = data["model"]["chamfer_type"];
+            
+            const chamferResult = chamferValue[chamferType];
+            const chamfer1 = data['magnet']['chamfer1'] ? ['Point A:', data['magnet']['chamfer1']['m1'], data['magnet']['chamfer1']['m2'], data['magnet']['chamfer1']['m3'], data['magnet']['chamfer1']['m4'], data['magnet']['chamfer1']['m5'],chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m1'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m2'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m3'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m4'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m5'],data["model"],'1')] : null
+            const chamfer2 = data['magnet']['chamfer2'] ? ['Point B:', data['magnet']['chamfer2']['m1'], data['magnet']['chamfer2']['m2'], data['magnet']['chamfer2']['m3'], data['magnet']['chamfer2']['m4'], data['magnet']['chamfer2']['m5'],chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m1'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m2'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m3'],data["model"],'2'),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m4'],data["model"],'2'),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m5'],data["model"],'2')] : null
             
             const barellingResult = barellingJudgement(data['magnet'],data['model']);
-
-            
+           
             console.log('Computation Barelling Result: ' ,barellingResult);
+            
             return [
                 ['Model:', data['model']['model']],
                 [''],
@@ -149,17 +173,17 @@ const checkFormat = (data, process) => {
                 ['Chamfering'],
                 [''],
                 ['Machine:', machine],
-                ['Point', 'Magnet 1', 'Magnet 2', 'Magnet 3', 'Magnet 4', 'Magnet 5'],
+                ['Point', 'Magnet 1', 'Magnet 2', 'Magnet 3', 'Magnet 4', 'Magnet 5','Magnet 1', 'Magnet 2', 'Magnet 3', 'Magnet 4', 'Magnet 5'],
                 chamfer1, chamfer2,
                 [''],
-                ['Barelling Thickness' ,'Minimum:' +  data['model']['barelling_min'], 'Target:'+ data['model']['barelling_target'] , 'Maximum:' + data['model']['barelling_max']],
+                ['Barelling Thickness' ,'Minimum:' +  data['model']['barelling_min'], 'Target:'+ data['model']['barelling_target'] ?? '?', , 'Maximum:' + data['model']['barelling_max']],
                 ['Actual Dimension'],
                 ['No', 'Pt .1', 'Pt .2', 'Pt .3', 'Pt .4', 'Pt .5','Worst' ,'Maximum', 'Minimum' , 'Target' , ' Max Diff' ,'Min Diff' ,'Average' , 'Judegement'],
-                ['1', data['magnet']['magnet_1']['p1'], data['magnet']['magnet_1']['p2'], data['magnet']['magnet_1']['p3'], data['magnet']['magnet_1']['p4'], data['magnet']['magnet_1']['p5'], barellingResult['magnet_1']['worst'], barellingResult['magnet_1']['max'], barellingResult['magnet_1']['min'], data['model']['barelling_target'], barellingResult['magnet_1']['max_diff'], barellingResult['magnet_1']['min_diff'], barellingResult['magnet_1']['average'], judgementResult(barellingResult['magnet_1']['average'],data['model']['barelling_max'],data['model']['barelling_min'])],
-                ['2', data['magnet']['magnet_2']['p1'], data['magnet']['magnet_2']['p2'], data['magnet']['magnet_2']['p3'], data['magnet']['magnet_2']['p4'], data['magnet']['magnet_2']['p5'], barellingResult['magnet_2']['worst'], barellingResult['magnet_2']['max'], barellingResult['magnet_2']['min'], data['model']['barelling_target'], barellingResult['magnet_2']['max_diff'], barellingResult['magnet_2']['min_diff'], barellingResult['magnet_2']['average'], judgementResult(barellingResult['magnet_2']['average'],data['model']['barelling_max'],data['model']['barelling_min'])],
-                ['3', data['magnet']['magnet_3']['p1'], data['magnet']['magnet_3']['p2'], data['magnet']['magnet_3']['p3'], data['magnet']['magnet_3']['p4'], data['magnet']['magnet_3']['p5'], barellingResult['magnet_3']['worst'], barellingResult['magnet_3']['max'], barellingResult['magnet_3']['min'], data['model']['barelling_target'], barellingResult['magnet_3']['max_diff'], barellingResult['magnet_3']['min_diff'], barellingResult['magnet_3']['average'], judgementResult(barellingResult['magnet_3']['average'],data['model']['barelling_max'],data['model']['barelling_min'])],
-                ['4', data['magnet']['magnet_4']['p1'], data['magnet']['magnet_4']['p2'], data['magnet']['magnet_4']['p3'], data['magnet']['magnet_4']['p4'], data['magnet']['magnet_4']['p5'], barellingResult['magnet_4']['worst'], barellingResult['magnet_4']['max'], barellingResult['magnet_4']['min'], data['model']['barelling_target'], barellingResult['magnet_4']['max_diff'], barellingResult['magnet_4']['min_diff'], barellingResult['magnet_4']['average'], judgementResult(barellingResult['magnet_4']['average'],data['model']['barelling_max'],data['model']['barelling_min'])],
-                ['5', data['magnet']['magnet_5']['p1'], data['magnet']['magnet_5']['p2'], data['magnet']['magnet_5']['p3'], data['magnet']['magnet_5']['p4'], data['magnet']['magnet_5']['p5'], barellingResult['magnet_5']['worst'], barellingResult['magnet_5']['max'], barellingResult['magnet_5']['min'], data['model']['barelling_target'], barellingResult['magnet_5']['max_diff'], barellingResult['magnet_5']['min_diff'], barellingResult['magnet_5']['average'], judgementResult(barellingResult['magnet_5']['average'],data['model']['barelling_max'],data['model']['barelling_min'])]
+                ['1', data['magnet']['magnet_1']['p1'] ?? 0, data['magnet']['magnet_1']['p2'] ?? 0, data['magnet']['magnet_1']['p3'] ?? 0, data['magnet']['magnet_1']['p4'] ?? 0, data['magnet']['magnet_1']['p5'] ?? 0, barellingResult['magnet_1']['worst'] ?? '?', barellingResult['magnet_1']['max'] ?? '?', barellingResult['magnet_1']['min'] ?? '?', data['model']['barelling_target'] ?? '?', barellingResult['magnet_1']['max_diff'] ?? '?', barellingResult['magnet_1']['min_diff']?? '?', barellingResult['magnet_1']['average'], judgementResult(barellingResult['magnet_1']['average'],data['model']['barelling_max'],data['model']['barelling_min'])],
+                ['2', data['magnet']['magnet_2']['p1'] ?? 0, data['magnet']['magnet_2']['p2'] ?? 0, data['magnet']['magnet_2']['p3'] ?? 0, data['magnet']['magnet_2']['p4'] ?? 0, data['magnet']['magnet_2']['p5'] ?? 0, barellingResult['magnet_2']['worst'] ?? '?', barellingResult['magnet_2']['max'] ?? '?', barellingResult['magnet_2']['min'] ?? '?', data['model']['barelling_target'] ?? '?', barellingResult['magnet_2']['max_diff'] ?? '?', barellingResult['magnet_2']['min_diff']?? '?', barellingResult['magnet_2']['average'], judgementResult(barellingResult['magnet_2']['average'],data['model']['barelling_max'],data['model']['barelling_min'])],
+                ['3', data['magnet']['magnet_3']['p1'] ?? 0, data['magnet']['magnet_3']['p2'] ?? 0, data['magnet']['magnet_3']['p3'] ?? 0, data['magnet']['magnet_3']['p4'] ?? 0, data['magnet']['magnet_3']['p5'] ?? 0, barellingResult['magnet_3']['worst'] ?? '?', barellingResult['magnet_3']['max'] ?? '?', barellingResult['magnet_3']['min'] ?? '?', data['model']['barelling_target'] ?? '?', barellingResult['magnet_3']['max_diff'] ?? '?', barellingResult['magnet_3']['min_diff']?? '?', barellingResult['magnet_3']['average'], judgementResult(barellingResult['magnet_3']['average'],data['model']['barelling_max'],data['model']['barelling_min'])],
+                ['4', data['magnet']['magnet_4']['p1'] ?? 0, data['magnet']['magnet_4']['p2'] ?? 0, data['magnet']['magnet_4']['p3'] ?? 0, data['magnet']['magnet_4']['p4'] ?? 0, data['magnet']['magnet_4']['p5'] ?? 0, barellingResult['magnet_4']['worst'] ?? '?', barellingResult['magnet_4']['max'] ?? '?', barellingResult['magnet_4']['min'] ?? '?', data['model']['barelling_target'] ?? '?', barellingResult['magnet_4']['max_diff'] ?? '?', barellingResult['magnet_4']['min_diff']?? '?', barellingResult['magnet_4']['average'], judgementResult(barellingResult['magnet_4']['average'],data['model']['barelling_max'],data['model']['barelling_min'])],
+                ['5', data['magnet']['magnet_5']['p1'] ?? 0, data['magnet']['magnet_5']['p2'] ?? 0, data['magnet']['magnet_5']['p3'] ?? 0, data['magnet']['magnet_5']['p4'] ?? 0, data['magnet']['magnet_5']['p5'] ?? 0, barellingResult['magnet_5']['worst'] ?? '?', barellingResult['magnet_5']['max'] ?? '?', barellingResult['magnet_5']['min'] ?? '?', data['model']['barelling_target'] ?? '?', barellingResult['magnet_5']['max_diff'] ?? '?', barellingResult['magnet_5']['min_diff']?? '?', barellingResult['magnet_5']['average'], judgementResult(barellingResult['magnet_5']['average'],data['model']['barelling_max'],data['model']['barelling_min'])]
             ]
             break;
         default:
@@ -197,7 +221,7 @@ const bankCells = (process) => {
                     end: 22
                 },
                 {
-                    cell: ['A', 'B', 'C', 'D', 'E', 'F'],
+                    cell: ['A', 'B', 'C', 'D', 'E', 'F','G' , 'H','I', 'J','K'],
                     start: 19,
                     end: 20
                 },
@@ -225,7 +249,6 @@ const handleDownloadAll = async (data, process) => {
 
     const dataSave = checkFormat(data, process);
     if (dataSave.length <= 0) return;
-
 
 
     const colorCell = bankCells(process);
@@ -275,11 +298,6 @@ const handleDownloadAll = async (data, process) => {
     allCells.forEach((coordinate) => {
         console.log('Coordinate: ', coordinate);
         const cell = worksheet.getCell(coordinate);
-        // cell.fill = {
-        //     type:'pattern',
-        //     pattern:'solid',
-        //     fgColor: { argb: 'ffe599' } 
-        // }
         cell.font = {
             bold: true
         };
