@@ -110,17 +110,19 @@ const judgementResult = (value ,max, min )=>{
 
 }
 const chamferValueComputed =(type ,value , details , number)=>{
+    console.log('CHAMFER PROCESSING:',type , value,details,number);
     const cahmferType = type ?? 0;
     const dataValue = value ?Number(value) :0;
-    const chamfermax = details['chamfer_barelling_max' + number === '2'? number:null];
-    const chamfermin = details['chamfer_barelling_min' + number === '2'? number:null];
-    const chamferResult = (cahmferType - dataValue) * cahmferType
-    console.log('Result chamfer: ',chamferResult,dataValue , details);
+    const suffix =  number === '2'? number:'';
+    const chamfermax = Number(details['chamfer_barelling_max' + suffix]);
+    const chamfermin = Number(details['chamfer_barelling_min' + suffix]) + 0.001;
+    const chamferResult = (cahmferType - dataValue) * cahmferType;
+    console.log('Result chamfer: ',chamferResult,chamfermin,dataValue , details , number);
 
-    if(dataValue <= 0) return '?';
-    if(chamferResult > chamfermin  ||  chamferResult > chamfermax  ) return 'REJECT'
-    if(chamferResult >= chamfermin + 0.001 &&  chamferResult <= chamfermax - + 0.001  ) return 'GOOD'
-    return 'ADJUST'
+    if(chamferResult === 0) return '?';
+    if(chamferResult < chamfermin ) return 'ADJUST';
+    if(chamferResult > chamfermax  ) return 'REJECT';
+    return 'GOOD';
 }
 
 const checkFormat = (data, process) => {
