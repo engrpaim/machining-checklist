@@ -1,5 +1,5 @@
 export default function Chamfering({ goToNextInput, setMagnetPoints, magnetPoints, model, process, chamfertype, handleKeyDown, status, edit ,pointIdentifier = 1}) {
-
+    console.log('CHAMFERING: ' , magnetPoints );
     const number = [1, 2, 3, 4, 5]
     const points = [1 ,2]
     const chamferValue = {
@@ -26,12 +26,12 @@ export default function Chamfering({ goToNextInput, setMagnetPoints, magnetPoint
     points.map((count)=>{
         number.map((items) => {
             const magnet = magnetPoints['chamfer'+count]['m' + items] !== 0 ? Number(((chamferValue['REF. VAL.'] - magnetPoints['chamfer'+count]['m' + items]) * chamferValue[chamfertype]).toFixed(3)) : 0
-            console.log('Minimummm' ,process, specsBank[process]["chamfer"+count].min);
+            console.log('Minimummm' ,process, specsBank[process]["chamfer"+count].min ,  chamferValue[chamfertype]);
             const lowerReject =Number(Number(specsBank[process]["chamfer"+count].min) + 0.001)
-            console.log('Lower Reject: '  ,magnet,lowerReject);
+            console.log('Lower Reject: '  ,magnet,'Detqails: ',  magnetPoints['chamfer'+count]['m' + items] , chamferValue['REF. VAL.'] , chamferValue[chamfertype]);
             if (magnet === 0) return judegment[count +'m' + items] = { judegment: null, value: magnet, theme: null };
             if (magnet < lowerReject) return judegment[count+'m' + items] = { judegment: 'adjust', value: magnet, theme: 'adjust-theme' };
-            if ( magnet > specsBank[process]["chamfer"+count].max ) return judegment[count+'m' + items] = { judegment: 'reject', value: magnet, theme: 'error-theme' };
+            if ( magnet > specsBank[process]["chamfer" + count].max ) return judegment[count + 'm' + items] = { judegment: 'reject', value: magnet, theme: 'error-theme' };
             return judegment[count +'m' + items] = { judegment: 'good', value: magnet, theme: 'success-theme' };
         })
     })

@@ -109,20 +109,21 @@ const judgementResult = (value ,max, min )=>{
     return judgement;
 
 }
-const chamferValueComputed =(type ,value , details , number)=>{
+const chamferValueComputed =(type ,value , details , number , refval)=>{
     console.log('CHAMFER PROCESSING:',type , value,details,number);
     const cahmferType = type ?? 0;
-    const dataValue = value ?Number(value) :0;
+    const dataValue = value ?value :0;
+    const refValue = refval ?? 0;
     const suffix =  number === '2'? number:'';
     const chamfermax = Number(details['chamfer_barelling_max' + suffix]);
     const chamfermin = Number(details['chamfer_barelling_min' + suffix]) + 0.001;
-    const chamferResult = (cahmferType - dataValue) * cahmferType;
-    console.log('Result chamfer: ',chamferResult,chamfermin,dataValue , details , number);
+    const chamferResult = (refValue - dataValue) * cahmferType;
+    console.log('Result chamfer: ', dataValue , cahmferType,chamferResult,chamfermin , chamfermax , details , number);
 
     if(chamferResult === 0) return '?';
-    if(chamferResult < chamfermin ) return 'ADJUST';
-    if(chamferResult > chamfermax  ) return 'REJECT';
-    return 'GOOD';
+    if(chamferResult < chamfermin ) return `(${chamferResult.toFixed(3)}) ADJUST`;
+    if(chamferResult > chamfermax  ) return `(${chamferResult.toFixed(3)}) REJECT`;
+    return `(${chamferResult.toFixed(3)}) GOOD`;
 }
 
 const checkFormat = (data, process) => {
@@ -148,8 +149,8 @@ const checkFormat = (data, process) => {
             const chamferType = data["model"]["chamfer_type"];
             
             const chamferResult = chamferValue[chamferType];
-            const chamfer1 = data['magnet']['chamfer1'] ? ['Point A:', data['magnet']['chamfer1']['m1'], data['magnet']['chamfer1']['m2'], data['magnet']['chamfer1']['m3'], data['magnet']['chamfer1']['m4'], data['magnet']['chamfer1']['m5'],chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m1'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m2'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m3'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m4'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m5'],data["model"],'1')] : null
-            const chamfer2 = data['magnet']['chamfer2'] ? ['Point B:', data['magnet']['chamfer2']['m1'], data['magnet']['chamfer2']['m2'], data['magnet']['chamfer2']['m3'], data['magnet']['chamfer2']['m4'], data['magnet']['chamfer2']['m5'],chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m1'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m2'],data["model"],'1'),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m3'],data["model"],'2'),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m4'],data["model"],'2'),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m5'],data["model"],'2')] : null
+            const chamfer1 = data['magnet']['chamfer1'] ? ['Point A:', data['magnet']['chamfer1']['m1'], data['magnet']['chamfer1']['m2'], data['magnet']['chamfer1']['m3'], data['magnet']['chamfer1']['m4'], data['magnet']['chamfer1']['m5'],chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m1'],data["model"],'1' , chamferValue['REF. VAL.']),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m2'],data["model"],'1' , chamferValue['REF. VAL.']),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m3'],data["model"],'1' , chamferValue['REF. VAL.']),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m4'],data["model"],'1' , chamferValue['REF. VAL.']),chamferValueComputed(chamferResult, data['magnet']['chamfer1']['m5'],data["model"],'1' , chamferValue['REF. VAL.'])] : null
+            const chamfer2 = data['magnet']['chamfer2'] ? ['Point B:', data['magnet']['chamfer2']['m1'], data['magnet']['chamfer2']['m2'], data['magnet']['chamfer2']['m3'], data['magnet']['chamfer2']['m4'], data['magnet']['chamfer2']['m5'],chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m1'],data["model"],'2' , chamferValue['REF. VAL.']),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m2'],data["model"],'2' , chamferValue['REF. VAL.']),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m3'],data["model"],'2' , chamferValue['REF. VAL.']),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m4'],data["model"],'2' , chamferValue['REF. VAL.']),chamferValueComputed(chamferResult, data['magnet']['chamfer2']['m5'],data["model"],'2' , chamferValue['REF. VAL.'])] : null
             
             const barellingResult = barellingJudgement(data['magnet'],data['model']);
            
